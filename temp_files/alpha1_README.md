@@ -141,28 +141,29 @@ completed, and connect with other students along the way!
 
 ### Backend
 
-- [![Django][django-shield]][django-url]
-- [![Python][python-shield]][python-url]
+[![Django][django-shield]][django-url]
+[![Python][python-shield]][python-url]
 
 ### Database: TBD
 
+<!--
+Uncomment whichever database we end up using!
 
-<!--Uncomment whichever database we end up using!-->
-<!--[![SQLite][sqlite-shield]][sqlite-url]-->
-<!--[![PostgreSQL][postgresql-shield]][postgresql-url]-->
-
+[![SQLite][sqlite-shield]][sqlite-url]
+[![PostgreSQL][postgresql-shield]][postgresql-url]
+-->
 
 ### Frontend: TBD
 
 ### API Integrations
 
+<!--
+Uncomment as integrations are implemented!
 
-<!--Uncomment as integrations are implemented!-->
-
-- [![Canvas][canvas-shield]][canvas-url]
-- [![Google Maps][maps-shield]][maps-url]
-- [![Slack][slack-shield]][slack-url]
-
+[![Canvas][canvas-shield]][canvas-url]
+[![Google Maps][maps-shield]][maps-url]
+[![Slack][slack-shield]][slack-url]
+-->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -235,13 +236,20 @@ Security will be integrated throughout the development workflow using:
 
 <!-- TEAM -->
 
-## MEET THE TEAM ♪┏(・o･)┛♪!
+## MEET THE TEAM!
 
-| [![Priscilla Diame](https://github.com/PRISCILLA_USERNAME.png?size=150)](https://github.com/PRISCILLA_USERNAME) | [![Kamil Reyes](https://github.com/DUMTao.png?size=300)](https://github.com/DUMTao) | [![Alex Graetz](https://github.com/alexkg913.png?size=50)](https://github.com/alexkg913) | [![Emma Kilcoyne](https://github.com/emmarkilcoyne.png?size=220)](https://github.com/emmarkilcoyne) |
-| :---: |:-----------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------:|
-| **[Priscilla Diame](https://github.com/PRISCILLA_USERNAME)** |                    **[Kamil Reyes](https://github.com/DUMTao)**                     |                     **[Alex Graetz](https://github.com/alexkg913)**                      |                        **[Emma Kilcoyne](https://github.com/emmarkilcoyne)**                        |
+<div align="center">
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+| Members!        |
+| :-------------- |
+| Priscilla Diame |
+| Kamil Reyes     |
+| Alex Graetz     |
+| Emma Kilcoyne   |
+
+**CSC3400 — Software Engineering**
+
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
