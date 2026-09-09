@@ -237,7 +237,7 @@ Security will be integrated throughout the development workflow using:
 
 ## MEET THE TEAM ♪┏(・o･)┛♪!
 
-| [![Priscilla Diame](https://github.com/PRISCILLA_USERNAME.png?size=150)](https://github.com/PRISCILLA_USERNAME) | [![Kamil Reyes](https://github.com/DUMTao.png?size=300)](https://github.com/DUMTao) | [![Alex Graetz](https://github.com/alexkg913.png?size=50)](https://github.com/alexkg913) | [![Emma Kilcoyne](https://github.com/emmarkilcoyne.png?size=220)](https://github.com/emmarkilcoyne) |
+| [![Priscilla Diame](https://github.com/PRISCILLA_USERNAME.png?size=150)](https://github.com/PRISCILLA_USERNAME) | [![Kamil Reyes](https://github.com/DUMTao.png?size=200)](https://github.com/DUMTao) | [![Alex Graetz](https://github.com/alexkg913.png?size=200)](https://github.com/alexkg913) | [![Emma Kilcoyne](https://github.com/emmarkilcoyne.png?size=200)](https://github.com/emmarkilcoyne) |
 | :---: |:-----------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------:|
 | **[Priscilla Diame](https://github.com/PRISCILLA_USERNAME)** |                    **[Kamil Reyes](https://github.com/DUMTao)**                     |                     **[Alex Graetz](https://github.com/alexkg913)**                      |                        **[Emma Kilcoyne](https://github.com/emmarkilcoyne)**                        |
 
