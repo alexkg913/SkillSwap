@@ -1,0 +1,105 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Sign In | Skill Swap</title>
+        <link rel="stylesheet" href="{% static 'login.css' %}">
+    </head>
+    <body>
+        <main class="login-page">
+
+            <!-- The logo will remain as the dog until otherwise -->
+            <div class="project">
+                <div class="project-logo">
+                    <!-- Come back to this, logo -->
+                </div>
+
+                <span>SKILL SWAP</span>
+            </div>
+
+            <!-- Login Page -->
+            <section class="login-general">
+                <h1>Sign in to Skill Swap</h1>
+                <form method="POST">
+
+                    <!-- User_Email -->
+                    <div class="form-group">
+                        <label for="email">
+                            EMAIL
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <!-- User_Password -->
+                    <div class="form-group">
+                        <label for="password">
+                            PASSWORD
+                        </label>
+
+                        <div class="password-input">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                aria-label="Show password"
+                            >
+                                👁️
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- Forgot Password -->
+                    <div class="forgot-password">
+                        <a href="{% url 'user_forgot_pwd' %}">
+                            Forgot Password?
+                        </a>
+                    </div>
+
+                    <!-- DO THIS LATER: CLOUDFLARE CAPCHA CHECK
+                    <div class="captcha">
+                        Are you a bot?
+                    </div>
+                    -->
+
+                    <!-- Login -->
+                    <button
+                        type="submit"
+                        class="login-button"
+                    >
+                        SIGN IN
+                    </button>
+                </form>
+
+                <!-- Register User -->
+                <div class="register">
+                    <span>
+                        New to Skill Swap?
+                    </span>
+
+                    <a href="{% url 'user_register' %}">
+                        Create an account -->
+                    </a>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>
