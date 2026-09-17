@@ -1,1 +1,39 @@
-test
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Register | Skill Swap</title>
+        <link rel="stylesheet" href="{% static 'auth.css' %}">
+    </head>
+    <body>
+        <main class="register-page">
+
+            <!-- The logo will remain as the dog until otherwise -->
+            <div class="project">
+                <div class="project-logo">
+                    <!-- Come back to this, logo -->
+                </div>
+
+                <span>SKILL SWAP</span>
+            </div>
+
+            <!-- Register Page -->
+            <section class="register">
+                <h1>Register to Skill Swap</h1>
+                <form method="POST">
+
+                    <!-- User Email -->
+                    <div class="form-group">
+                        <label for="email">
+                            EMAIL
+                        </label>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </body>
+</html>
