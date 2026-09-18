@@ -47,8 +47,18 @@
                     >
                         SIGN UP
                     </button>
-
                 </form>
+
+                <!-- If the user already has an account, reroute -->
+                <div class="register">
+                    <span>
+                        Already have a SkillSwap account?
+                    </span>
+
+                    <a href="{% url 'login' %}">
+                        Sign in -->
+                    </a>
+                </div>
             </section>
         </main>
     </body>
