@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap</title>
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+</head>
+<body>
+
+    <div class="page">
+
+        <header>
+
+            <h1>
+                <strong>SkillSwap</strong>
+            </h1>
+
+            <section class="log-in">
+                <button class="sign-in">Sign In</button>
+                <button class="register">Register</button>
+            </section>
+
+
+        </header>
+
+        <nav>
+            <a href="#">Find a Tutor</a>
+            <a href="#">Be a Tutor</a>
+            <a href="#">Create a Tutoring Event</a>
+            <a href="#">Messages</a>
+            <a href="#">Profile</a>
+        </nav>
+
+            <main>
+                <form class="search-bar" label="search">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit">Search</button>
+                </form>
+
+
+                <div class="map-and-listings">
+
+
+                    <section class="map">
+                        <p>Pretend there is a map here.</p>
+
+                    </section>
+
+                    <section class="results">
+                        <div class="result">
+                            <p>Pretend this is a listing.</p>
+                        </div>
+                        <div class="result">
+                            <p>Pretend this is another listing.</p>
+                        </div>
+                    </section>
+                    
+                </div>
+            </main>
+
+        </div>
+
+        <footer>
+                <div class="footer-content">
+                    <p>&copy SkillSwap 2026</p>
+                </div>
+        </footer>
+
+</body>
+</html>
