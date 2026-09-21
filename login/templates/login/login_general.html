@@ -23,8 +23,22 @@
 
             <!-- Login Page -->
             <section class="login-general">
+                {% if request.user.is_authenticated %}
+                <h1>You're signed in</h1>
+                <p>Signed in as {{ request.user.email }}.</p>
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="login-button">
+                        Sign out and use another account
+                    </button>
+                </form>
+                {% else %}
                 <h1>Sign in to Skill Swap</h1>
-                <form method="POST">
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                    <p role="alert">Unable to sign in. Check your email and password.</p>
+                    {% endif %}
 
                     <!-- User_Email -->
                     <div class="form-group">
@@ -36,6 +50,7 @@
                             type="email"
                             id="email"
                             name="email"
+                            value="{{ form.username.value|default_if_none:'' }}"
                             autocomplete="email"
                             required
                         >
@@ -99,6 +114,7 @@
                         Create an account -->
                     </a>
                 </div>
+                {% endif %}
             </section>
         </main>
     </body>
