@@ -6,11 +6,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>Register | Skill Swap</title>
+        <title>Register | SkillSwap</title>
         <link rel="stylesheet" href="{% static 'auth.css' %}">
     </head>
     <body>
-        <main class="register-page">
+        <main class="login-page">
 
             <!-- The logo will remain as the dog until otherwise -->
             <div class="project">
@@ -18,13 +18,14 @@
                     <!-- Come back to this, logo -->
                 </div>
 
-                <span>SKILL SWAP</span>
+                <span>SKILLSWAP</span>
             </div>
 
             <!-- Register Page -->
-            <section class="register">
-                <h1>Register to Skill Swap</h1>
-                <form method="POST">
+            <section class="login-general">
+                <h1>Create a SkillSwap Account</h1>
+                <form method="POST" action="{% url 'user_register' %}">
+                    {% csrf_token %}
 
                     <!-- User Email -->
                     <div class="form-group">
@@ -37,15 +38,18 @@
                             id="email"
                             name="email"
                             autocomplete="email"
+                            value="{{ form.email.value|default_if_none:'' }}"
                             required
                         >
+
+                        {{ form.email.errors }}
                     </div>
 
                     <button
-                        type="Sign Up"
-                        class="sign-up-button"
+                        type="submit"
+                        class="login-button"
                     >
-                        SIGN UP
+                        Continue
                     </button>
                 </form>
 

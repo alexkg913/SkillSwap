@@ -27,9 +27,21 @@ class LoginTests(TestCase):
 
     def test_regular_user_can_sign_in_with_email(self):
         response = self.submit()
-        self.assertRedirects(response, self.url)
+        self.assertRedirects(response, reverse("user_profile:profile"))
         self.assertEqual(self.client.session["_auth_user_id"], str(self.user.pk))
-        self.assertContains(self.client.get(self.url), "Signed in as student@example.com")
+        profile = self.client.get(reverse("user_profile:profile"))
+        self.assertTemplateUsed(profile, "user_profile/profile.html")
+        self.assertContains(profile, "student@example.com")
+
+    def test_signed_in_user_is_redirected_to_profile(self):
+        self.client.force_login(self.user)
+        self.assertRedirects(self.client.get(self.url), reverse("user_profile:profile"))
+
+    def test_profile_requires_login(self):
+        self.assertRedirects(
+            self.client.get(reverse("user_profile:profile")),
+            self.url + "?next=" + reverse("user_profile:profile"),
+        )
 
     def test_missing_csrf_token_is_rejected(self):
         response = self.client.post(self.url, {
@@ -61,15 +73,15 @@ class LoginTests(TestCase):
             username="admin", email="admin@example.com", password="Admin-pass-123!"
         )
         self.client.force_login(admin)
-        response = self.client.get(self.url)
-        self.assertContains(response, "Sign out and use another account")
+        response = self.client.get(reverse("user_profile:profile"))
+        self.assertContains(response, "Logout")
         response = self.client.post(reverse("logout"), {
             "csrfmiddlewaretoken": self.client.cookies["csrftoken"].value,
         })
         self.assertRedirects(response, self.url)
         self.assertNotIn("_auth_user_id", self.client.session)
         self.assertContains(self.client.get(self.url), 'name="email"')
-        self.assertRedirects(self.submit(), self.url)
+        self.assertRedirects(self.submit(), reverse("user_profile:profile"))
         self.assertEqual(self.client.session["_auth_user_id"], str(self.user.pk))
 
     def test_logout_requires_post_and_csrf(self):

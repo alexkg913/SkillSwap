@@ -178,3 +178,28 @@ body {
 .register a:hover {
     text-decoration: underline;
 }
+
+/* PASSWORD CHECKLIST */
+.password-requirements {
+    margin-top: 10px;
+    color: #bcbfc4;
+    font-size: 13px;
+}
+
+.password-requirements summary {
+    cursor: pointer;
+}
+
+.password-requirements ul {
+    margin: 10px 0 0;
+    padding-left: 20px;
+    line-height: 1.7;
+}
+
+.password-requirements li.met {
+    color: #86efac;
+}
+
+.password-requirements li.met::after {
+    content: " ✓";
+}

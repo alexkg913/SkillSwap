@@ -6,7 +6,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>Sign In | Skill Swap</title>
+        <title>Sign In | SkillSwap</title>
         <link rel="stylesheet" href="{% static 'auth.css' %}">
     </head>
     <body>
@@ -18,7 +18,7 @@
                     <!-- Come back to this, logo -->
                 </div>
 
-                <span>SKILL SWAP</span>
+                <span>SKILLSWAP</span>
             </div>
 
             <!-- Login Page -->
@@ -33,7 +33,7 @@
                     </button>
                 </form>
                 {% else %}
-                <h1>Sign in to Skill Swap</h1>
+                <h1>Sign in to SkillSwap</h1>
                 <form method="POST" action="{% url 'login' %}">
                     {% csrf_token %}
                     {% if form.errors %}
@@ -107,7 +107,7 @@
                 <!-- Register User -->
                 <div class="register">
                     <span>
-                        New to Skill Swap?
+                        New to SkillSwap?
                     </span>
 
                     <a href="{% url 'user_register' %}">
