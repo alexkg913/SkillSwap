@@ -2,7 +2,7 @@ import re
 import uuid
 
 from django import forms
-from django.contrib.auth import login
+from django.contrib.auth import login, get_user_model
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
@@ -19,12 +19,12 @@ class RegistrationEmailForm(forms.Form):
 class RegistrationPasswordForm(forms.Form):
     password = forms.CharField(
         strip=False,
-        width=forms.PasswordInput,
+        widget=forms.PasswordInput,
     )
 
     # General security password validation checks according to the html visualizer
     def clean_password(self):
-        password = self.cleaned_data["passord"]
+        password = self.cleaned_data["password"]
 
         # Only validate password if it fits the security requirements
         if len(password) < 10:
@@ -67,7 +67,7 @@ def register_page(request):
     )
 
     if request.method == "POST" and form.is_valid():
-        request.session["registration__email"] = form.cleaned_data["email"]
+        request.session["registration_email"] = form.cleaned_data["email"]
         return redirect("user_password")
 
     return render(request, "login/user_register.html", {"form": form})
