@@ -1,0 +1,69 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Register | SkillSwap</title>
+        <link rel="stylesheet" href="{% static 'aero.css' %}">
+    </head>
+    <body>
+        <main class="login-page">
+
+            <!-- The logo will remain as the dog until otherwise -->
+            <div class="project">
+                <div class="project-logo">
+                    <!-- Come back to this, logo -->
+                </div>
+
+                <span>SKILLSWAP</span>
+            </div>
+
+            <!-- Register Page -->
+            <section class="login-general">
+                <h1>Create a SkillSwap Account</h1>
+                <form method="POST" action="{% url 'user_register' %}">
+                    {% csrf_token %}
+
+                    <!-- User Email -->
+                    <div class="form-group">
+                        <label for="email">
+                            EMAIL
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            autocomplete="email"
+                            value="{{ form.email.value|default_if_none:'' }}"
+                            required
+                        >
+
+                        {{ form.email.errors }}
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="login-button"
+                    >
+                        Continue
+                    </button>
+                </form>
+
+                <!-- If the user already has an account, reroute -->
+                <div class="register">
+                    <span>
+                        Already have a SkillSwap account?
+                    </span>
+
+                    <a href="{% url 'login' %}">
+                        Sign in -->
+                    </a>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>
