@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'home',
     "login",
-    "user_profile"
+    "user_profile",
+    "events"
 
 ]
 
