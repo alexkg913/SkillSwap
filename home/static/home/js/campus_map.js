@@ -1,10 +1,12 @@
 /*
- * Campus-map integration staging module.
+ * Reusable Leaflet initializer for the campus map.
  *
- * This file is intentionally not loaded by any template yet. It makes no network
- * requests and contains no campus or tile-provider defaults. When the map feature
- * is approved, call window.SkillSwapCampusMap.initialize(...) from the home-page
- * integration described in docs/osm-leaflet-integration-notes.md.
+ * This module holds no campus, tile-provider, or event defaults on purpose:
+ * every value is supplied by the caller from server-rendered configuration, so
+ * the tile provider can change without editing static JavaScript. The home page
+ * calls it through campus_map_init.js; the future event-pin picker is expected
+ * to reuse it.
+ *
  */
 (function (window) {
   "use strict";
@@ -18,7 +20,7 @@
 
   function coordinatePair(value, name) {
     if (!Array.isArray(value) || value.length !== 2 ||
-        !Number.isFinite(value[0]) || !Number.isFinite(value[1])) {
+      !Number.isFinite(value[0]) || !Number.isFinite(value[1])) {
       throw new Error(name + " must be a [latitude, longitude] pair.");
     }
     return value;
@@ -56,9 +58,12 @@
     }
 
     var map = window.L.map(element).setView(center, zoom);
-    window.L.tileLayer(tileUrl, {
-      attribution: tileAttribution,
-    }).addTo(map);
+
+    var tileOptions = { attribution: tileAttribution };
+    if (config.referrerPolicy) {
+      tileOptions.referrerPolicy = config.referrerPolicy;
+    }
+    window.L.tileLayer(tileUrl, tileOptions).addTo(map);
 
     events.forEach(function (event) {
       var coordinates = coordinatePair([event.latitude, event.longitude], "event coordinates");

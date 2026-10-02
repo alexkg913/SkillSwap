@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -120,6 +121,49 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = "static/"
+
+
+# Campus map
+# https://leafletjs.com/reference.html
+#
+# The map is rendered by the vendored Leaflet build in
+# home/static/home/vendor/leaflet/ against OpenStreetMap raster tiles. Neither
+# Leaflet nor OSM raster tiles require an API key, so there is no secret here.
+# The tile URL stays configurable so a hosted tile provider can replace OSM
+# later as a deployment change rather than a code change. Tiles are requested
+# by the browser, so no credential is ever sent to this host.
+SKILLSWAP_MAP_TILE_URL = os.environ.get(
+    "SKILLSWAP_MAP_TILE_URL",
+    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+)
+
+# The OSMF tile usage policy requires attribution. Rendered by Leaflet's
+# attribution control, so the markup here is intentional and developer-supplied.
+SKILLSWAP_MAP_TILE_ATTRIBUTION = os.environ.get(
+    "SKILLSWAP_MAP_TILE_ATTRIBUTION",
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+)
+
+# Referrer policy for tile requests only.
+#
+# SecurityMiddleware sends Referrer-Policy: same-origin site-wide (Django's
+# default), which strips the Referer from cross-origin requests. The OSM tile
+# policy expects browsers to send a valid Referer, and serves a "403 Access
+# blocked" tile to anything that presents a browser User-Agent without one.
+# Leaflet puts this value on each tile <img>, which overrides the document
+# policy for those requests only -- the site-wide policy stays restrictive.
+SKILLSWAP_MAP_TILE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# Florida Southern College, Lakeland FL. Taken from the campus polygon in
+# OpenStreetMap (way 113525303), retrieved 2026-10-01.
+SKILLSWAP_MAP_CENTER = (28.030456, -81.945543)
+SKILLSWAP_MAP_DEFAULT_ZOOM = 16
+
+# (south, west, north, east). The OSM campus polygon spans
+# 28.027700..28.033683 by -81.951084..-81.940791; it is padded by roughly
+# 0.0015 degrees (~150 m) so pins on bordering sidewalks and parking lots
+# still validate. Used for server-side validation of submitted event pins.
+SKILLSWAP_CAMPUS_BBOX = (28.0262, -81.9526, 28.0352, -81.9393)
 
 
 # Email
