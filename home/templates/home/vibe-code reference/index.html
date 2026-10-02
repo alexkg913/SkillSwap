@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap | Peer Tutoring for FSC Students</title>
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="wrap navbar-inner">
+            <a class="brand" href="{% url 'home:index' %}">
+                <img src="{% static 'home/img/logo.jpg' %}" alt="SkillSwap logo" class="brand-logo">
+                <span>SkillSwap</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#how-it-works">How It Works</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+            </nav>
+            <div class="nav-cta">
+                <a href="#" class="btn btn-ghost">Log In</a>
+                <a href="#" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="wrap hero-inner">
+                <div class="hero-copy">
+                    <span class="eyebrow">Built for FSC students</span>
+                    <h1>Struggling in a class? <span class="highlight">Swap skills</span> with a peer who's already been there.</h1>
+                    <p>
+                        SkillSwap connects students who need help with students who want to teach.
+                        Find a tutor for the course you're stuck on, or offer your own expertise
+                        and help someone else level up.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="#" class="btn btn-primary btn-lg">Find a Tutor</a>
+                        <a href="#" class="btn btn-outline btn-lg">Become a Tutor</a>
+                    </div>
+                </div>
+                <div class="hero-art" aria-hidden="true">
+                    <div class="blob"></div>
+                    <img src="{% static 'home/img/logo.jpg' %}" alt="" class="hero-image">
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="section">
+            <div class="wrap">
+                <h2 class="section-title">How it works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Create a profile</h3>
+                        <p>Tell us the courses you need help in, and the ones you could teach.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>Get matched</h3>
+                        <p>SkillSwap surfaces tutors and students based on courses and availability.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>Swap skills</h3>
+                        <p>Message, schedule a session, and start learning from a fellow student.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section section-alt">
+            <div class="wrap">
+                <h2 class="section-title">Everything you need to connect</h2>
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Search by course</h3>
+                        <p>Find tutors offering help for the exact class you're taking.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤝</div>
+                        <h3>Skill matching</h3>
+                        <p>Get paired with students whose strengths line up with your needs.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🗓️</div>
+                        <h3>Easy scheduling</h3>
+                        <p>Book tutoring sessions around your class and campus schedule.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h3>In-app messaging</h3>
+                        <p>Coordinate directly with your tutor or student, no email needed.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="cta">
+            <div class="wrap cta-inner">
+                <h2>Ready to swap some skills?</h2>
+                <p>Join other FSC students already helping each other succeed.</p>
+                <a href="#" class="btn btn-primary btn-lg">Get Started</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="wrap footer-inner">
+            <span>&copy; 2026 SkillSwap</span>
+            <span class="footer-sub">Connecting students to eager tutors who want to teach.</span>
+        </div>
+    </footer>
+
+</body>
+</html>
