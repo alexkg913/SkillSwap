@@ -145,3 +145,6 @@ GitHub.sublime-settings
 .DS_store
 .envrc
 .opencode/
+opencode.json
+.idea/
+AGENTS.md
