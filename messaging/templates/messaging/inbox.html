@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="UTF-8">
+    <title>Inbox</title>
+</head>
+<body>
+
+    <h1>Inbox</h1>
+ <!-- Display the list of conversations -->
+    {% if conversations %}
+        <ul>
+            <!-- Loops through the conversations dictionary and displays each conversation with the other user's name and the most recent message. -->
+            {% for other_user, conversation_messages in conversations.items %}
+                <li>
+
+                    <!-- Displays the other user's name and the content of the most recent message in the conversation. -->
+                    <strong>{{ other_user}}</strong> 
+
+                    <!-- Displays the content and timestamp of the most recent message in the conversation. -->
+                    <p> {{ conversation_messages.0.content }} </p>
+                    <small>{{ conversation_messages.0.timestamp }}</small>
+
+
+                </li>
+            {% endfor %}    
+        </ul>
+
+    <!-- If there are no conversations, display a message indicating that no conversations were found. -->
+    {% else %}
+        <p>No conversations found.</p>
+    {% endif %}
+</body>
+</html>
