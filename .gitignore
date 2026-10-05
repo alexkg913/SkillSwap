@@ -143,5 +143,6 @@ GitHub.sublime-settings
 
 # Mac Store Users
 .DS_store
+AGENTS.md
 
 .obsidian/*
