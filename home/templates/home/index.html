@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillSwap</title>
+    <link rel="stylesheet" href="{% static 'home/vendor/leaflet/leaflet.css' %}">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
 </head>
 <body>
@@ -18,8 +19,8 @@
             </h1>
 
             <section class="log-in">
-                <button class="sign-in">Sign In</button>
-                <button class="register">Register</button>
+                <a class="sign-in" href="{% url 'login' %}">Sign In</a>
+                <a class="register" href="{% url 'user_register' %}">Register</a>
             </section>
 
 
@@ -43,9 +44,22 @@
                 <div class="map-and-listings">
 
 
-                    <section class="map">
-                        <p>Map loading...</p>
+                    <section class="map" aria-labelledby="campus-map-label">
+                        <h2 id="campus-map-label" class="visually-hidden">
+                            Campus map of tutoring events
+                        </h2>
 
+                        {# Shown until the map starts, and whenever it cannot. #}
+                        <p class="map__fallback">Map loading...</p>
+
+                        {% comment %}
+                            Revealed by campus_map_init.js; the listings panel is
+                            the keyboard-accessible equivalent of these pins.
+                        {% endcomment %}
+                        <div id="campus-map"
+                             role="application"
+                             aria-label="Map of the Florida Southern College campus showing tutoring event locations"
+                             hidden></div>
                     </section>
 
                     <section class="results">
@@ -56,7 +70,7 @@
                             <p>Pretend this is another listing.</p>
                         </div>
                     </section>
-                    
+
                 </div>
             </main>
 
@@ -67,6 +81,21 @@
                     <p>&copy SkillSwap 2026</p>
                 </div>
         </footer>
+
+        {% comment %}
+            Server data for the campus map. json_script escapes safely, so an
+            event title can never become markup.
+        {% endcomment %}
+        {{ map_config|json_script:"map-config" }}
+        {{ map_events|json_script:"map-events" }}
+
+        {% comment %}
+            Load order matters: Leaflet, then the initializer module, then the
+            glue that reads the data elements above.
+        {% endcomment %}
+        <script src="{% static 'home/vendor/leaflet/leaflet.js' %}"></script>
+        <script src="{% static 'home/js/campus_map.js' %}"></script>
+        <script src="{% static 'home/js/campus_map_init.js' %}"></script>
 
 </body>
 </html>
