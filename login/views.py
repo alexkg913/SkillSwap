@@ -111,6 +111,37 @@ class RegistrationProfileForm(forms.Form):
     full_name = forms.CharField(max_length=150)
     major = forms.ChoiceField(choices=FSC_MAJOR_CHOICES)
 
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField()
+
+    password = forms.CharField(
+        strip=False,
+        widget=forms.PasswordInput,
+    )
+
+    password_confirm = forms.CharField(
+        strip=False,
+        widget=forms.PasswordInput,
+    )
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+
+        # Standard Checks of password integrity
+        if len(password) < 10:
+            raise forms.ValidationError(
+                "Please make your password at least 10 characters."
+            )
+
+        if not re.search(r"[A-Z]", password):
+
+        if not re.search(r"[0-9]", password):
+
+        if not re.search(r"[^A-Za-z0-9\s]", password):
+
+
+
+        return password
 
 def profile_setup_required(user):
     generated_username = re.fullmatch(r"user_[0-9a-f]{32}", user.username or "")
