@@ -1,4 +1,4 @@
-<!DOCTYPE <html>
+<!DOCTYPE html>
 <html lang="en">
    <head>
        <meta charset="UTF-8">
@@ -36,10 +36,19 @@
 
                     {{ form.non_field_errors }}
                    </div>
+
+                   <button type="submit" class="login-button">
+                       Change Password
+                   </button>
                </form>
+
+               <div class="register">
+                   <a href="{% url 'login' %}">
+                       Back to setup email-->
+                   </a>
+               </div>
 
            </section>
        </main>
    </body>
-</html>
 </html>
