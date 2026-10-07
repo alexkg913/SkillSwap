@@ -7,7 +7,8 @@ class LoginTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = get_user_model().objects.create_user(
-            username="student", email="student@example.com", password="Test-pass-123!"
+            username="student", email="student@example.com", password="Test-pass-123!",
+            first_name="Student Example", major="Computer Science",
         )
 
     def setUp(self):
@@ -36,6 +37,41 @@ class LoginTests(TestCase):
     def test_signed_in_user_is_redirected_to_profile(self):
         self.client.force_login(self.user)
         self.assertRedirects(self.client.get(self.url), reverse("user_profile:profile"))
+
+    def test_incomplete_user_is_redirected_to_profile_setup_after_login(self):
+        incomplete = get_user_model().objects.create_user(
+            username="user_1234567890abcdef1234567890abcdef",
+            email="incomplete@example.com",
+            password="Test-pass-123!",
+        )
+        self.client.get(self.url)
+        response = self.client.post(self.url, {
+            "email": incomplete.email,
+            "password": "Test-pass-123!",
+            "csrfmiddlewaretoken": self.client.cookies["csrftoken"].value,
+        })
+        self.assertRedirects(response, reverse("user_profile_info"))
+
+    def test_incomplete_authenticated_user_can_complete_profile_setup(self):
+        incomplete = get_user_model().objects.create_user(
+            username="user_abcdefabcdefabcdefabcdefabcdefab",
+            email="incomplete@example.com",
+            password="Test-pass-123!",
+        )
+        self.client.force_login(incomplete)
+        setup_url = reverse("user_profile_info")
+        self.client.get(setup_url)
+        response = self.client.post(setup_url, {
+            "username": "complete_student",
+            "full_name": "Complete Student",
+            "major": "Biology",
+            "csrfmiddlewaretoken": self.client.cookies["csrftoken"].value,
+        })
+        self.assertRedirects(response, reverse("user_profile:profile"))
+        incomplete.refresh_from_db()
+        self.assertEqual(incomplete.username, "complete_student")
+        self.assertEqual(incomplete.first_name, "Complete Student")
+        self.assertEqual(incomplete.major, "Biology")
 
     def test_profile_requires_login(self):
         self.assertRedirects(
@@ -89,3 +125,57 @@ class LoginTests(TestCase):
         self.assertEqual(self.client.get(reverse("logout")).status_code, 405)
         self.assertEqual(self.client.post(reverse("logout")).status_code, 403)
         self.assertEqual(self.client.session["_auth_user_id"], str(self.user.pk))
+
+
+class RegistrationProfileTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+
+    def _csrf(self, url):
+        response = self.client.get(url)
+        return self.client.cookies["csrftoken"].value
+
+    def _start_registration(self):
+        email_url = reverse("user_register")
+        csrf = self._csrf(email_url)
+        self.client.post(email_url, {
+            "email": "new@example.com",
+            "csrfmiddlewaretoken": csrf,
+        })
+        password_url = reverse("user_password")
+        csrf = self._csrf(password_url)
+        response = self.client.post(password_url, {
+            "password": "Strong-pass-123!",
+            "csrfmiddlewaretoken": csrf,
+        })
+        return response
+
+    def test_password_step_creates_pending_account_and_redirects_to_profile_setup(self):
+        response = self._start_registration()
+        self.assertRedirects(response, reverse("user_profile_info"))
+        user = get_user_model().objects.get(email="new@example.com")
+        self.assertFalse(user.is_active)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_profile_setup_completes_pending_account(self):
+        self._start_registration()
+        setup_url = reverse("user_profile_info")
+        csrf = self._csrf(setup_url)
+        response = self.client.post(setup_url, {
+            "username": "newstudent",
+            "full_name": "New Student",
+            "major": "Computer Science",
+            "csrfmiddlewaretoken": csrf,
+        })
+        self.assertRedirects(response, reverse("user_profile:profile"))
+        user = get_user_model().objects.get(email="new@example.com")
+        self.assertTrue(user.is_active)
+        self.assertEqual(user.username, "newstudent")
+        self.assertEqual(user.first_name, "New Student")
+        self.assertEqual(user.major, "Computer Science")
+
+    def test_back_to_email_discards_pending_account(self):
+        self._start_registration()
+        response = self.client.get(reverse("user_register"))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(get_user_model().objects.filter(email="new@example.com").exists())
