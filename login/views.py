@@ -262,7 +262,6 @@ def register_password(request):
 
     return render(request, "login/user_register_password.html", {"form": form})
 
-
 def register_profile(request):
     pending_id = request.session.get("pending_registration_user_id")
     User = get_user_model()
@@ -315,4 +314,38 @@ def register_profile(request):
     return render(request, "login/user_register_profile.html", {"form": form})
 
 def forgot_pwd_page(request):
-    return render(request, "login/forgot_pwd.html")
+    form = ForgotPasswordForm(
+        request.POST if request.method == "POST" else None
+    )
+
+    if request.method == "POST" and form.is_valid():
+        User = get_user_model()
+
+        try:
+            user = User.objects.get(
+                email=form.cleaned_data["email"],
+                is_active=True,
+            )
+
+        # This will changed to prevent knowledge of valid email in the database,
+        # I'm choosing to make it like this for simplicity.
+        except User.DoesNotExist:
+            form.add_error(
+                "email",
+                "There is no record found with that email."
+            )
+        else:
+            try:
+                validate_password(
+                    form.cleaned_data["password"],
+                    user=user,
+                )
+            except ValidationError as errors:
+                form.add_error("password", errors)
+            else:
+                user.set_password(form.cleaned_data["password"])
+                user.save(update_fields=["password"])
+
+                return redirect("login")
+
+    return render(request, "login/forgot_pwd.html", {"form": form})
