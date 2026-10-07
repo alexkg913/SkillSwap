@@ -111,9 +111,11 @@ class RegistrationProfileForm(forms.Form):
     full_name = forms.CharField(max_length=150)
     major = forms.ChoiceField(choices=FSC_MAJOR_CHOICES)
 
-class ForgotPasswordForm(forms.Form):
+class ForgotEmailForm(forms.Form):
     email = forms.EmailField()
 
+
+class ResetPasswordForm(forms.Form):
     password = forms.CharField(
         strip=False,
         widget=forms.PasswordInput,
@@ -314,7 +316,7 @@ def register_profile(request):
     return render(request, "login/user_register_profile.html", {"form": form})
 
 def forgot_pwd_page(request):
-    form = ForgotPasswordForm(
+    form = ForgotEmailForm(
         request.POST if request.method == "POST" else None
     )
 
@@ -332,20 +334,50 @@ def forgot_pwd_page(request):
         except User.DoesNotExist:
             form.add_error(
                 "email",
-                "There is no record found with that email."
+                "There is no active account with that email.",
             )
         else:
-            try:
-                validate_password(
-                    form.cleaned_data["password"],
-                    user=user,
-                )
-            except ValidationError as errors:
-                form.add_error("password", errors)
-            else:
-                user.set_password(form.cleaned_data["password"])
-                user.save(update_fields=["password"])
-
-                return redirect("login")
+            request.session["password_reset_user_id"] = str(user.pk)
+            return redirect("user_reset_password")
 
     return render(request, "login/forgot_pwd.html", {"form": form})
+
+
+@sensitive_post_parameters("password", "password_confirm")
+@never_cache
+def reset_password_page(request):
+    user_id = request.session.get("password_reset_user_id")
+
+    if not user_id:
+        return redirect("user_forgot_pwd")
+
+    User = get_user_model()
+    try:
+        user = User.objects.get(pk=user_id, is_active=True)
+    except User.DoesNotExist:
+        request.session.pop("password_reset_user_id", None)
+        return redirect("user_forgot_pwd")
+
+    form = ResetPasswordForm(
+        request.POST if request.method == "POST" else None
+    )
+
+    if request.method == "POST" and form.is_valid():
+        try:
+            validate_password(
+                form.cleaned_data["password"],
+                user=user,
+            )
+        except ValidationError as errors:
+            form.add_error("password", errors)
+        else:
+            user.set_password(form.cleaned_data["password"])
+            user.save(update_fields=["password"])
+            request.session.pop("password_reset_user_id", None)
+            return redirect("login")
+
+    return render(
+        request,
+        "login/reset_password.html",
+        {"form": form},
+    )

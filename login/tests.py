@@ -179,3 +179,63 @@ class RegistrationProfileTests(TestCase):
         response = self.client.get(reverse("user_register"))
         self.assertEqual(response.status_code, 200)
         self.assertFalse(get_user_model().objects.filter(email="new@example.com").exists())
+
+
+class ForgotPasswordTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        self.user = get_user_model().objects.create_user(
+            username="resetstudent",
+            email="reset@example.com",
+            password="Old-pass-123!",
+            is_active=True,
+        )
+
+    def _csrf(self, url):
+        self.client.get(url)
+        return self.client.cookies["csrftoken"].value
+
+    def test_existing_email_redirects_to_password_reset(self):
+        url = reverse("user_forgot_pwd")
+        response = self.client.post(url, {
+            "email": self.user.email,
+            "csrfmiddlewaretoken": self._csrf(url),
+        })
+        self.assertRedirects(response, reverse("user_reset_password"))
+        self.assertEqual(
+            self.client.session["password_reset_user_id"],
+            str(self.user.pk),
+        )
+
+    def test_unknown_email_does_not_redirect_or_set_reset_session(self):
+        url = reverse("user_forgot_pwd")
+        response = self.client.post(url, {
+            "email": "missing@example.com",
+            "csrfmiddlewaretoken": self._csrf(url),
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "There is no active account")
+        self.assertNotIn("password_reset_user_id", self.client.session)
+
+    def test_reset_password_updates_password_and_returns_to_login(self):
+        email_url = reverse("user_forgot_pwd")
+        self.client.post(email_url, {
+            "email": self.user.email,
+            "csrfmiddlewaretoken": self._csrf(email_url),
+        })
+
+        reset_url = reverse("user_reset_password")
+        response = self.client.post(reset_url, {
+            "password": "New-pass-123!",
+            "password_confirm": "New-pass-123!",
+            "csrfmiddlewaretoken": self._csrf(reset_url),
+        })
+
+        self.assertRedirects(response, reverse("login"))
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("New-pass-123!"))
+        self.assertNotIn("password_reset_user_id", self.client.session)
+
+    def test_reset_page_requires_verified_email_session(self):
+        response = self.client.get(reverse("user_reset_password"))
+        self.assertRedirects(response, reverse("user_forgot_pwd"))
