@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
    <head>
@@ -20,7 +22,7 @@
                <form method="POST" action="{% url 'user_forgot_pwd' %}">
                    {% csrf_token %}
 
-                   {{ form.non_field_errors }}
+                   {{ form.email.errors }}
 
                    <div class="form-group">
                        <label for="email">EMAIL</label>
@@ -34,7 +36,7 @@
                            required
                        >
 
-                    {{ form.non_field_errors }}
+                    {{ form.email.errors }}
                    </div>
 
                    <button type="submit" class="login-button">
