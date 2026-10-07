@@ -134,14 +134,36 @@ class ForgotPasswordForm(forms.Form):
             )
 
         if not re.search(r"[A-Z]", password):
+            raise forms.ValidationError(
+                "Please include an uppercase letter."
+            )
 
         if not re.search(r"[0-9]", password):
+            raise forms.ValidationError(
+                "Please include at least a number."
+            )
 
         if not re.search(r"[^A-Za-z0-9\s]", password):
-
+            raise forms.ValidationError(
+                "Please include a special character."
+            )
 
 
         return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        password = cleaned_data.get("password")
+        password_confirm = cleaned_data.get("password_confirm")
+
+        if password and password_confirm and password != password_confirm:
+            self.add_error(
+                "password_confirm",
+                "The passwords do not match.",
+            )
+
+        return cleaned_data
 
 def profile_setup_required(user):
     generated_username = re.fullmatch(r"user_[0-9a-f]{32}", user.username or "")
