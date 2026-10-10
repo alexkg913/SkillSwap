@@ -3,4 +3,10 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url="login")
 def profile_page(request):
-    return render(request, "user_profile/profile.html")
+    return render(request, "user_profile/main_profile.html")
+
+def user_settings(request):
+    return render(request, "user_profile/user_settings.html")
+
+def security_settings(request):
+    return render(request, "user_profile/security_settings.html")
