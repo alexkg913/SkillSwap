@@ -1,0 +1,304 @@
+:root {
+    color-scheme: dark;
+    --page-bg: #101923;
+    --surface: #192633;
+    --surface-raised: #223342;
+    --text: #edf4f8;
+    --text-muted: #a9bac7;
+    --accent: #67d4e8;
+    --accent-hover: #9be8f3;
+    --focus-ring: rgba(103, 212, 232, 0.48);
+    --shadow: rgba(0, 0, 0, 0.3);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    background: var(--page-bg);
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--text);
+    background:
+        radial-gradient(ellipse at 12% 0%, rgba(48, 100, 124, 0.2), transparent 34rem),
+        var(--page-bg);
+    font-family: "Segoe UI", "Trebuchet MS", Helvetica, sans-serif;
+    line-height: 1.55;
+}
+
+/* Site navigation */
+.site-header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 74px;
+    align-items: center;
+    gap: clamp(1.25rem, 3vw, 2.75rem);
+    padding: 0 clamp(1rem, 4vw, 3.5rem);
+    background: rgba(16, 25, 35, 0.78);
+    box-shadow: 0 1px 0 rgba(207, 230, 241, 0.08);
+}
+
+.site-brand {
+    color: var(--text);
+    font-size: 1.3rem;
+    font-weight: 750;
+    letter-spacing: 0.035em;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2.6vw, 2.25rem);
+}
+
+.main-nav a,
+.account-actions button {
+    color: var(--text-muted);
+    font: inherit;
+    text-decoration: none;
+}
+
+.main-nav a:hover,
+.main-nav a:focus-visible {
+    color: var(--accent-hover);
+}
+
+.account-actions {
+    margin-left: auto;
+}
+
+.account-actions form {
+    margin: 0;
+}
+
+.account-actions button {
+    padding: 0.55rem 0.9rem;
+    border: 0;
+    border-radius: 0.65rem;
+    background: var(--surface-raised);
+    cursor: pointer;
+}
+
+.account-actions button:hover {
+    background: #2b4051;
+    color: var(--text);
+}
+
+/* Split profile layout */
+.profile-page {
+    width: min(1500px, 100%);
+    margin: 0 auto;
+    padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.profile-layout {
+    --palette-deep: #163b4a;
+    --palette-bright: #a7e3ef;
+    --palette-mid: #286174;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(260px, 0.9fr);
+    align-items: start;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+/* Keep each username's assigned avatar and banner colors coordinated. */
+.palette-forest {
+    --palette-deep: #234536;
+    --palette-bright: #c3e8c9;
+    --palette-mid: #3d7654;
+}
+
+.palette-plum {
+    --palette-deep: #49324f;
+    --palette-bright: #e2c5eb;
+    --palette-mid: #73517d;
+}
+
+.palette-slate {
+    --palette-deep: #344454;
+    --palette-bright: #d1dce7;
+    --palette-mid: #536b82;
+}
+
+.palette-rust {
+    --palette-deep: #5b3a2d;
+    --palette-bright: #f0d0b7;
+    --palette-mid: #89583f;
+}
+
+.profile-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 0.58fr);
+    align-items: start;
+    gap: clamp(1rem, 2vw, 1.4rem);
+    min-width: 0;
+}
+
+.profile-hero {
+    grid-column: 1 / -1;
+    min-width: 0;
+    margin-bottom: 0.25rem;
+}
+
+.profile-banner {
+    min-height: clamp(170px, 21vw, 250px);
+    border-radius: 1.1rem;
+    background: linear-gradient(118deg, var(--palette-deep), var(--palette-mid) 58%, var(--surface-raised));
+    box-shadow: 0 16px 36px var(--shadow);
+}
+
+.profile-heading {
+    position: relative;
+    display: flex;
+    align-items: end;
+    gap: 1.2rem;
+    margin: -3.5rem 1.5rem 0;
+}
+
+.profile-avatar {
+    display: grid;
+    width: clamp(90px, 11vw, 132px);
+    aspect-ratio: 1;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--palette-deep);
+    color: var(--palette-bright);
+    font-size: clamp(2rem, 4vw, 2.7rem);
+    font-weight: 750;
+    box-shadow: 0 0 0 5px var(--page-bg), 0 9px 24px var(--shadow);
+}
+
+.profile-identity {
+    min-width: 0;
+    padding-bottom: 0.55rem;
+}
+
+.profile-identity h1 {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-size: clamp(1.45rem, 2.8vw, 2rem);
+    line-height: 1.2;
+}
+
+.profile-identity p {
+    margin: 0.25rem 0 0;
+    color: var(--text-muted);
+}
+
+/* Soft, borderless information surfaces */
+.profile-card {
+    min-width: 0;
+    min-height: 170px;
+    padding: clamp(1.1rem, 2vw, 1.55rem);
+    border: 0;
+    border-radius: 1rem;
+    background: linear-gradient(145deg, rgba(38, 56, 72, 0.9), rgba(25, 38, 51, 0.92));
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.profile-card h2 {
+    margin: 0 0 0.85rem;
+    color: var(--text);
+    font-size: 1.05rem;
+    font-weight: 680;
+}
+
+.profile-card p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.bio-card {
+    grid-column: 1 / -1;
+    min-height: 150px;
+}
+
+.profile-main > .profile-card:not(.bio-card) {
+    min-height: 210px;
+}
+
+.profile-sidebar {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.4rem);
+}
+
+.profile-sidebar .profile-card:first-child {
+    min-height: 180px;
+}
+
+.profile-sidebar .profile-card:nth-child(2) {
+    min-height: 280px;
+}
+
+.profile-sidebar .profile-card:nth-child(3) {
+    min-height: 190px;
+}
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+    .profile-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .profile-sidebar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .site-header {
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+    }
+
+    .main-nav {
+        order: 3;
+        width: 100%;
+        justify-content: space-between;
+        gap: 0.65rem;
+        padding-top: 0.25rem;
+    }
+
+    .profile-page {
+        padding: 1rem;
+    }
+
+    .profile-main,
+    .profile-sidebar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .profile-hero,
+    .bio-card {
+        grid-column: auto;
+    }
+
+    .profile-heading {
+        gap: 0.9rem;
+        margin-right: 0.75rem;
+        margin-left: 0.75rem;
+    }
+
+    .profile-banner {
+        min-height: 145px;
+    }
+}

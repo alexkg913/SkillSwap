@@ -157,6 +157,21 @@ class RegistrationProfileTests(TestCase):
         self.assertFalse(user.is_active)
         self.assertNotIn("_auth_user_id", self.client.session)
 
+    def test_registration_rejects_an_email_already_in_use_at_email_step(self):
+        get_user_model().objects.create_user(
+            username="existingstudent",
+            email="new@example.com",
+            password="Test-pass-123!",
+        )
+        email_url = reverse("user_register")
+        csrf = self._csrf(email_url)
+        response = self.client.post(email_url, {
+            "email": "NEW@example.com",
+            "csrfmiddlewaretoken": csrf,
+        })
+        self.assertContains(response, "An account with this email already exists")
+        self.assertNotIn("registration_email", self.client.session)
+
     def test_profile_setup_completes_pending_account(self):
         self._start_registration()
         setup_url = reverse("user_profile_info")

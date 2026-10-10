@@ -1,25 +1,86 @@
-<!-- Load the static css here: {% load static %} -->
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-        <title>Welcome | Skill Swap</title>
+        <title>{{ request.user.first_name }}’s Profile | SkillSwap</title>
+        <link rel="stylesheet" href="{% static 'css/main_profile.css' %}">
     </head>
     <body>
+        <header class="site-header">
+            <a class="site-brand" href="/">SkillSwap</a>
 
-        <h1>Welcome, {{ request.user.first_name }}!</h1>
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="/">Home</a>
+                <a href="#" aria-label="Events (not available yet)">Events</a>
+                <a href="{% url 'user_profile:user_settings' %}">Settings</a>
+            </nav>
 
-        <p>Username: {{ request.user.username }}</p>
-        <p>Email: {{ request.user.email }}</p>
-        <p>Major: {{ request.user.major }}</p>
+            <div class="account-actions">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log out</button>
+                </form>
+            </div>
+        </header>
 
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
+        <main class="profile-page">
+            <div class="profile-layout
+                {% if request.user.username|first|lower in 'abcde' %}palette-ocean
+                {% elif request.user.username|first|lower in 'fghij' %}palette-forest
+                {% elif request.user.username|first|lower in 'klmno' %}palette-plum
+                {% elif request.user.username|first|lower in 'pqrst' %}palette-slate
+                {% else %}palette-rust{% endif %}">
+                <div class="profile-main">
+                    <section class="profile-hero" aria-label="Profile header">
+                        <div class="profile-banner" aria-hidden="true"></div>
 
+                        <div class="profile-heading">
+                            <div class="profile-avatar" aria-hidden="true">
+                                {{ request.user.first_name|first|upper|default:"?" }}
+                            </div>
+
+                            <div class="profile-identity">
+                                <h1>{{ request.user.first_name|default:request.user.username }}</h1>
+                                <p>@{{ request.user.username }}</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="profile-card bio-card" aria-labelledby="bio-heading">
+                        <h2 id="bio-heading">About</h2>
+                        {% if request.user.major %}
+                            <p>Major: {{ request.user.major }}</p>
+                        {% else %}
+                            <p>Your major hasn’t been added yet.</p>
+                        {% endif %}
+                    </section>
+
+                    <section class="profile-card" aria-labelledby="skills-heading">
+                        <h2 id="skills-heading">Skills</h2>
+                        <p>No skills have been added yet.</p>
+                    </section>
+                </div>
+
+                <aside class="profile-sidebar" aria-label="Additional profile information">
+                    <section class="profile-card" aria-labelledby="classes-heading">
+                        <h2 id="classes-heading">Classes Taken</h2>
+                        <p>No classes have been added yet.</p>
+                    </section>
+
+                    <section class="profile-card" aria-labelledby="interests-heading">
+                        <h2 id="interests-heading">Interests &amp; Clubs</h2>
+                        <p>No interests or clubs have been added yet.</p>
+                    </section>
+
+                    <section class="profile-card" aria-labelledby="socials-heading">
+                        <h2 id="socials-heading">Socials</h2>
+                        <p>No social links have been added yet.</p>
+                    </section>
+                </aside>
+            </div>
+        </main>
     </body>
 </html>
