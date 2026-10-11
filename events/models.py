@@ -14,10 +14,16 @@ class TutoringEvent(models.Model):
 
 
 class TutorListing(models.Model):
+    
+    tutor = models.ForeignKey(
+        settings.AUTH_USER_MODELS, 
+        on_delete=models.CASCADE
+    )
     tutor = models.TextField()
     bio = models.TextField()
     subject = models.TextField()
     cost = models.FloatField()
+
 
 
 class EventInteraction(models.Model):
