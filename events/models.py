@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 # Create your models here.
 class TutoringEvent(models.Model):
@@ -8,10 +10,10 @@ class TutoringEvent(models.Model):
     subject = models.TextField()
     tutor = models.TextField()
     isPublic = models.BooleanField()
+    
 
 
 class TutorListing(models.Model):
-    listing_id = models.IntegerField
     tutor = models.TextField()
     bio = models.TextField()
     subject = models.TextField()
@@ -19,7 +21,24 @@ class TutorListing(models.Model):
 
 
 class EventInteraction(models.Model):
-    student = models.TextField()
+
+    # limit status field to three options {default(no interaction), save event, going to event(RSVP)}
+    class Status(models.TextChoices):
+        DEFAULT = "default", "No Interaction" 
+        GOING = "going" , "Going"
+        SAVED = "saved" , "Saved"
+
+    tutoring_event = models.ForeignKey(TutoringEvent, on_delete=models.CASCADE)
+    student = models.ForeignKey(
+            settings.AUTH_USER_MODEL,
+            on_delete=models.CASCADE
+    )
+    status = models.CharField(
+        max_length= 10,
+        choices=Status.choices,
+        default=Status.DEFAULT
+    )
+    
 
 
 
