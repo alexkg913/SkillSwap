@@ -16,7 +16,7 @@ class TutoringEvent(models.Model):
 class TutorListing(models.Model):
     
     tutor = models.ForeignKey(
-        settings.AUTH_USER_MODELS, 
+        settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE
     )
     tutor = models.TextField()
