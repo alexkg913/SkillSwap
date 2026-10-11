@@ -161,9 +161,10 @@ body {
 .profile-heading {
     position: relative;
     display: flex;
-    align-items: end;
+    align-items: right;
     gap: 1.2rem;
     margin: -3.5rem 1.5rem 0;
+    flex-direction: column;
 }
 
 .profile-avatar {
@@ -259,6 +260,20 @@ button:focus-visible {
 
     .profile-sidebar {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 760px) {
+    .profile-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin: -3.25rem 1rem 1rem;
+    }
+
+    .profile-identity {
+        padding-bottom: 0;
     }
 }
 
