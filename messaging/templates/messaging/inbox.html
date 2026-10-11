@@ -16,7 +16,7 @@
                 <li>
 
                     <!-- Displays the other user's name and the content of the most recent message in the conversation. -->
-                    <strong>{{ other_user}}</strong> 
+                    <strong><a href="{% url 'thread' other_user.id %}">{{ other_user }}</a></strong>
 
                     <!-- Displays the content and timestamp of the most recent message in the conversation. -->
                     <p> {{ conversation_messages.0.content }} </p>
