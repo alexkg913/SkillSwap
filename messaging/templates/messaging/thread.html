@@ -17,12 +17,12 @@
     {% empty %}
         <p>No messages yet.</p>
     {% endfor %}
+    <form method="post">
+    {% csrf_token %}
+    <textarea name="content" required></textarea>
+    <button type="submit">Send</button>
+</form>
     <!-- Form to send a new message in the conversation -->
-<form method="post">
-        {% csrf_token %} <!-- CSRF token for security -->
-        <textarea name="content" required></textarea>
-        <button type="submit">Send</button>
-    </form>
 
 </body>
 </html>

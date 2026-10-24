@@ -1,11 +1,12 @@
-from django.shortcuts import get_object_or_404, render
+from django.http import request
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q # for complex queries
 from .models import DirectMessage
+from django.shortcuts import get_object_or_404, redirect, render
 
 
 # Create your views here.
-@login_required # Decorator ensures that only users who are logged in can access the inbox view.
+@login_required(login_url='/login/') # Decorator ensures that only users who are logged in can access the inbox view.
 # The inbox view retrieves all messages where the logged-in user is either the sender or recipient, groups them by the other user in the conversation, and renders them in the 'messaging/inbox.html' template.
 def inbox(request):
     # Get all messages where the logged-in user is either the sender or recipient. Ordered by descending timestamp.
@@ -26,9 +27,19 @@ def inbox(request):
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-@login_required
+@login_required(login_url='/login/')
 def thread(request, user_id):
     other_user = get_object_or_404(User, pk=user_id)
+
+    if other_user == request.user:
+        return redirect('inbox')
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            DirectMessage.objects.create(sender=request.user, recipient=other_user, content=content)
+        return redirect('thread', user_id=other_user.id)
+
     thread_messages = DirectMessage.objects.filter(
         Q(sender=request.user, recipient=other_user) |
         Q(sender=other_user, recipient=request.user)
