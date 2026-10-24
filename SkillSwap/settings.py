@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     "login",
     "user_profile",
     "messaging",
+    "events"
+
 ]
 
 MIDDLEWARE = [
