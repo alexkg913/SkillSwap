@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ heading }} &middot; SkillSwap</title>
+    <link rel="stylesheet" href="{% static 'home/vendor/leaflet/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+</head>
+<body>
+
+    <div class="page">
+
+        <header>
+            <h1><strong>SkillSwap</strong></h1>
+        </header>
+
+        <nav>
+            <a href="{% url 'home:index' %}">Home</a>
+        </nav>
+
+        <main>
+            <h2 class="form-heading">{{ heading }}</h2>
+
+            <form method="post" class="event-form">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors" role="alert">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <section class="event-form__fields">
+                    {% for field in form.visible_fields %}
+                        <div class="field">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <p class="field__help">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="field__errors" role="alert">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    {# latitude / longitude are hidden inputs written by the picker. #}
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="field__errors" role="alert">{{ field.errors }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </section>
+
+                <section class="map map--picker" aria-labelledby="map-picker-label">
+                    <h3 id="map-picker-label" class="visually-hidden">
+                        Pick the event location on the campus map
+                    </h3>
+
+                    {% comment %}
+                        Server-rendered, so it doubles as the no-JS state. The
+                        building dropdown above is the keyboard-operable way to
+                        set a location, which is why the form stays usable when
+                        the map never starts.
+                    {% endcomment %}
+                    <p class="map__fallback map-picker__fallback">
+                        Map loading... you can also just pick a building from the list above.
+                    </p>
+
+                    <div id="campus-map-picker"
+                         role="application"
+                         aria-label="Campus map. Click or drag the marker to place your event."
+                         hidden></div>
+                </section>
+
+                <p class="map-picker__warning" role="alert" hidden>
+                    That pin is outside campus. Move it back inside before saving.
+                </p>
+
+                <div class="event-form__actions">
+                    <button type="submit" class="register">
+                        {% if event %}Save changes{% else %}Create event{% endif %}
+                    </button>
+                    <a class="form-cancel" href="{% url 'home:index' %}">Back to the map</a>
+                </div>
+            </form>
+
+            {% if event and not event.is_cancelled %}
+                {% comment %}
+                    Separate form: cancelling is a state change, so it is POST
+                    with its own CSRF token, and it sets a flag rather than
+                    deleting the row.
+                {% endcomment %}
+                <form method="post" action="{% url 'events:cancel' event.pk %}" class="event-cancel">
+                    {% csrf_token %}
+                    <button type="submit" class="event-cancel__button">Cancel this event</button>
+                </form>
+            {% elif event and event.is_cancelled %}
+                <p class="event-cancel__notice">This event is cancelled and no longer on the map.</p>
+            {% endif %}
+        </main>
+
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy SkillSwap 2026</p>
+        </div>
+    </footer>
+
+    {{ map_config|json_script:"map-config" }}
+    {{ campus_buildings|json_script:"campus-buildings" }}
+
+    <script src="{% static 'home/vendor/leaflet/leaflet.js' %}"></script>
+    <script src="{% static 'home/js/campus_map.js' %}"></script>
+    <script src="{% static 'events/js/event_picker_init.js' %}"></script>
+
+</body>
+</html>

@@ -24,5 +24,6 @@ urlpatterns = [
     path('login/', include("login.urls")),
     path('profile/', include("user_profile.urls")),
     path('messaging/', include('messaging.urls')),
+    path('events/', include('events.urls')),
     
 ]

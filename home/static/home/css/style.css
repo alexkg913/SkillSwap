@@ -262,6 +262,170 @@ main {
   box-shadow: 0 10px 22px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
+/* Listing contents. The panel mirrors the map pins, so these reuse the glass
+   tokens already in use rather than introducing a second visual language. */
+
+.result__title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.result__meta {
+  font-size: 0.9rem;
+  color: rgba(26, 60, 77, 0.75);
+}
+
+.result__meta:empty {
+  display: none;
+}
+
+/* No upcoming events is a normal state, not an error -- keep it quiet. */
+.result--empty {
+  color: rgba(26, 60, 77, 0.6);
+  font-style: italic;
+}
+
+.result--empty:hover {
+  transform: none;
+}
+
+/* Popup contents, built by campus_map.js. */
+.campus-map-popup__title {
+  display: block;
+  font-weight: 600;
+}
+
+.campus-map-popup__meta {
+  font-size: 0.9rem;
+  color: rgba(26, 60, 77, 0.75);
+}
+
+/* ---------- Event form ---------- */
+
+.form-heading {
+  margin-bottom: 18px;
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.event-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.35));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 6px 16px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-weight: 600;
+}
+
+.field input[type="text"],
+.field input[type="datetime-local"],
+.field select,
+.field textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+  color: var(--text-dark);
+  font: inherit;
+}
+
+/* Visible keyboard focus, not just the browser default on a glass background. */
+.field input:focus-visible,
+.field select:focus-visible,
+.event-form button:focus-visible,
+.form-cancel:focus-visible {
+  outline: 3px solid var(--deep-blue);
+  outline-offset: 2px;
+}
+
+.field__help {
+  font-size: 0.85rem;
+  color: rgba(26, 60, 77, 0.7);
+}
+
+/* Errors carry a text marker as well as colour, so colour is not the only
+   signal that something needs fixing. */
+.field__errors,
+.form-errors,
+.map-picker__warning {
+  color: #8c2b1b;
+  font-size: 0.9rem;
+}
+
+.field__errors ul,
+.form-errors ul {
+  list-style: none;
+}
+
+.field__errors li::before,
+.form-errors li::before,
+.map-picker__warning::before {
+  content: "\26a0  ";
+}
+
+.map--picker {
+  min-height: 380px;
+}
+
+.map--picker #campus-map-picker {
+  flex: 1;
+  min-height: 380px;
+}
+
+#campus-map-picker[hidden] {
+  display: none;
+}
+
+.map-picker__warning[hidden] {
+  display: none;
+}
+
+.event-form__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.form-cancel {
+  color: var(--deep-blue);
+}
+
+.event-cancel {
+  margin-top: 24px;
+}
+
+.event-cancel__button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+  color: #8c2b1b;
+  font: inherit;
+  cursor: pointer;
+}
+
+.event-cancel__notice {
+  margin-top: 24px;
+  font-style: italic;
+  color: rgba(26, 60, 77, 0.7);
+}
+
 /* ---------- Leaflet skin ---------- */
 
 /* Reuse the existing glass tokens so the map controls match the rest of the

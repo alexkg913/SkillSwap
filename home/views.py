@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.shortcuts import render
 
+from events.selectors import map_event_payload
+
 
 def map_config():
     """Server-provided Leaflet configuration for the campus map.
@@ -21,17 +23,20 @@ def map_config():
 def map_events():
     """Public event pins for the campus map.
 
-    The events app that owns TutoringEvent is not part of this branch, so there
-    is nothing to pin yet and the map renders empty. When it lands, this returns
-    the payload from events.selectors and must expose public fields only -- no
-    account emails, no user IDs. See docs/campus-map-plan.md section 6.
+    Public fields only -- the home page is reachable without logging in. See
+    events.selectors.serialize_event_for_map and
+    docs/campus-map-plan.md section 6.
     """
-    return []
+    return map_event_payload()
 
 
 def index(request):
+    events = map_events()
     context = {
         "map_config": map_config(),
-        "map_events": map_events(),
+        "map_events": events,
+        # The listings panel renders the same payload server-side, so the pins
+        # are an enhancement rather than the only way to reach an event.
+        "event_listings": events,
     }
     return render(request, "home/index.html", context)

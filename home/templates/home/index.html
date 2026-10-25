@@ -29,7 +29,7 @@
         <nav>
             <a href="#">Find a Tutor</a>
             <a href="#">Be a Tutor</a>
-            <a href="#">Create a Tutoring Event</a>
+            <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
             <a href="#">Messages</a>
             <a href="#">Profile</a>
         </nav>
@@ -62,13 +62,39 @@
                              hidden></div>
                     </section>
 
-                    <section class="results">
-                        <div class="result">
-                            <p>Pretend this is a listing.</p>
-                        </div>
-                        <div class="result">
-                            <p>Pretend this is another listing.</p>
-                        </div>
+                    {% comment %}
+                        The keyboard-accessible equivalent of the map pins: the
+                        same payload, server-rendered, so a canvas full of
+                        markers is never the only way to reach an event.
+                    {% endcomment %}
+                    <section class="results" aria-labelledby="event-listings-label">
+                        <h2 id="event-listings-label" class="visually-hidden">
+                            Upcoming tutoring events
+                        </h2>
+
+                        {% for event in event_listings %}
+                            <div class="result">
+                                <p class="result__title">{{ event.title }}</p>
+                                <p class="result__meta">
+                                    {{ event.starts_at_display }}
+                                    {% if event.subject %}&middot; {{ event.subject }}{% endif %}
+                                </p>
+                                <p class="result__meta">
+                                    {% if event.building %}{{ event.building }}{% endif %}
+                                    {% if event.location_note %}
+                                        {% if event.building %}&middot; {% endif %}{{ event.location_note }}
+                                    {% endif %}
+                                </p>
+                                {% if event.tutor %}
+                                    <p class="result__meta">Tutor: {{ event.tutor }}</p>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="result result--empty">
+                                <p>No upcoming tutoring events yet.</p>
+                                <p>Once someone schedules one, it shows up here and as a pin on the map.</p>
+                            </div>
+                        {% endfor %}
                     </section>
 
                 </div>
