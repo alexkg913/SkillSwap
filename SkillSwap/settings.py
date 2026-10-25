@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "home",
     "login",
     "user_profile",
+    "messaging",
     "events"
 
 ]
