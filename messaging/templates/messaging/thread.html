@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Conversation</title>
+</head>
+<body>
+    <h1>Conversation with {{ other_user }}</h1>
+    <a href="{% url 'inbox' %}">Back to inbox</a>
+
+    {% for message in thread_messages %}
+        <div>
+            <strong>{% if message.sender == request.user %}You{% else %}{{ message.sender }}{% endif %}</strong>
+            <p>{{ message.content }}</p>
+            <small>{{ message.timestamp }}</small>
+        </div>
+    {% empty %}
+        <p>No messages yet.</p>
+    {% endfor %}
+    <form method="post">
+    {% csrf_token %}
+    <textarea name="content" required></textarea>
+    <button type="submit">Send</button>
+</form>
+    <!-- Form to send a new message in the conversation -->
+
+</body>
+</html>
