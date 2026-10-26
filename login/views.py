@@ -16,6 +16,15 @@ from django.db import IntegrityError, transaction
 class RegistrationEmailForm(forms.Form):
     email = forms.EmailField()
 
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        User = get_user_model()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(
+                "An account with this email already exists. Try signing in instead."
+            )
+        return email
+
 class RegistrationPasswordForm(forms.Form):
     password = forms.CharField(
         strip=False,
@@ -255,8 +264,8 @@ def register_password(request):
             except IntegrityError:
                 form.add_error(
                     None,
-                    "Unable to create this account oh no!"
-                    "Try signing in or use another email :(("
+                    "Unable to create this account. This email may already be in use; "
+                    "try signing in or use another email.",
                 )
             else:
                 request.session["pending_registration_user_id"] = str(user.pk)
