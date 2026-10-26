@@ -66,11 +66,18 @@ body {
     color: var(--text-muted);
     font: inherit;
     text-decoration: none;
+    transition: color 160ms ease, background-color 160ms ease;
+}
+
+.main-nav a {
+    padding: 0.45rem 0.55rem;
+    border-radius: 0.5rem;
 }
 
 .main-nav a:hover,
 .main-nav a:focus-visible {
     color: var(--accent-hover);
+    background: rgba(103, 212, 232, 0.1);
 }
 
 .account-actions {
@@ -161,7 +168,7 @@ body {
 .profile-heading {
     position: relative;
     display: flex;
-    align-items: right;
+    align-items: flex-start;
     gap: 1.2rem;
     margin: -3.5rem 1.5rem 0;
     flex-direction: column;
@@ -196,38 +203,66 @@ body {
 .profile-identity p {
     margin: 0.25rem 0 0;
     color: var(--text-muted);
+    overflow-wrap: anywhere;
 }
 
 /* Soft, borderless information surfaces */
 .profile-card {
     min-width: 0;
-    min-height: 170px;
+    min-height: 0;
     padding: clamp(1.1rem, 2vw, 1.55rem);
-    border: 0;
+    border: 1px solid rgba(207, 230, 241, 0.1);
     border-radius: 1rem;
     background: linear-gradient(145deg, rgba(38, 56, 72, 0.9), rgba(25, 38, 51, 0.92));
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
 }
 
 .profile-card h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
     margin: 0 0 0.85rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid rgba(207, 230, 241, 0.1);
     color: var(--text);
     font-size: 1.05rem;
     font-weight: 680;
 }
 
+.profile-card h2::before {
+    width: 0.25rem;
+    height: 1.15rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: var(--accent);
+    content: "";
+}
+
 .profile-card p {
+    max-width: 65ch;
     margin: 0;
     color: var(--text-muted);
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.profile-card a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+}
+
+.profile-card a:hover {
+    color: var(--accent-hover);
 }
 
 .bio-card {
     grid-column: 1 / -1;
-    min-height: 150px;
 }
 
 .profile-main > .profile-card:not(.bio-card) {
-    min-height: 210px;
+    min-height: 0;
 }
 
 .profile-sidebar {
@@ -236,21 +271,28 @@ body {
 }
 
 .profile-sidebar .profile-card:first-child {
-    min-height: 180px;
+    min-height: 0;
 }
 
 .profile-sidebar .profile-card:nth-child(2) {
-    min-height: 280px;
+    min-height: 0;
 }
 
 .profile-sidebar .profile-card:nth-child(3) {
-    min-height: 190px;
+    min-height: 0;
 }
 
 a:focus-visible,
 button:focus-visible {
     outline: 3px solid var(--focus-ring);
     outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .main-nav a,
+    .account-actions button {
+        transition: none;
+    }
 }
 
 @media (max-width: 900px) {
