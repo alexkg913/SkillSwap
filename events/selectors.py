@@ -7,23 +7,36 @@ request handling. See docs/campus-map-plan.md section 6.
 from django.utils import timezone
 
 from .models import CampusLocation, TutoringEvent
+from django.db.models import Q
 
-
-def upcoming_events_for_map():
+def upcoming_events_for_map(query="", subject="", tutor=""):
     """Events eligible to appear as pins on the home map.
 
     One query, matched by the (is_cancelled, isPublic, date) index:
     public, not cancelled, not already over.
     """
-    return (
+    events = (
         TutoringEvent.objects.filter(
             isPublic=True,
             is_cancelled=False,
             date__gte=timezone.now(),
         )
         .select_related("campus_location")
-        .order_by("date")
     )
+    if query:
+        events = events.filter(
+            Q(title__icontains=query) |
+            Q(subject__icontains=query) |
+            Q(tutor__icontains=query)
+    )
+
+    if subject:
+        events = events.filter(subject=subject)
+
+    if tutor:
+        events = events.filter(tutor=tutor)
+
+    return events.order_by("date")
 
 
 def _format_start(local_start):
@@ -71,9 +84,13 @@ def serialize_event_for_map(event):
     }
 
 
-def map_event_payload():
+def map_event_payload(query="", subject="", tutor=""):
     """The full pin payload rendered into the home page."""
-    return [serialize_event_for_map(event) for event in upcoming_events_for_map()]
+    return [serialize_event_for_map(event) for event in upcoming_events_for_map(
+        query=query,
+        subject=subject,
+        tutor=tutor,
+    )]
 
 
 def campus_building_coordinates():

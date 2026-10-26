@@ -20,18 +20,31 @@ def map_config():
     }
 
 
-def map_events():
+def map_events(query="", subject="", tutor=""):
     """Public event pins for the campus map.
 
     Public fields only -- the home page is reachable without logging in. See
     events.selectors.serialize_event_for_map and
     docs/campus-map-plan.md section 6.
     """
-    return map_event_payload()
+    return map_event_payload(
+        query=query,
+        subject=subject,
+        tutor=tutor,
+    )
 
 
 def index(request):
-    events = map_events()
+    query = request.GET.get("q", "").strip()
+    subject = request.GET.get("subject", "")
+    tutor = request.GET.get("tutor", "")
+
+    events = map_events(
+        query=query,
+        subject=subject,
+        tutor=tutor,
+
+    )
     subjects = available_subjects()
     tutors = available_tutors()
     
@@ -44,6 +57,7 @@ def index(request):
         "event_listings": events,
         "subjects": subjects,
         "tutors" : tutors,
+        "query": query,
         
     }
     return render(request, "home/index.html", context)
