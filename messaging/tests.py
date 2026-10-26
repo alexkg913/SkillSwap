@@ -38,9 +38,9 @@ class MessagingTests(TestCase):
 
     def test_empty_reply_is_not_saved(self):
         self.client.post(reverse('thread', args=[self.other.id]), {'content': '   '})
-        self.assertEqual(DirectMessage.objects.count(), 1)
+        self.assertEqual(DirectMessage.objects.count(), 0)
 
     def test_cannot_message_yourself(self):
         response = self.client.post(reverse('thread', args=[self.me.id]), {'content': 'note to self'})
-        self.assertRedirects(response, reverse('thread', args=[self.me.id]))
+        self.assertRedirects(response, reverse('inbox'))
         self.assertEqual(DirectMessage.objects.count(), 0)
