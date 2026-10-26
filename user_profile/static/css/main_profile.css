@@ -193,6 +193,22 @@ body {
     padding-bottom: 0.55rem;
 }
 
+.profile-meta-row {
+    display: flex;
+    width: 100%;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
 .profile-identity h1 {
     margin: 0;
     overflow-wrap: anywhere;
@@ -246,6 +262,14 @@ body {
     overflow-wrap: anywhere;
 }
 
+.profile-empty-state {
+    padding: 0.75rem 0.9rem;
+    border: 1px dashed rgba(167, 227, 239, 0.24);
+    border-radius: 0.65rem;
+    background: rgba(16, 25, 35, 0.2);
+    font-size: 0.95rem;
+}
+
 .profile-card a {
     color: var(--accent);
     text-decoration: underline;
@@ -255,6 +279,46 @@ body {
 
 .profile-card a:hover {
     color: var(--accent-hover);
+}
+
+/* Future content patterns for profile data. */
+.profile-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.profile-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.3rem 0.65rem;
+    border: 1px solid rgba(103, 212, 232, 0.25);
+    border-radius: 999px;
+    background: rgba(103, 212, 232, 0.1);
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.profile-detail-list {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.profile-detail-list li {
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid rgba(207, 230, 241, 0.08);
+}
+
+.profile-detail-list li:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
 }
 
 .bio-card {
@@ -312,6 +376,11 @@ button:focus-visible {
         align-items: flex-start;
         gap: 0.75rem;
         margin: -3.25rem 1rem 1rem;
+    }
+
+    .profile-meta-row {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .profile-identity {

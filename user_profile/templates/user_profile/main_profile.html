@@ -42,42 +42,69 @@
                                 {{ request.user.first_name|first|upper|default:"?" }}
                             </div>
 
-                            <div class="profile-identity">
-                                <h1>{{ request.user.first_name|default:request.user.username }}</h1>
-                                <p>@{{ request.user.username }}</p>
+                            <div class="profile-meta-row">
+                                <div class="profile-identity">
+                                    <h1>{{ request.user.first_name|default:request.user.username }}</h1>
+                                    <p>@{{ request.user.username }}</p>
+                                </div>
+
+                                <div class="profile-actions" aria-label="Profile actions">
+                                    <a href="{% url 'user_profile:user_settings' %}">Edit Profile</a>
+                                    <button type="button">Share your profile</button>
+                                </div>
                             </div>
                         </div>
                     </section>
 
                     <section class="profile-card bio-card" aria-labelledby="bio-heading">
-                        <h2 id="bio-heading">About</h2>
-                        {% if request.user.major %}
-                            <p>Major: {{ request.user.major }}</p>
-                        {% else %}
-                            <p>Your major hasn’t been added yet.</p>
-                        {% endif %}
+                        <div class="profile-card-header">
+                            <h2 id="bio-heading">About</h2>
+                        </div>
+                        <div class="profile-card-content profile-card-content--about">
+                            {% if request.user.major %}
+                                <p>Major: {{ request.user.major }}</p>
+                            {% else %}
+                                <p class="profile-empty-state">Your major hasn’t been added yet.</p>
+                            {% endif %}
+                        </div>
                     </section>
 
                     <section class="profile-card" aria-labelledby="skills-heading">
-                        <h2 id="skills-heading">Skills</h2>
-                        <p>No skills have been added yet.</p>
+                        <div class="profile-card-header">
+                            <h2 id="skills-heading">Skills</h2>
+                        </div>
+                        <div class="profile-card-content profile-card-content--skills">
+                            <p class="profile-empty-state">No skills have been added yet.</p>
+                        </div>
                     </section>
                 </div>
 
                 <aside class="profile-sidebar" aria-label="Additional profile information">
                     <section class="profile-card" aria-labelledby="classes-heading">
-                        <h2 id="classes-heading">Classes Taken</h2>
-                        <p>No classes have been added yet.</p>
+                        <div class="profile-card-header">
+                            <h2 id="classes-heading">Classes Taken</h2>
+                        </div>
+                        <div class="profile-card-content profile-card-content--classes">
+                            <p class="profile-empty-state">No classes have been added yet.</p>
+                        </div>
                     </section>
 
                     <section class="profile-card" aria-labelledby="interests-heading">
-                        <h2 id="interests-heading">Interests &amp; Clubs</h2>
-                        <p>No interests or clubs have been added yet.</p>
+                        <div class="profile-card-header">
+                            <h2 id="interests-heading">Interests &amp; Clubs</h2>
+                        </div>
+                        <div class="profile-card-content profile-card-content--interests">
+                            <p class="profile-empty-state">No interests or clubs have been added yet.</p>
+                        </div>
                     </section>
 
                     <section class="profile-card" aria-labelledby="socials-heading">
-                        <h2 id="socials-heading">Socials</h2>
-                        <p>No social links have been added yet.</p>
+                        <div class="profile-card-header">
+                            <h2 id="socials-heading">Socials</h2>
+                        </div>
+                        <div class="profile-card-content profile-card-content--socials">
+                            <p class="profile-empty-state">No social links have been added yet.</p>
+                        </div>
                     </section>
                 </aside>
             </div>
