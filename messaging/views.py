@@ -48,3 +48,9 @@ def thread(request, user_id):
         'other_user': other_user,
         'thread_messages': thread_messages,
     })
+
+
+@login_required(login_url='/login/')
+def new_conversation(request):
+    people = User.objects.exclude(pk=request.user.pk).order_by('username') # Get all users except the logged-in user.
+    return render(request, 'messaging/new_conversation.html', {'people': people}) # Render the new conversation template with the list of users.

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>New Conversation</title>
+
+</head>
+<body>
+    <h1>Start a New Conversation</h1>
+    <a href="{% url 'inbox' %}">Back to inbox</a>
+
+    <ul>
+        {% for person in people %}
+            <li><a href = "{% url 'thread' user_id=person.id %}">{{ person.username }}</a></li>
+            {% empty %}
+            <li>No other users available.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

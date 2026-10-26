@@ -6,4 +6,5 @@ from django.contrib.auth import get_user_model
 urlpatterns = [
     path('inbox/', views.inbox, name='inbox'),
     path('thread/<uuid:user_id>/', views.thread, name='thread'),
+    path('new/', views.new_conversation, name='new_conversation'),
 ]
