@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.shortcuts import render
 
-from events.selectors import map_event_payload
+from events.selectors import map_event_payload, available_subjects, available_tutors
 
 
 def map_config():
@@ -32,11 +32,18 @@ def map_events():
 
 def index(request):
     events = map_events()
+    subjects = available_subjects()
+    tutors = available_tutors()
+    
+
     context = {
         "map_config": map_config(),
         "map_events": events,
         # The listings panel renders the same payload server-side, so the pins
         # are an enhancement rather than the only way to reach an event.
         "event_listings": events,
+        "subjects": subjects,
+        "tutors" : tutors,
+        
     }
     return render(request, "home/index.html", context)

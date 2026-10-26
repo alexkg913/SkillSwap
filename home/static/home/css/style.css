@@ -159,7 +159,7 @@ main {
 .search-bar {
   display: flex;
   gap: 10px;
-  max-width: 480px;
+  max-width: 650px;
 }
 
 .search-bar input {
@@ -517,4 +517,101 @@ footer {
   .results {
     max-height: none;
   }
+}
+/* ---------- Filter dropdown ---------- */
+
+.filter-options {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Filter by button */
+.filter-options summary {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.9),
+        rgba(255,255,255,0.4)
+    );
+
+    color: var(--deep-blue);
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9),
+                0 3px 8px var(--shadow);
+
+    list-style: none;
+    transition: transform 0.15s ease;
+}
+
+.filter-options summary::-webkit-details-marker {
+    display: none;
+}
+
+.filter-options summary:hover {
+    transform: translateY(-2px);
+}
+
+/* Dropdown panel */
+.filter-content {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    min-width: 240px;
+    padding: 18px;
+
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.95),
+        rgba(255,255,255,0.75)
+    );
+
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 16px var(--shadow),
+                inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* Filter labels */
+.filter-content label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+/* Filter selection fields */
+.filter-content select {
+    width: 100%;
+    padding: 10px 12px;
+
+    border-radius: 999px;
+    border: 1px solid var(--deep-blue);
+
+    background: var(--glass-white);
+    color: var(--text-dark);
+    font: inherit;
+    cursor: pointer;
+}
+
+/* Keyboard accessibility */
+.filter-options summary:focus-visible,
+.filter-content select:focus-visible {
+    outline: 3px solid var(--deep-blue);
+    outline-offset: 2px;
 }

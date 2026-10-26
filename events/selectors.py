@@ -90,3 +90,26 @@ def campus_building_coordinates():
         }
         for location in CampusLocation.objects.filter(is_active=True)
     }
+
+def available_subjects():
+    return (
+        upcoming_events_for_map()
+        .exclude(subject__isnull=True)
+        .exclude(subject="")
+        .values_list("subject", flat=True)
+        .distinct()
+        .order_by("subject")
+    )
+
+
+def available_tutors():
+    return(
+        upcoming_events_for_map()
+        .exclude(tutor__isnull=True)
+        .exclude(tutor="")
+        .values_list("tutor", flat=True)
+        .distinct()
+        .order_by("tutor")
+
+    )
+

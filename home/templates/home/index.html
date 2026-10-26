@@ -35,9 +35,44 @@
         </nav>
 
             <main>
-                <form class="search-bar" label="search">
-                    <input type="search" placeholder="Search...">
+                <form class="search-bar" method="get">
+
+                    <input type="search" name="q" placeholder="Search...">
+
+                    <details class="filter-options">
+                        <summary>Filter by</summary>
+
+                        <div class="filter-content">
+
+                            <label for="subject">Course/Subject</label>
+                            <select id="subject" name="subject">
+                                <option value="">All Subjects</option>
+
+                                {% for subject in subjects %}
+                                    <option value="{{ subject }}"
+                                        {% if request.GET.subject == subject %}selected{% endif %}>
+                                        {{ subject }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="tutor">Tutor</label>
+                            <select id="tutor" name="tutor">
+                                <option value="">All Tutors</option>
+
+                                {% for tutor in tutors %}
+                                    <option value="{{ tutor }}"
+                                        {% if request.GET.tutor == tutor %}selected{% endif %}>
+                                        {{ tutor }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+                    </details>
+
                     <button type="submit">Search</button>
+
                 </form>
 
 
