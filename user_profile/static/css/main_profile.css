@@ -209,6 +209,41 @@ body {
     gap: 0.6rem;
 }
 
+.profile-actions a,
+.profile-actions button {
+    display: inline-flex;
+    min-height: 2.35rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--accent);
+    border-radius: 0.55rem;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 680;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 160ms ease, background-color 160ms ease;
+}
+
+.profile-actions a {
+    background: var(--accent);
+    color: var(--page-bg);
+}
+
+.profile-actions button {
+    background: transparent;
+    color: var(--accent);
+}
+
+.profile-actions a:hover,
+.profile-actions button:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: var(--page-bg);
+}
+
 .profile-identity h1 {
     margin: 0;
     overflow-wrap: anywhere;
@@ -243,6 +278,7 @@ body {
     color: var(--text);
     font-size: 1.05rem;
     font-weight: 680;
+    letter-spacing: 0.015em;
 }
 
 .profile-card h2::before {
@@ -354,7 +390,9 @@ button:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
     .main-nav a,
-    .account-actions button {
+    .account-actions button,
+    .profile-actions a,
+    .profile-actions button {
         transition: none;
     }
 }
@@ -383,6 +421,10 @@ button:focus-visible {
         align-items: flex-start;
     }
 
+    .profile-actions {
+        justify-content: flex-start;
+    }
+
     .profile-identity {
         padding-bottom: 0;
     }
@@ -399,8 +441,8 @@ button:focus-visible {
     .main-nav {
         order: 3;
         width: 100%;
-        justify-content: space-between;
-        gap: 0.65rem;
+        justify-content: flex-start;
+        gap: clamp(0.45rem, 1.8vw, 1rem);
         padding-top: 0.25rem;
     }
 
@@ -422,6 +464,15 @@ button:focus-visible {
         gap: 0.9rem;
         margin-right: 0.75rem;
         margin-left: 0.75rem;
+    }
+
+    .profile-actions {
+        width: 100%;
+    }
+
+    .profile-actions a,
+    .profile-actions button {
+        flex: 1 1 0;
     }
 
     .profile-banner {
