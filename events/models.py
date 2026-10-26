@@ -127,7 +127,9 @@ class EventInteraction(models.Model):
         GOING = "going" , "Going"
         SAVED = "saved" , "Saved"
 
-    tutoring_event = models.ForeignKey(TutoringEvent, on_delete=models.CASCADE)
+    tutoring_event = models.ForeignKey(
+        TutoringEvent, 
+        on_delete=models.CASCADE)
     student = models.ForeignKey(
             settings.AUTH_USER_MODEL,
             on_delete=models.CASCADE
