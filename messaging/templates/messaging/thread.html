@@ -5,7 +5,7 @@
     <title>Conversation</title>
 </head>
 <body>
-    <h1>Conversation with {{ other_user }}</h1>
+    <h1>Conversation with {{ other_user.first_name | default:other_user.username }}</h1>
     <a href="{% url 'inbox' %}">Back to inbox</a>
 
     {% for message in thread_messages %}

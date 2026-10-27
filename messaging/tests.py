@@ -13,7 +13,7 @@ User = get_user_model()
 class MessagingTests(TestCase):
     def setUp(self):
         self.me = User.objects.create_user(username='me', email='me@example.com', password='pass12345!')
-        self.other = User.objects.create_user(username='other', email='other@example.com', password='pass12345!')
+        self.other = User.objects.create_user(username='other', email='other@example.com', password='pass12345!', first_name='Other Person')
         self.third = User.objects.create_user(username='third', email='third@example.com', password='pass12345!')
         self.client.force_login(self.me)
 
@@ -44,3 +44,9 @@ class MessagingTests(TestCase):
         response = self.client.post(reverse('thread', args=[self.me.id]), {'content': 'note to self'})
         self.assertRedirects(response, reverse('inbox'))
         self.assertEqual(DirectMessage.objects.count(), 0)
+
+    def test_thread_will_show_name_insteadof_email(self):
+        DirectMessage.objects.create(sender=self.me, recipient=self.other, content='hi')
+        response = self.client.get(reverse('thread', args=[self.other.id]))
+        self.assertContains(response, 'Other Person')
+        self.assertNotContains(response, 'other@example.com')
