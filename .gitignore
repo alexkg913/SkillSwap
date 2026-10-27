@@ -147,6 +147,7 @@ GitHub.sublime-settings
 .opencode/
 opencode.json
 .idea/
-AGENTS.md
 
+AGENTS.md
 .obsidian/*
+/media/
