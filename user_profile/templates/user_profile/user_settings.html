@@ -1,4 +1,113 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
-    <h1>How are you here...</h1>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Settings | SkillSwap</title>
+        <link rel="stylesheet" href="{% static 'css/user_settings.css' %}">
+    </head>
+    <body>
+        <header class="site-header">
+            <a class="site-brand" href="/">SkillSwap</a>
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="/">Home</a>
+                <a href="#" aria-label="Events (not available yet)">Events</a>
+                <a href="{% url 'user_profile:user_settings' %}" aria-current="page">Settings</a>
+            </nav>
+            <div class="account-actions">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Log out</button>
+                </form>
+            </div>
+        </header>
+
+        <main class="settings-page">
+            <div class="settings-tabs" aria-label="Settings sections">
+                <a class="settings-tab settings-tab--active" href="{% url 'user_profile:user_settings' %}" aria-current="page">User Settings</a>
+                <a class="settings-tab" href="{% url 'user_profile:security_settings' %}">Security Settings</a>
+            </div>
+
+            <h1>User Settings</h1>
+            <p class="settings-intro">Manage your profile information and social links.</p>
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <section class="settings-section" aria-labelledby="basic-info-heading">
+                    <h2 id="basic-info-heading">Basic Info</h2>
+
+                    <div class="image-settings">
+                        <div class="image-preview image-preview--avatar">
+                            {% if form.instance.avatar %}
+                                <img src="{{ form.instance.avatar.url }}" alt="Current profile avatar">
+                            {% else %}
+                                <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="image-copy">
+                            <h3>Change your avatar</h3>
+                            <p>Use a square JPG, JPEG, or PNG image at least 300 × 300 pixels.</p>
+                            {% include "user_profile/field.html" with field=form.avatar hide_label=True %}
+                        </div>
+                        <div class="image-preview image-preview--banner">
+                            {% if form.instance.banner_picture %}
+                                <img src="{{ form.instance.banner_picture.url }}" alt="Current profile banner">
+                            {% else %}
+                                <span>Banner</span>
+                            {% endif %}
+                        </div>
+                        <div class="banner-upload">
+                            {% include "user_profile/field.html" with field=form.banner_picture hide_label=False %}
+                        </div>
+                    </div>
+
+                    <div class="field-grid">
+                        {% include "user_profile/field.html" with field=form.about_me %}
+                        {% include "user_profile/field.html" with field=form.timezone %}
+                        {% include "user_profile/field.html" with field=form.country %}
+                        {% include "user_profile/field.html" with field=form.city %}
+                        {% include "user_profile/field.html" with field=form.calling_code %}
+                        {% include "user_profile/field.html" with field=form.phone_number %}
+                    </div>
+
+                    <div class="settings-actions">
+                        <button class="primary-button" type="submit">Save changes</button>
+                    </div>
+                </section>
+
+                <section class="settings-section" aria-labelledby="email-heading">
+                    <h2 id="email-heading">Emails</h2>
+                    <p class="section-description">Manage your primary email.</p>
+                    <div class="email-card">
+                        <span>{{ request.user.email }}</span>
+                        <a class="secondary-button" href="#">Change email</a>
+                    </div>
+                </section>
+
+                <section class="settings-section" aria-labelledby="social-heading">
+                    <h2 id="social-heading">Social Profiles</h2>
+                    <div class="social-grid">
+                        {% include "user_profile/field.html" with field=form.github %}
+                        {% include "user_profile/field.html" with field=form.handshake %}
+                        {% include "user_profile/field.html" with field=form.yik_yak %}
+                        {% include "user_profile/field.html" with field=form.linkedin %}
+                        {% include "user_profile/field.html" with field=form.facebook %}
+                        {% include "user_profile/field.html" with field=form.discord %}
+                        {% include "user_profile/field.html" with field=form.instagram %}
+                        {% include "user_profile/field.html" with field=form.slack %}
+                        {% include "user_profile/field.html" with field=form.twitter %}
+                    </div>
+                    <div class="settings-actions">
+                        <button class="primary-button" type="submit">Save changes</button>
+                    </div>
+                </section>
+            </form>
+        </main>
+    </body>
 </html>
