@@ -1,0 +1,8 @@
+<div class="form-field{% if field.errors %} form-field--error{% endif %}">
+    {% if not hide_label %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% endif %}
+    {{ field }}
+    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+    {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+</div>
