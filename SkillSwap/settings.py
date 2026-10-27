@@ -122,6 +122,10 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# User-uploaded files, such as profile avatars and banners.
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 
 # Campus map
 # https://leafletjs.com/reference.html
