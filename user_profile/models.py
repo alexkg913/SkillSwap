@@ -1,5 +1,13 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+
+
+def validate_about_me_word_count(value):
+    """Limit the About Me field to 300 words."""
+
+    if len(value.split()) > 300:
+        raise ValidationError("About Me cannot contain more than 300 words.")
 
 
 class Profile(models.Model):
@@ -21,9 +29,15 @@ class Profile(models.Model):
         blank=True,
     )
 
-    about_me = models.TextField(blank=True)
+    about_me = models.TextField(
+        blank=True,
+        validators=[validate_about_me_word_count],
+    )
+    skills = models.JSONField(default=list, blank=True)
+    classes_taken = models.JSONField(default=list, blank=True)
+    interests_clubs = models.TextField(blank=True)
 
-    # Will be updated with the feature/timezones branch
+    # Stored as a baseline timezone abbreviation selected in the profile form.
     timezone = models.CharField(max_length=64, blank=True)
 
     # This is for students' country of origin btw, not where they currently reside since it would be the US duh

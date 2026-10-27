@@ -6,7 +6,8 @@ from .models import Profile
 
 @login_required(login_url="login")
 def profile_page(request):
-    return render(request, "user_profile/main_profile.html")
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    return render(request, "user_profile/main_profile.html", {"profile": profile})
 
 @login_required(login_url="login")
 def user_settings(request):

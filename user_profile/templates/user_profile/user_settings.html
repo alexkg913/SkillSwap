@@ -68,7 +68,12 @@
                     </div>
 
                     <div class="field-grid">
-                        {% include "user_profile/field.html" with field=form.about_me %}
+                        <div class="form-field{% if form.about_me.errors %} form-field--error{% endif %}">
+                            <label for="{{ form.about_me.id_for_label }}">About me</label>
+                            {{ form.about_me }}
+                            <small>Maximum 300 words.</small>
+                            {% if form.about_me.errors %}<div class="field-errors">{{ form.about_me.errors }}</div>{% endif %}
+                        </div>
                         {% include "user_profile/field.html" with field=form.timezone %}
                         {% include "user_profile/field.html" with field=form.country %}
                         {% include "user_profile/field.html" with field=form.city %}
@@ -76,6 +81,19 @@
                         {% include "user_profile/field.html" with field=form.phone_number %}
                     </div>
 
+                    <div class="settings-actions">
+                        <button class="primary-button" type="submit">Save changes</button>
+                    </div>
+                </section>
+
+                <section class="settings-section profile-content-section" aria-labelledby="profile-content-heading">
+                    <h2 id="profile-content-heading">About Yourself</h2>
+                    <p class="section-description">Share your skills, completed courses, interests, and clubs!</p>
+                    <div class="profile-content-fields">
+                        {% include "user_profile/field.html" with field=form.skills %}
+                        {% include "user_profile/field.html" with field=form.classes_taken %}
+                        {% include "user_profile/field.html" with field=form.interests_clubs %}
+                    </div>
                     <div class="settings-actions">
                         <button class="primary-button" type="submit">Save changes</button>
                     </div>

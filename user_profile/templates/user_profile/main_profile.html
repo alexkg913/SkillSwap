@@ -35,11 +35,19 @@
                 {% else %}palette-rust{% endif %}">
                 <div class="profile-main">
                     <section class="profile-hero" aria-label="Profile header">
-                        <div class="profile-banner" aria-hidden="true"></div>
+                        <div
+                            class="profile-banner{% if profile.banner_picture %} profile-banner--image{% endif %}"
+                            {% if profile.banner_picture %}style="background-image: url('{{ profile.banner_picture.url }}');"{% endif %}
+                            aria-hidden="true"
+                        ></div>
 
                         <div class="profile-heading">
-                            <div class="profile-avatar" aria-hidden="true">
-                                {{ request.user.first_name|first|upper|default:"?" }}
+                            <div class="profile-avatar">
+                                {% if profile.avatar %}
+                                    <img src="{{ profile.avatar.url }}" alt="{{ request.user.first_name|default:request.user.username }}'s avatar">
+                                {% else %}
+                                    <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+                                {% endif %}
                             </div>
 
                             <div class="profile-meta-row">
@@ -61,10 +69,14 @@
                             <h2 id="bio-heading">About</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--about">
+                            {% if profile.about_me %}
+                                <p>{{ profile.about_me|linebreaksbr }}</p>
+                            {% endif %}
                             {% if request.user.major %}
                                 <p>Major: {{ request.user.major }}</p>
-                            {% else %}
-                                <p class="profile-empty-state">Your major hasn’t been added yet.</p>
+                            {% endif %}
+                            {% if not profile.about_me and not request.user.major %}
+                                <p class="profile-empty-state">Tell other students a little about yourself.</p>
                             {% endif %}
                         </div>
                     </section>
@@ -74,7 +86,11 @@
                             <h2 id="skills-heading">Skills</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--skills">
-                            <p class="profile-empty-state">No skills have been added yet.</p>
+                            {% if profile.skills %}
+                                <p>{{ profile.skills|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="profile-empty-state">No skills have been added yet.</p>
+                            {% endif %}
                         </div>
                     </section>
                 </div>
@@ -85,7 +101,11 @@
                             <h2 id="classes-heading">Classes Taken</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--classes">
-                            <p class="profile-empty-state">No classes have been added yet.</p>
+                            {% if profile.classes_taken %}
+                                <p>{{ profile.classes_taken|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="profile-empty-state">No classes have been added yet.</p>
+                            {% endif %}
                         </div>
                     </section>
 
@@ -94,7 +114,11 @@
                             <h2 id="interests-heading">Interests &amp; Clubs</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--interests">
-                            <p class="profile-empty-state">No interests or clubs have been added yet.</p>
+                            {% if profile.interests_clubs %}
+                                <p>{{ profile.interests_clubs|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="profile-empty-state">No interests or clubs have been added yet.</p>
+                            {% endif %}
                         </div>
                     </section>
 
@@ -103,7 +127,21 @@
                             <h2 id="socials-heading">Socials</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--socials">
-                            <p class="profile-empty-state">No social links have been added yet.</p>
+                            {% if profile.github or profile.handshake or profile.yik_yak or profile.linkedin or profile.facebook or profile.discord or profile.instagram or profile.slack or profile.twitter %}
+                                <ul class="profile-detail-list">
+                                    {% if profile.github %}<li><a href="{{ profile.github }}">GitHub</a></li>{% endif %}
+                                    {% if profile.handshake %}<li><a href="{{ profile.handshake }}">Handshake</a></li>{% endif %}
+                                    {% if profile.yik_yak %}<li><a href="{{ profile.yik_yak }}">YikYak</a></li>{% endif %}
+                                    {% if profile.linkedin %}<li><a href="{{ profile.linkedin }}">LinkedIn</a></li>{% endif %}
+                                    {% if profile.facebook %}<li><a href="{{ profile.facebook }}">Facebook</a></li>{% endif %}
+                                    {% if profile.discord %}<li><a href="{{ profile.discord }}">Discord</a></li>{% endif %}
+                                    {% if profile.instagram %}<li><a href="{{ profile.instagram }}">Instagram</a></li>{% endif %}
+                                    {% if profile.slack %}<li><a href="{{ profile.slack }}">Slack</a></li>{% endif %}
+                                    {% if profile.twitter %}<li><a href="{{ profile.twitter }}">Twitter</a></li>{% endif %}
+                                </ul>
+                            {% else %}
+                                <p class="profile-empty-state">No social links have been added yet.</p>
+                            {% endif %}
                         </div>
                     </section>
                 </aside>
