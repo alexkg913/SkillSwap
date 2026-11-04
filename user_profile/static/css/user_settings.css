@@ -199,6 +199,12 @@ h1 {
     margin-top: 1.5rem;
 }
 
+.basic-info-selects {
+    display: grid;
+    align-content: start;
+    gap: 1.65rem;
+}
+
 .profile-content-fields {
     display: grid;
     gap: 1rem;
@@ -251,7 +257,8 @@ h1 {
 }
 
 .form-field--error input,
-.form-field--error textarea {
+.form-field--error textarea,
+.form-field--error select {
     border-color: #f18b8b;
 }
 

@@ -70,10 +70,10 @@
                         </div>
                         <div class="profile-card-content profile-card-content--about">
                             {% if profile.about_me %}
-                                <p>{{ profile.about_me|linebreaksbr }}</p>
+                                <p>{{ profile.about_me|linebreaksbr }}</p><br>
                             {% endif %}
                             {% if request.user.major %}
-                                <p>Major: {{ request.user.major }}</p>
+                                <p>Major: {{ request.user.major }}<br /></p>
                             {% endif %}
                             {% if not profile.about_me and not request.user.major %}
                                 <p class="profile-empty-state">Tell other students a little about yourself.</p>
@@ -127,7 +127,15 @@
                             <h2 id="socials-heading">Socials</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--socials">
-                            {% if profile.github or profile.handshake or profile.yik_yak or profile.linkedin or profile.facebook or profile.discord or profile.instagram or profile.slack or profile.twitter %}
+                            {% if profile.github or
+                                profile.handshake or
+                                profile.yik_yak or
+                                profile.linkedin or
+                                profile.facebook or
+                                profile.discord or
+                                profile.instagram or
+                                profile.slack or
+                                profile.twitter %}
                                 <ul class="profile-detail-list">
                                     {% if profile.github %}<li><a href="{{ profile.github }}">GitHub</a></li>{% endif %}
                                     {% if profile.handshake %}<li><a href="{{ profile.handshake }}">Handshake</a></li>{% endif %}

@@ -1,5 +1,7 @@
 from django import forms
 
+from login.choices import FSC_MAJOR_CHOICES
+
 from .models import Profile
 
 
@@ -160,6 +162,7 @@ class ProfileForm(forms.ModelForm):
         choices=[("", "Select a timezone")] + TIMEZONE_CHOICES,
         required=False,
     )
+    major = forms.ChoiceField(choices=FSC_MAJOR_CHOICES)
 
     class Meta:
         model = Profile

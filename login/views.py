@@ -12,6 +12,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 
+from .choices import FSC_MAJOR_CHOICES
+
 # Django built in Registration Forms for email and password authentication for the db
 class RegistrationEmailForm(forms.Form):
     email = forms.EmailField()
@@ -49,70 +51,6 @@ class RegistrationPasswordForm(forms.Form):
             raise forms.ValidationError("Please include a special character!")
 
         return password
-
-
-FSC_MAJOR_CHOICES = tuple(
-    (major, major) for major in (
-        "Accounting",
-        "Applied Mathematics and Statistics",
-        "Art Education",
-        "Art History and Museum Studies",
-        "Biochemistry and Molecular Biology",
-        "Biology",
-        "Biotechnology",
-        "Chemistry",
-        "Communication",
-        "Communication: Advertising and Public Relations",
-        "Communication: Interpersonal and Organizational Communication",
-        "Communication: Media Strategies and Production",
-        "Communication: Multimedia Journalism",
-        "Computer Science",
-        "Computer Science: Artificial Intelligence and Machine Learning",
-        "Computer Science: Cybersecurity",
-        "Computer Science: Full-Stack Web Development",
-        "Criminology",
-        "Dance Performance and Choreography",
-        "Data Analytics",
-        "Economics",
-        "Elementary Education",
-        "English",
-        "Environmental Studies",
-        "Exercise Science",
-        "Film",
-        "Finance",
-        "Graphic Design",
-        "History",
-        "Horticulture, Land, and Resource Management",
-        "Humanities",
-        "Integrative Biology",
-        "Interactive and Game Design",
-        "Marine Biology",
-        "Marketing",
-        "Mathematics",
-        "Medical Laboratory Sciences",
-        "Music",
-        "Music Education",
-        "Music: Music Business",
-        "Music Performance",
-        "Nursing",
-        "Philosophy",
-        "Political Communication",
-        "Political Science",
-        "Psychology",
-        "Religion",
-        "Secondary Education",
-        "Social Sciences",
-        "Spanish",
-        "Sport Business Management",
-        "Sports Communication and Marketing",
-        "Studio Art",
-        "Theatre Arts",
-        "Theatre Arts: Musical Theatre",
-        "Theatre Arts: Technical Theatre and Design",
-        "Theatre Arts: Theatre Performance",
-        "Undeclared",
-    )
-)
 
 
 class RegistrationProfileForm(forms.Form):

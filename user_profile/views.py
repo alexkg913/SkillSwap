@@ -16,10 +16,13 @@ def user_settings(request):
         request.POST or None,
         request.FILES or None,
         instance=profile,
+        initial={"major": request.user.major},
     )
 
     if request.method == "POST" and form.is_valid():
         form.save()
+        request.user.major = form.cleaned_data["major"]
+        request.user.save(update_fields=["major"])
         return redirect("user_profile:user_settings")
 
     return render(request, "user_profile/user_settings.html", {"form": form})
