@@ -15,7 +15,7 @@ urlpatterns = [
     path("home_profile/security_settings/", views.security_settings, name="security_settings"),
 
     # Use the same
-    path("logout/", LogoutView.as_view(next_page="login"), name="logout"),
+    path("logout/", LogoutView.as_view(next_page="home:index"), name="logout"),
 
     # (These are for later, not main consideration)
     # path --> help_center

@@ -123,7 +123,6 @@ class RegistrationProfileForm(forms.Form):
 class ForgotEmailForm(forms.Form):
     email = forms.EmailField()
 
-
 class ResetPasswordForm(forms.Form):
     password = forms.CharField(
         strip=False,
@@ -183,7 +182,6 @@ def profile_setup_required(user):
         or not user.major.strip()
         or generated_username
     )
-
 
 def _discard_pending_registration(request):
     pending_id = request.session.pop("pending_registration_user_id", None)
