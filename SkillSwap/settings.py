@@ -89,6 +89,13 @@ DATABASES = {
 # User validation
 AUTH_USER_MODEL = "login.User"
 
+# Where @login_required sends anonymous visitors. Without this Django uses its
+# default of /accounts/login/, which this project does not serve -- the login
+# page is the `login` route in login/urls.py. user_profile worked around this
+# per view with @login_required(login_url="login"); setting it here fixes the
+# views that did not, including messaging.
+LOGIN_URL = "login"
+
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
