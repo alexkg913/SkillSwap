@@ -94,7 +94,11 @@
                         </div>
                         <div class="profile-card-content profile-card-content--skills">
                             {% if profile.skills %}
-                                <p>{{ profile.skills|linebreaksbr }}</p>
+                                <ul class="profile-tag-list">
+                                    {% for skill in profile.skills %}
+                                        <li class="profile-tag">{{ skill }}</li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
                                 <p class="profile-empty-state">No skills have been added yet.</p>
                             {% endif %}

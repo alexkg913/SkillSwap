@@ -249,6 +249,108 @@ h1 {
     max-width: 100%;
 }
 
+.skill-picker {
+    display: grid;
+    gap: .5rem;
+}
+
+.skill-picker > label {
+    color: var(--text-muted);
+    font-size: .9rem;
+}
+
+.skill-picker > input[type="search"] {
+    width: 100%;
+    padding: .65rem .7rem;
+    border: 1px solid rgba(207, 230, 241, .25);
+    border-radius: .45rem;
+    color: var(--text);
+    background: var(--surface-raised);
+    font: inherit;
+}
+
+.skill-picker > small,
+#skill-search-empty {
+    color: var(--text-muted);
+}
+
+#id_skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+#id_skills > div {
+    order: 1;
+}
+
+#id_skills > div:has(input:checked) {
+    order: 0;
+}
+
+#id_skills label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: .55rem .7rem;
+    border: 1px solid rgba(207, 230, 241, .25);
+    border-radius: .45rem;
+    color: var(--text);
+    background: var(--surface-raised);
+    cursor: pointer;
+}
+
+#id_skills label:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(103, 212, 232, .14);
+    color: var(--text);
+}
+
+#id_skills > div[hidden] {
+    display: none;
+}
+
+#id_skills input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+#id_skills label:focus-within {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+#skill-search-empty[hidden] {
+    display: none;
+}
+
+#skill-show-all {
+    justify-self: start;
+    padding: .5rem .75rem;
+    border: 1px solid var(--accent);
+    border-radius: .45rem;
+    color: var(--accent);
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+}
+
+#skill-show-all[hidden] {
+    display: none;
+}
+
+#skill-show-all:hover {
+    background: rgba(103, 212, 232, .14);
+}
+
 .social-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }

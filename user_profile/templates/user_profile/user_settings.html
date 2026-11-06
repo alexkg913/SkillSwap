@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Settings | SkillSwap</title>
         <link rel="stylesheet" href="{% static 'css/user_settings.css' %}">
+        <script src="{% static 'user_profile/js/skill_search.js' %}" defer></script>
     </head>
     <body>
         <header class="site-header">
@@ -100,7 +101,14 @@
                     <h2 id="profile-content-heading">About Yourself</h2>
                     <p class="section-description">Share your skills, completed courses, interests, and clubs!</p>
                     <div class="profile-content-fields">
-                        {% include "user_profile/field.html" with field=form.skills %}
+                        <div class="skill-picker" data-skill-seed="{{ request.user.username }}">
+                            <label for="skill-search">Search skills</label>
+                            <input id="skill-search" type="search" autocomplete="off" aria-controls="id_skills" aria-describedby="skill-search-hint">
+                            <small id="skill-search-hint">Search by name; close spellings are also shown. Selected skills remain visible.</small>
+                            {% include "user_profile/field.html" with field=form.skills %}
+                            <p id="skill-search-empty" role="status" hidden>No matching unselected skills. Try another spelling.</p>
+                            <button id="skill-show-all" type="button" aria-controls="id_skills" aria-expanded="false" hidden>Show all skills</button>
+                        </div>
                         {% include "user_profile/field.html" with field=form.classes_taken %}
                         {% include "user_profile/field.html" with field=form.interests_clubs %}
                     </div>

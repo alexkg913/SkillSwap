@@ -131,7 +131,7 @@ class ProfileForm(forms.ModelForm):
     skills = forms.MultipleChoiceField(
         choices=SKILL_CHOICES,
         required=False,
-        widget=forms.SelectMultiple(attrs={"size": 6}),
+        widget=forms.CheckboxSelectMultiple,
         help_text="Select all skills that apply.",
     )
     classes_taken = forms.MultipleChoiceField(
@@ -140,11 +140,6 @@ class ProfileForm(forms.ModelForm):
         label="Classes Taken",
         widget=forms.SelectMultiple(attrs={"size": 8}),
         help_text="Select all completed courses that apply.",
-    )
-    skills = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={"rows": 4}),
-        help_text="List your skills, one per line or separated by commas.",
     )
     classes_taken = forms.CharField(
         required=False,
