@@ -19,8 +19,18 @@
             </h1>
 
             <section class="log-in">
+                {% if request.user.is_authenticated %}
+                <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
+                    {% if request.user.profile.avatar %}
+                    <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">
+                    {% else %}
+                    <span class="profile-link__avatar profile-link__fallback" aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+                    {% endif %}
+                </a>
+                {% else %}
                 <a class="sign-in" href="{% url 'login' %}">Sign In</a>
                 <a class="register" href="{% url 'user_register' %}">Register</a>
+                {% endif %}
             </section>
 
 
