@@ -2,8 +2,11 @@ import json
 import re
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+
+from user_profile.models import Profile
 
 
 def json_script_payload(html, element_id):
@@ -152,3 +155,58 @@ class CampusMapEventPayloadTests(TestCase):
             self.assertNotIn("email", event)
             self.assertNotIn("host_id", event)
             self.assertNotIn("id", event)
+
+
+class HomeHeaderTests(TestCase):
+    def test_anonymous_visitor_sees_auth_links_not_profile_link(self):
+        response = self.client.get(reverse("home:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'href="{reverse("login")}"')
+        self.assertContains(response, f'href="{reverse("user_register")}"')
+        self.assertNotContains(response, 'class="profile-link"')
+
+    def test_signed_in_user_with_avatar_sees_profile_picture_not_auth_links(self):
+        user = get_user_model().objects.create_user(
+            username="avatar-user", email="avatar@example.com", password="test-password"
+        )
+        Profile.objects.create(user=user, avatar="profiles/avatars/example.png")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("home:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'href="{reverse("user_profile:profile")}"')
+        self.assertContains(response, 'aria-label="View your profile"')
+        self.assertContains(response, 'src="/media/profiles/avatars/example.png"')
+        self.assertNotContains(response, f'href="{reverse("login")}"')
+        self.assertNotContains(response, f'href="{reverse("user_register")}"')
+
+    def test_signed_in_user_without_profile_sees_initial_fallback(self):
+        user = get_user_model().objects.create_user(
+            username="no-profile", email="no-profile@example.com",
+            first_name="Taylor", password="test-password"
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("home:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="profile-link__avatar profile-link__fallback"')
+        self.assertContains(response, 'aria-hidden="true">T</span>')
+        self.assertNotContains(response, f'href="{reverse("login")}"')
+        self.assertNotContains(response, f'href="{reverse("user_register")}"')
+
+    def test_signed_in_user_with_empty_avatar_sees_question_mark_fallback(self):
+        user = get_user_model().objects.create_user(
+            username="empty-avatar", email="empty-avatar@example.com", password="test-password"
+        )
+        Profile.objects.create(user=user)
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("home:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aria-hidden="true">?</span>')
+        self.assertNotContains(response, f'href="{reverse("login")}"')
+        self.assertNotContains(response, f'href="{reverse("user_register")}"')
