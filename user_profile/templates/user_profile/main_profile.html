@@ -127,15 +127,7 @@
                             <h2 id="socials-heading">Socials</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--socials">
-                            {% if profile.github or
-                                profile.handshake or
-                                profile.yik_yak or
-                                profile.linkedin or
-                                profile.facebook or
-                                profile.discord or
-                                profile.instagram or
-                                profile.slack or
-                                profile.twitter %}
+                            {% if profile.github or profile.handshake or profile.yik_yak or profile.linkedin or profile.facebook or profile.discord or profile.instagram or profile.slack or profile.twitter %}
                                 <ul class="profile-detail-list">
                                     {% if profile.github %}<li><a href="{{ profile.github }}">GitHub</a></li>{% endif %}
                                     {% if profile.handshake %}<li><a href="{{ profile.handshake }}">Handshake</a></li>{% endif %}
