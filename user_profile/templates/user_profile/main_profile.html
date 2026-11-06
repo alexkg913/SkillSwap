@@ -23,6 +23,13 @@
                     {% csrf_token %}
                     <button type="submit">Log out</button>
                 </form>
+                <a class="account-avatar" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="">
+                    {% else %}
+                        <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+                    {% endif %}
+                </a>
             </div>
         </header>
 
