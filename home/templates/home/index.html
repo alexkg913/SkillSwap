@@ -28,7 +28,9 @@
         </header>
 
         <nav>
-            <a href="{% url 'home:index' %}">Home</a>
+            <a href="{% url 'home:index' %}"
+            {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
+            >Home</a>
             <a href="{% url 'events:find_tutor' %}">Find a Tutor</a>
             <a href="{% url 'events:be_tutor' %}">Be a Tutor</a>
             <a href="{% url 'events:create' %}">Create a Tutoring Event</a>

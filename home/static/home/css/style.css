@@ -141,7 +141,8 @@ nav a {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-nav a:hover {
+nav a:hover,
+nav:not(:hover) a[aria-current="page"] {
   background: linear-gradient(180deg, #a6e6ff, var(--deep-blue));
   color: #ffffff;
 }
