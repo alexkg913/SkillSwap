@@ -142,8 +142,8 @@ nav a {
 }
 
 nav a:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(127,255,212,0.4));
-  color: var(--deep-blue);
+  background: linear-gradient(180deg, #a6e6ff, var(--deep-blue));
+  color: #ffffff;
 }
 
 /* ---------- Main ---------- */
