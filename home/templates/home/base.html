@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap</title>
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+</head>
+<body>
+
+    <div class="page">
+
+        <header>
+
+            <h1>
+                <strong>SkillSwap</strong>
+            </h1>
+
+            <section class="log-in">
+                <a class="sign-in" href="{% url 'login' %}">Sign In</a>
+                <a class="register" href="{% url 'user_register' %}">Register</a>
+            </section>
+
+
+        </header>
+
+        <nav>
+            <a href="{% url 'home:index' %}">Home</a>
+            <a href="{% url 'events:find_tutor' %}">Find a Tutor</a>
+            <a href="{% url 'events:be_tutor' %}">Be a Tutor</a>
+            <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
+            <a href="{% url 'events:saved_events' %}">Saved Events</a>
+            <a href="{% url 'inbox' %}">Messages</a>
+            <a href="{% url 'user_profile:profile' %}">Profile</a>
+        </nav>
+
+            <main>
+                {% block content %}
+                {% endblock %}
+            </main>
+
+        </div>
+
+        <footer>
+                <div class="footer-content">
+                    <p>&copy SkillSwap 2026</p>
+                </div>
+        </footer>
+
+        
+
+</body>
+</html>
