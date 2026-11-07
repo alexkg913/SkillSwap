@@ -24,6 +24,14 @@ def picker_map_config():
     config["campus_bbox"] = list(settings.SKILLSWAP_CAMPUS_BBOX)
     return config
 
+def find_tutor(request):
+    return render(request, "events/find_tutor.html")
+
+def be_tutor(request):
+    return render(request, "events/be_tutor.html")
+
+def saved_events(request):
+    return render(request, "events/saved_events.html")
 
 def _form_context(form, heading, event):
     return {
