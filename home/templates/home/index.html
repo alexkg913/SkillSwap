@@ -27,11 +27,13 @@
         </header>
 
         <nav>
+            <a href="{% url 'home:index' %}">Home</a>
             <a href="#">Find a Tutor</a>
             <a href="#">Be a Tutor</a>
             <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
-            <a href="#">Messages</a>
-            <a href="#">Profile</a>
+            <a href="#">Saved Events</a>
+            <a href="{% url 'inbox' %}">Messages</a>
+            <a href="{% url 'user_profile:profile' %}">Profile</a>
         </nav>
 
             <main>
