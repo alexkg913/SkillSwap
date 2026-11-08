@@ -1,8 +1,7 @@
 from django.contrib import admin
-from .models import DirectMessage, EventMessage
+from .models import DirectMessage
 
 
 # Register your models here.
 
 admin.site.register(DirectMessage)
-admin.site.register(EventMessage)
