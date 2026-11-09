@@ -1,9 +1,16 @@
 import json
 import re
+from datetime import timedelta
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
+
+from events.models import CampusLocation, TutoringEvent
+
+User = get_user_model()
 
 
 def json_script_payload(html, element_id):
@@ -139,16 +146,87 @@ class TileReferrerPolicyTests(TestCase):
 
 
 class CampusMapEventPayloadTests(TestCase):
-    def setUp(self):
-        self.response = self.client.get(reverse("home:index"))
-        self.html = self.response.content.decode()
+    """The pin payload now comes from events.selectors.
 
-    def test_pin_payload_is_an_empty_list_until_the_events_app_lands(self):
-        self.assertEqual(json_script_payload(self.html, "map-events"), [])
+    This class previously asserted the payload was an empty list, which held
+    only while the events app had no TutoringEvent. The replacement for that
+    assertion is test_payload_is_empty_when_there_is_nothing_to_pin below,
+    which checks the empty *state* rather than the missing feature.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.host = User.objects.create_user(
+            username="host", email="host@example.edu", password="pw-for-tests"
+        )
+        # Already present from the seed migration; get_or_create keeps this
+        # working whether or not the seed list still carries this building.
+        cls.building, _ = CampusLocation.objects.get_or_create(
+            name="Roux Library",
+            defaults={"latitude": "28.032497", "longitude": "-81.948901"},
+        )
+
+    def payload(self):
+        response = self.client.get(reverse("home:index"))
+        return json_script_payload(response.content.decode(), "map-events")
+
+    def make_event(self, **overrides):
+        fields = {
+            "title": "Calculus II drop-in",
+            "subject": "MAT 2022",
+            "tutor": "Sam",
+            "date": timezone.now() + timedelta(days=1),
+            "location": "2nd floor study room",
+            "isPublic": True,
+            "host": self.host,
+            "campus_location": self.building,
+            "latitude": "28.032497",
+            "longitude": "-81.948901",
+        }
+        fields.update(overrides)
+        return TutoringEvent.objects.create(**fields)
+
+    def test_payload_is_empty_when_there_is_nothing_to_pin(self):
+        self.assertEqual(self.payload(), [])
+
+    def test_public_upcoming_event_becomes_a_pin(self):
+        self.make_event()
+        payload = self.payload()
+        self.assertEqual(len(payload), 1)
+        self.assertEqual(payload[0]["title"], "Calculus II drop-in")
+        self.assertEqual(payload[0]["building"], "Roux Library")
+
+    def test_coordinates_are_json_numbers_not_decimal_strings(self):
+        # campus_map.js validates with Number.isFinite(), which a string fails,
+        # so a Decimal leaking through here would silently blank the map.
+        self.make_event()
+        pin = self.payload()[0]
+        self.assertIsInstance(pin["latitude"], float)
+        self.assertIsInstance(pin["longitude"], float)
 
     def test_pin_payload_exposes_no_private_fields(self):
-        payload = json_script_payload(self.html, "map-events")
+        self.make_event()
+        payload = self.payload()
+        self.assertTrue(payload)
         for event in payload:
-            self.assertNotIn("email", event)
-            self.assertNotIn("host_id", event)
-            self.assertNotIn("id", event)
+            for private in ("email", "host", "host_id", "id", "pk"):
+                self.assertNotIn(private, event)
+            self.assertNotIn(self.host.email, json.dumps(event))
+            self.assertNotIn(str(self.host.pk), json.dumps(event))
+
+    def test_cancelled_private_and_past_events_are_not_pinned(self):
+        self.make_event(title="cancelled", is_cancelled=True)
+        self.make_event(title="private", isPublic=False)
+        self.make_event(title="past", date=timezone.now() - timedelta(days=1))
+        self.assertEqual(self.payload(), [])
+
+    def test_listings_panel_renders_the_same_events_server_side(self):
+        # The map must not be the only way in: the panel is the accessible path.
+        self.make_event()
+        html = self.client.get(reverse("home:index")).content.decode()
+        self.assertIn("Calculus II drop-in", html)
+        self.assertIn("Roux Library", html)
+
+    def test_empty_state_is_explicit_in_the_listings_panel(self):
+        html = self.client.get(reverse("home:index")).content.decode()
+        self.assertIn("No upcoming tutoring events yet.", html)

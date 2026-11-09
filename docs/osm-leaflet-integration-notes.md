@@ -2,10 +2,10 @@
 
 ## Current state
 
-The basemap is **integrated and rendering**. The home page loads a vendored Leaflet build,
-pulls OpenStreetMap raster tiles, and centres on the Florida Southern College campus. There
-are **no event pins yet** — the `events` app that owns `TutoringEvent` is not on this branch,
-so `home.views.map_events()` returns an empty list and the map renders bare.
+The basemap is **integrated and rendering**, and **event pins are now live**. The home page
+loads a vendored Leaflet build, pulls OpenStreetMap raster tiles, centres on the Florida
+Southern College campus, and renders a marker per upcoming public tutoring event.
+`home.views.map_events()` serves that payload from `events.selectors`.
 
 What is wired up:
 
@@ -18,7 +18,12 @@ What is wired up:
 | Leaflet initializer | `home/static/home/js/campus_map.js` (unchanged contract) |
 | Page glue | `home/static/home/js/campus_map_init.js` |
 | Styling | `home/static/home/css/style.css` → `.map`, `.map__fallback`, `#campus-map`, Leaflet skin |
-| Tests | `home/tests.py` |
+| Tests | `home/tests.py`, `events/tests.py` |
+| Pin models | `events/models.py` → `CampusLocation`, `TutoringEvent` pin fields |
+| Pin payload | `events/selectors.py` |
+| Pin write path | `events/forms.py`, `events/views.py`, `events/urls.py` |
+| Picker mode | `campus_map.js` → `initializePicker()`, `events/static/events/js/event_picker_init.js` |
+| Event form | `events/templates/events/event_form.html` |
 
 ## Values in use
 
@@ -115,39 +120,91 @@ reason the tile URL is a setting rather than a constant in the JavaScript.
 
 ## Still outstanding
 
-Everything below is unchanged from the original plan and deliberately **not** built here.
+1. **Nobody has opened the map in a real browser yet.** This was true before the pins work
+   and is still true: the environment it was built in had no browser available, so rendering
+   was exercised headlessly (see below). Do this before merging.
+2. **The canonical FSC building list.** Built up across three migrations, all sourced from
+   OpenStreetMap with each row carrying its OSM way id:
 
-1. The `events` app: `TutoringEvent` / `CampusLocation` models, migrations, forms, permission
-   rules, and tests (`docs/campus-map-plan.md` §§5–7, 10). Scaffold is on
-   `origin/feature/events`.
-2. `events/selectors.py` → the real pin payload for `home.views.map_events()`. Expose public
-   fields only: no account emails, no user IDs. The home page is reachable anonymously.
-3. The canonical FSC building list for the `CampusLocation` seed migration. Campus centre and
-   bbox are now real values; the building names and their coordinates still need collecting.
-4. Picker mode in `campus_map.js` for `/events/new/` (draggable marker + building dropdown
-   writing to hidden lat/lng inputs), with the bbox re-checked on the server.
-5. Open decisions in `docs/campus-map-plan.md` §11: whether anonymous visitors see pins
-   (item 1) and whether the README's Google Maps badge is dropped (item 4). Item 2, the
-   `America/New_York` timezone switch, is done. Item 3 is partly done, see above.
+   | Migration | What it does |
+   | --- | --- |
+   | `0006_seed_campus_locations` | 17 study-plausible buildings, active |
+   | `0007_add_weinstein_and_becker` | Weinstein Computer Sciences Center, Becker Business Building |
+   | `0008_curate_campus_locations` | adds 7 more as `is_active=False`; retires Allan Spivey Hall and Joseph-Reynolds Hall |
 
-The README roadmap checkbox stays unchecked: a basemap with no pins is not the map feature.
+   Current state: **26 rows, 17 offered** in the picker dropdown. Not offered are the three
+   Publix Commons, three Student Housing halls, the Admissions Center, Allan Spivey Hall and
+   Joseph-Reynolds Hall. Residences that were never seeded at all (Nicholas, Wesley, Miller)
+   have no row, which is equivalent for the dropdown.
+
+   Curation is done with `is_active=False`, not deletion: `campus_location` is `PROTECT`, so
+   a delete refuses on any building an event references, and deactivation is reversible.
+
+   These are still OSM's names rather than FSC's official ones, and a few were shortened or
+   spelling-corrected for the dropdown — `Chatlos Journalism Building` corrects OSM's
+   `Wlliam` typo, which was still present upstream as of 2026-10-25. Someone with the
+   official campus directory should confirm spellings and flag any study space the list
+   misses.
+3. **Pre-existing `EventInteraction` schema drift — now known to cause real failures.**
+   Migration `0003_eventinteraction` only ever created `id` and `student` (as a `TextField`),
+   but the model declares `student` as a FK, plus `tutoring_event` and `status`. The database
+   table really does have only `('id', 'student')`. Consequences:
+   - `makemigrations --check` has never been clean on `development`; it reports this, not
+     the map work.
+   - **Deleting any `TutoringEvent` or any `User` raises
+     `OperationalError: no such column: events_eventinteraction.tutoring_event_id` /
+     `...student_id`**, because both cascade into `EventInteraction`.
+
+   The map pin feature is unaffected (cancelling sets a flag and never deletes), which is why
+   the suite passes. The fix is to generate the missing migration — the model is already
+   written, so no design decision is needed — but it belongs to whoever owns that model and
+   was deliberately left out of `0005_campuslocation_event_pins`.
+4. Open decision in `docs/campus-map-plan.md` §11 item 4: whether the README's Google Maps
+   badge is dropped. Item 1 (anonymous visibility) is settled — `TutoringEvent.isPublic`
+   already existed, so the map filters on it rather than inventing a new rule. Items 2 and 3
+   are done.
+
+The README roadmap checkbox stays unchecked until item 1 above is done.
 
 ## Verification performed
 
 ```sh
-.venv/bin/python manage.py check                          # no issues
-.venv/bin/python manage.py makemigrations --check --dry-run  # no changes detected
-.venv/bin/python manage.py test                           # 22 tests, OK
+.venv/bin/python manage.py check                             # no issues
+.venv/bin/python manage.py makemigrations --check --dry-run   # only the pre-existing
+                                                              # EventInteraction drift, item 3
+.venv/bin/python manage.py test                               # 58 tests, OK
 ```
 
-Also checked by hand against a local `runserver`: the home page returns 200, every vendored
-asset and both scripts return 200, both `json_script` elements carry the expected payload, and
-`https://tile.openstreetmap.org/16/17850/27448.png` (the centre tile) returns a PNG when the
-request carries a `Referer`.
+Baseline before the pins work was 25 tests; the suite is now 58. `makemigrations --check` was
+already reporting the `EventInteraction` drift before any of this landed.
 
-The browser rendering itself was exercised headlessly — `campus_map.js` and
-`campus_map_init.js` were run against the live server's `json_script` output with Leaflet
-stubbed, confirming `setView` receives `[28.030456, -81.945543]` at zoom 16, the attribution
-survives `json_script` escaping with its link intact, a pin becomes a marker at its
-coordinates, and a hostile event title stays inert text in the popup. **Nobody has yet opened
-the page in a real browser to look at the tiles** — do that before merging.
+Checked by hand against a local `runserver`:
+
+- Home page 200; every vendored asset, both home scripts and `event_picker_init.js` return 200.
+- The `map-events` payload carries real pins with `latitude` / `longitude` as JSON **numbers**,
+  and no host email, no primary keys.
+- `/events/new/` as an anonymous visitor redirects to `/login/?next=/events/new/` — this
+  needed `LOGIN_URL = "login"`, without which Django used its unset default of
+  `/accounts/login/`, which this project does not serve. `messaging` had the same latent
+  dead redirect and is fixed by the same line.
+- End to end as a signed-in host: create redirects home and the pin appears; a POSTed `host`
+  field is ignored and ownership comes from the session; an off-campus pin is rejected with a
+  visible message and no row; a non-owner cancel returns 404 and leaves the event active; an
+  owner cancel sets `is_cancelled`, keeps the row, and removes the pin from the map.
+
+Browser rendering was exercised headlessly by running the real `campus_map.js` in Node against
+the live server's `json_script` output with Leaflet stubbed. Confirmed `setView` receives
+`[28.030456, -81.945543]` at zoom 16, the attribution survives `json_script` escaping with its
+link intact, both pins become markers at their coordinates with full popup text, and a hostile
+event title stays inert text (the popup is built with `textContent`, never `innerHTML`). In
+picker mode: the marker starts at the campus centre, a map click and a building selection both
+write 6-decimal values to the hidden inputs, and dragging off campus raises the advisory
+warning while the server still rejects the submission.
+
+Tile serving was re-checked against `https://tile.openstreetmap.org/16/17850/27448.png`:
+a browser `User-Agent` **with** a `Referer` returns a real PNG, and **without** one returns
+HTTP 200 carrying `x-blocked: Access denied`. That is the documented failure above, and
+`SKILLSWAP_MAP_TILE_REFERRER_POLICY` is what avoids it.
+
+**Still not done: nobody has opened the page in a real browser to look at the tiles.** No
+browser was available in the environment this was built in. See "Still outstanding" item 1.
