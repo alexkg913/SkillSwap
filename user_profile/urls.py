@@ -12,6 +12,7 @@ urlpatterns = [
     path("home_profile/", views.profile_page, name="profile"),
 
     path("home_profile/user_settings/", views.user_settings, name="user_settings"),
+    path("home_profile/skill_options/", views.skill_options, name="skill_options"),
     path("home_profile/security_settings/", views.security_settings, name="security_settings"),
 
     # Use the same

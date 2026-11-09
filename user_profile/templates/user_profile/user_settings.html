@@ -101,13 +101,13 @@
                     <h2 id="profile-content-heading">About Yourself</h2>
                     <p class="section-description">Share your skills, completed courses, interests, and clubs!</p>
                     <div class="profile-content-fields">
-                        <div class="skill-picker" data-skill-seed="{{ request.user.username }}">
+                        <div class="skill-picker" data-search-url="{% url 'user_profile:skill_options' %}">
                             <label for="skill-search">Search skills</label>
                             <input id="skill-search" type="search" autocomplete="off" aria-controls="id_skills" aria-describedby="skill-search-hint">
                             <small id="skill-search-hint">Search by name; close spellings are also shown. Selected skills remain visible.</small>
                             {% include "user_profile/field.html" with field=form.skills %}
                             <p id="skill-search-empty" role="status" hidden>No matching unselected skills. Try another spelling.</p>
-                            <button id="skill-show-all" type="button" aria-controls="id_skills" aria-expanded="false" hidden>Show all skills</button>
+                            <noscript><p>Enable JavaScript to search for more skills. You can still select the suggestions shown.</p></noscript>
                         </div>
                         {% include "user_profile/field.html" with field=form.classes_taken %}
                         {% include "user_profile/field.html" with field=form.interests_clubs %}

@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from .models import Profile
+from .skill_catalog import suggested_skills, skill_names
 
 
 class SettingsHeaderAvatarTests(TestCase):
@@ -114,14 +115,20 @@ class ProfileSkillsTests(TestCase):
         self.assertContains(response, 'for="skill-search">Search skills</label>')
         self.assertContains(response, 'id="skill-search"')
         self.assertContains(response, 'user_profile/js/skill_search.js')
-        self.assertContains(response, 'value="Programming"')
-        self.assertContains(response, 'value="Writing"')
+        # Previous all-skills picker assertions, retained for reference:
+        # self.assertContains(response, 'value="Programming"')
+        # self.assertContains(response, 'value="Writing"')
+        self.assertContains(response, 'data-search-url="%s"' % reverse("user_profile:skill_options"))
+        self.assertContains(response, 'value="Biology"')
 
-    def test_all_skills_can_be_revealed_without_submitting_form(self):
+    def test_only_suggestions_render_without_show_all_button(self):
         response = self.client.get(self.settings_url)
 
-        self.assertContains(response, 'id="skill-show-all" type="button"')
-        self.assertContains(response, 'data-skill-seed="skills-student"')
+        # Previous all-skills picker assertions, retained for reference:
+        # self.assertContains(response, 'id="skill-show-all" type="button"')
+        # self.assertContains(response, 'data-skill-seed="skills-student"')
+        self.assertNotContains(response, 'id="skill-show-all" type="button"')
+        self.assertLessEqual(response.content.count(b'name="skills"'), 6)
 
     def test_unlisted_skill_is_rejected_without_changing_saved_skills(self):
         profile = Profile.objects.create(user=self.user, skills=["Writing"])
@@ -134,3 +141,77 @@ class ProfileSkillsTests(TestCase):
         self.assertFormError(response.context["form"], "skills", "Select a valid choice. Not a listed skill is not one of the available choices.")
         profile.refresh_from_db()
         self.assertEqual(profile.skills, ["Writing"])
+
+
+class SkillCatalogTests(TestCase):
+    def test_catalog_names_are_unique_and_preserve_original_order(self):
+        names = skill_names()
+
+        self.assertEqual(len(names), len({name.casefold() for name in names}))
+        self.assertIn("Programming", names)
+        self.assertIn("Biology", names)
+
+    def test_major_suggestions_are_relevant_catalog_entries(self):
+        biology = suggested_skills("Biology", "student")
+        computing = suggested_skills("Computer Science", "student")
+
+        self.assertEqual(len(biology), 6)
+        self.assertEqual(len(computing), 6)
+        self.assertTrue(set(biology) <= set(skill_names()))
+        self.assertTrue(set(computing) <= set(skill_names()))
+        self.assertNotEqual(set(biology), set(computing))
+        self.assertEqual(biology, suggested_skills("Biology", "student"))
+
+    def test_undeclared_major_has_general_suggestions(self):
+        suggestions = suggested_skills("Undeclared", "student")
+
+        self.assertEqual(len(suggestions), 6)
+        self.assertTrue(set(suggestions) <= set(skill_names()))
+
+
+class SkillSearchTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="search-student", email="search@example.com", password="test-password",
+            major="Biology",
+        )
+        self.url = reverse("user_profile:skill_options")
+
+    def test_anonymous_visitors_cannot_search_skills(self):
+        response = self.client.get(self.url, {"major": "Biology", "q": "Python"})
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_major_change_returns_different_bounded_suggestions(self):
+        self.client.force_login(self.user)
+        biology = self.client.get(self.url, {"major": "Biology"})
+        computing = self.client.get(self.url, {"major": "Computer Science"})
+
+        self.assertEqual(biology.status_code, 200)
+        self.assertEqual(computing.status_code, 200)
+        self.assertEqual(len(biology.json()["skills"]), 6)
+        self.assertNotEqual(set(biology.json()["skills"]), set(computing.json()["skills"]))
+        self.assertEqual(biology["Cache-Control"], "max-age=0, no-cache, no-store, must-revalidate, private")
+
+    def test_search_matches_typo_without_rendering_whole_catalog(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url, {"major": "Biology", "q": "programing"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Programming", response.json()["skills"])
+        self.assertLessEqual(len(response.json()["skills"]), 12)
+
+    def test_invalid_major_is_rejected(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url, {"major": "unlisted", "q": "Python"})
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_catalog_skill_not_in_suggestions_can_be_saved(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("user_profile:user_settings"), {
+            "major": "Biology", "skills": ["Python"],
+        })
+
+        self.assertRedirects(response, reverse("user_profile:user_settings"))
+        self.assertEqual(Profile.objects.get(user=self.user).skills, ["Python"])

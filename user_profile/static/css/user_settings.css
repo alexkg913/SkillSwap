@@ -332,25 +332,6 @@ h1 {
     display: none;
 }
 
-#skill-show-all {
-    justify-self: start;
-    padding: .5rem .75rem;
-    border: 1px solid var(--accent);
-    border-radius: .45rem;
-    color: var(--accent);
-    background: transparent;
-    font: inherit;
-    cursor: pointer;
-}
-
-#skill-show-all[hidden] {
-    display: none;
-}
-
-#skill-show-all:hover {
-    background: rgba(103, 212, 232, .14);
-}
-
 .social-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }

@@ -3,6 +3,7 @@ from django import forms
 from login.choices import FSC_MAJOR_CHOICES
 
 from .models import Profile
+from .skill_catalog import skill_lookup, suggested_skills
 
 
 TIMEZONE_CHOICES = [
@@ -120,6 +121,11 @@ COURSE_CHOICES = [
 ]
 
 
+class CatalogSkillsField(forms.MultipleChoiceField):
+    def valid_value(self, value):
+        return value.casefold() in skill_lookup() or value in dict(SKILL_CHOICES)
+
+
 class ProfileForm(forms.ModelForm):
     """Form for the profile fields a user may edit themselves."""
 
@@ -128,8 +134,8 @@ class ProfileForm(forms.ModelForm):
         widget=forms.Textarea(attrs={"rows": 5}),
         help_text="Maximum 300 words.",
     )
-    skills = forms.MultipleChoiceField(
-        choices=SKILL_CHOICES,
+    skills = CatalogSkillsField(
+        choices=(),
         required=False,
         widget=forms.CheckboxSelectMultiple,
         help_text="Select all skills that apply.",
@@ -182,4 +188,22 @@ class ProfileForm(forms.ModelForm):
             "instagram",
             "slack",
             "twitter",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_bound:
+            selected = self.data.getlist("skills")
+            major = self.data.get("major", "")
+        else:
+            stored = self.instance.skills if self.instance.pk else []
+            selected = stored if isinstance(stored, list) else [stored] if stored else []
+            major = self.initial.get("major", "")
+
+        names = dict.fromkeys([
+            *selected,
+            *suggested_skills(major, self.instance.user.username),
+        ])
+        self.fields["skills"].choices = [
+            (name, name) for name in names if self.fields["skills"].valid_value(name)
         ]
