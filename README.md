@@ -272,7 +272,7 @@ Security will be integrated throughout the development workflow using:
 
 
 <!-- Technologies -->
-
+<!-- https://shields.io/badges -->
 [django-shield]: https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white
 [django-url]: https://www.djangoproject.com/
 
