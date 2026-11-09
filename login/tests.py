@@ -31,8 +31,8 @@ class LoginTests(TestCase):
         self.assertRedirects(response, reverse("user_profile:profile"))
         self.assertEqual(self.client.session["_auth_user_id"], str(self.user.pk))
         profile = self.client.get(reverse("user_profile:profile"))
-        self.assertTemplateUsed(profile, "user_profile/profile.html")
-        self.assertContains(profile, "student@example.com")
+        self.assertTemplateUsed(profile, "user_profile/main_profile.html")
+        self.assertContains(profile, "Major: Computer Science")
 
     def test_signed_in_user_is_redirected_to_profile(self):
         self.client.force_login(self.user)
@@ -110,11 +110,11 @@ class LoginTests(TestCase):
         )
         self.client.force_login(admin)
         response = self.client.get(reverse("user_profile:profile"))
-        self.assertContains(response, "Logout")
+        self.assertContains(response, "Log out")
         response = self.client.post(reverse("logout"), {
             "csrfmiddlewaretoken": self.client.cookies["csrftoken"].value,
         })
-        self.assertRedirects(response, self.url)
+        self.assertRedirects(response, reverse("home:index"))
         self.assertNotIn("_auth_user_id", self.client.session)
         self.assertContains(self.client.get(self.url), 'name="email"')
         self.assertRedirects(self.submit(), reverse("user_profile:profile"))
