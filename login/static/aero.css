@@ -138,6 +138,25 @@ body {
     box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.24), inset 0 1px 3px rgba(2, 60, 90, 0.1);
 }
 
+.form-group select {
+    display: block;
+    width: 100%;
+    height: 48px;
+    padding: 0 15px;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 14px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.68);
+    color: var(--text-dark);
+    font: inherit;
+    font-size: 1rem;
+}
+
+.form-group select:focus {
+    border-color: rgba(2, 136, 209, 0.65);
+    box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.24);
+}
+
 .password-input {
     position: relative;
 }

@@ -40,6 +40,36 @@ These are conceptual boundaries, not confirmed directory or package names. Reuse
 - If a task requires a decision that remains open, explain the tradeoff and clarify consequential choices. Resolve small, reversible implementation details using existing conventions.
 - Canvas is an MVP integration. Google Maps is a future feature. Slack is listed as a possible API integration but has no defined behavior or MVP requirement.
 
+### Campus map
+
+The home-page basemap **and event pins** are implemented. Decisions already made, so they
+do not need relitigating:
+
+- **Leaflet 1.9.4 with OpenStreetMap raster tiles, not Google Maps.** No API key, no billing
+  account. Leaflet is vendored and pinned under `home/static/home/vendor/leaflet/`; do not
+  replace it with a CDN link. See `home/static/home/vendor/leaflet/PROVENANCE.md`.
+- **Map configuration lives in settings**, as `SKILLSWAP_MAP_*` and `SKILLSWAP_CAMPUS_BBOX`,
+  and reaches the page through `home.views.map_config()` and `json_script`. Do not hardcode
+  campus coordinates or tile URLs in JavaScript.
+- **No geocoder.** Buildings come from a seeded `CampusLocation` list, not Nominatim, whose
+  policy forbids autocomplete-style use.
+- `home.views.map_events()` serves pins from `events.selectors`. Public fields only -- the
+  home page is reachable anonymously. Nothing derived from the host *account* is serialized:
+  `TutoringEvent.tutor` is display text, while `host` is the FK used for permission checks
+  and never leaves the server.
+- **Coordinates must reach the template as floats, not `Decimal`.** `json_script` serializes
+  with `DjangoJSONEncoder`, which renders `Decimal` as a JSON string, and `campus_map.js`
+  validates coordinates with `Number.isFinite()`. A `Decimal` blanks the map with no visible
+  error. `events.selectors` casts; there is a regression test for it.
+- **`SKILLSWAP_CAMPUS_BBOX` is re-checked server-side** in `TutoringEventForm.clean()`. The
+  picker's hidden lat/lng inputs are attacker-controlled and the browser-side map bounds
+  prove nothing.
+- Pin ownership comes from `request.user` in `events.views`; `host` is deliberately absent
+  from `TutoringEventForm.Meta.fields`. Edit and cancel scope the lookup by `host`, so a
+  non-owner gets a 404. Cancelling sets `is_cancelled`; it is never a row delete.
+- Current state, values in use, and what remains: `docs/osm-leaflet-integration-notes.md`.
+  Full design rationale: `docs/campus-map-plan.md`.
+
 ## Working process
 
 1. Read applicable instructions, inspect the working tree, and identify the code related to the request.

@@ -1,0 +1,59 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Set Up Profile | SkillSwap</title>
+        <link rel="stylesheet" href="{% static 'aero.css' %}">
+    </head>
+    <body>
+        <main class="login-page">
+            <div class="project">
+                <div class="project-logo"></div>
+                <span>SKILLSWAP</span>
+            </div>
+
+            <section class="login-general">
+                <h1>Create a SkillSwap Account</h1>
+                <form method="POST" action="{% url 'user_profile_info' %}">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+
+                    <div class="form-group">
+                        <label for="username">USERNAME</label>
+                        <input type="text" id="username" name="username" maxlength="150"
+                               value="{{ form.username.value|default_if_none:'' }}" required>
+                        {{ form.username.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="full_name">FULL NAME</label>
+                        <input type="text" id="full_name" name="full_name" maxlength="150"
+                               value="{{ form.full_name.value|default_if_none:'' }}" required>
+                        {{ form.full_name.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="major">MAJOR</label>
+                        <select id="major" name="major" required>
+                            <option value="">Select your major</option>
+                            {% for value, label in form.fields.major.choices %}
+                                <option value="{{ value }}"{% if form.major.value == value %} selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {{ form.major.errors }}
+                    </div>
+
+                    <button type="submit" class="login-button">CREATE ACCOUNT</button>
+                </form>
+
+                <div class="register">
+                    Think you made a mistake?
+                    <a href="{% url 'user_register' %}">Back to setup email--></a>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>

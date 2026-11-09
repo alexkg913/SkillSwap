@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillSwap</title>
+    <link rel="stylesheet" href="{% static 'home/vendor/leaflet/leaflet.css' %}">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
 </head>
 <body>
@@ -18,8 +19,18 @@
             </h1>
 
             <section class="log-in">
-                <button class="sign-in">Sign In</button>
-                <button class="register">Register</button>
+                {% if request.user.is_authenticated %}
+                <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
+                    {% if request.user.profile.avatar %}
+                    <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">
+                    {% else %}
+                    <span class="profile-link__avatar profile-link__fallback" aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+                    {% endif %}
+                </a>
+                {% else %}
+                <a class="sign-in" href="{% url 'login' %}">Sign In</a>
+                <a class="register" href="{% url 'user_register' %}">Register</a>
+                {% endif %}
             </section>
 
 
@@ -28,35 +39,109 @@
         <nav>
             <a href="#">Find a Tutor</a>
             <a href="#">Be a Tutor</a>
-            <a href="#">Create a Tutoring Event</a>
+            <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
             <a href="#">Messages</a>
             <a href="#">Profile</a>
         </nav>
 
             <main>
-                <form class="search-bar" label="search">
-                    <input type="search" placeholder="Search...">
+                <form class="search-bar" method="get">
+
+                    <input type="search" name="q" placeholder="Search..." value="{{ query }}">
+
+                    <details class="filter-options">
+                        <summary>Filter by</summary>
+
+                        <div class="filter-content">
+
+                            <label for="subject">Course/Subject</label>
+                            <select id="subject" name="subject">
+                                <option value="">All Subjects</option>
+
+                                {% for subject in subjects %}
+                                    <option value="{{ subject }}"
+                                        {% if request.GET.subject == subject %}selected{% endif %}>
+                                        {{ subject }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="tutor">Tutor</label>
+                            <select id="tutor" name="tutor">
+                                <option value="">All Tutors</option>
+
+                                {% for tutor in tutors %}
+                                    <option value="{{ tutor }}"
+                                        {% if request.GET.tutor == tutor %}selected{% endif %}>
+                                        {{ tutor }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+                    </details>
+
                     <button type="submit">Search</button>
+
                 </form>
 
 
                 <div class="map-and-listings">
 
 
-                    <section class="map">
-                        <p>Map loading...</p>
+                    <section class="map" aria-labelledby="campus-map-label">
+                        <h2 id="campus-map-label" class="visually-hidden">
+                            Campus map of tutoring events
+                        </h2>
 
+                        {# Shown until the map starts, and whenever it cannot. #}
+                        <p class="map__fallback">Map loading...</p>
+
+                        {% comment %}
+                            Revealed by campus_map_init.js; the listings panel is
+                            the keyboard-accessible equivalent of these pins.
+                        {% endcomment %}
+                        <div id="campus-map"
+                             role="application"
+                             aria-label="Map of the Florida Southern College campus showing tutoring event locations"
+                             hidden></div>
                     </section>
 
-                    <section class="results">
-                        <div class="result">
-                            <p>Pretend this is a listing.</p>
-                        </div>
-                        <div class="result">
-                            <p>Pretend this is another listing.</p>
-                        </div>
+                    {% comment %}
+                        The keyboard-accessible equivalent of the map pins: the
+                        same payload, server-rendered, so a canvas full of
+                        markers is never the only way to reach an event.
+                    {% endcomment %}
+                    <section class="results" aria-labelledby="event-listings-label">
+                        <h2 id="event-listings-label" class="visually-hidden">
+                            Upcoming tutoring events
+                        </h2>
+
+                        {% for event in event_listings %}
+                            <div class="result">
+                                <p class="result__title">{{ event.title }}</p>
+                                <p class="result__meta">
+                                    {{ event.starts_at_display }}
+                                    {% if event.subject %}&middot; {{ event.subject }}{% endif %}
+                                </p>
+                                <p class="result__meta">
+                                    {% if event.building %}{{ event.building }}{% endif %}
+                                    {% if event.location_note %}
+                                        {% if event.building %}&middot; {% endif %}{{ event.location_note }}
+                                    {% endif %}
+                                </p>
+                                {% if event.tutor %}
+                                    <p class="result__meta">Tutor: {{ event.tutor }}</p>
+                                {% endif %}
+                            </div>
+                        {% empty %}
+                            <div class="result result--empty">
+                                <p>No upcoming tutoring events yet.</p>
+                                <p>Once someone schedules one, it shows up here and as a pin on the map.</p>
+                            </div>
+                        {% endfor %}
                     </section>
-                    
+
                 </div>
             </main>
 
@@ -67,6 +152,21 @@
                     <p>&copy SkillSwap 2026</p>
                 </div>
         </footer>
+
+        {% comment %}
+            Server data for the campus map. json_script escapes safely, so an
+            event title can never become markup.
+        {% endcomment %}
+        {{ map_config|json_script:"map-config" }}
+        {{ map_events|json_script:"map-events" }}
+
+        {% comment %}
+            Load order matters: Leaflet, then the initializer module, then the
+            glue that reads the data elements above.
+        {% endcomment %}
+        <script src="{% static 'home/vendor/leaflet/leaflet.js' %}"></script>
+        <script src="{% static 'home/js/campus_map.js' %}"></script>
+        <script src="{% static 'home/js/campus_map_init.js' %}"></script>
 
 </body>
 </html>

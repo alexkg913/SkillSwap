@@ -17,6 +17,19 @@
   padding: 0;
 }
 
+/* Available to screen readers, not shown on screen. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 body {
   font-family: "Segoe UI", "Trebuchet MS", Helvetica, sans-serif;
   color: var(--text-dark);
@@ -76,6 +89,20 @@ header h1 {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.log-in a {
+    display: inline-block;
+    padding: 10px 22px;
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.9 rem;
+    font-weight: 600;
+
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
 .sign-in {
   background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4));
   color: var(--deep-blue);
@@ -88,9 +115,42 @@ header h1 {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 3px 10px var(--shadow);
 }
 
-.log-in button:hover {
+.log-in a:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 14px var(--shadow);
+}
+
+.log-in .profile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 3px;
+  background: var(--glass-white);
+  box-shadow: 0 3px 8px var(--shadow);
+}
+
+.profile-link__avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-link__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--deep-blue);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.log-in .profile-link:focus-visible {
+  outline: 3px solid var(--deep-blue);
+  outline-offset: 3px;
 }
 
 /* ---------- Nav ---------- */
@@ -132,7 +192,7 @@ main {
 .search-bar {
   display: flex;
   gap: 10px;
-  max-width: 480px;
+  max-width: 650px;
 }
 
 .search-bar input {
@@ -173,21 +233,41 @@ main {
   flex: 1;
 }
 
+/* Glass panel that holds the Leaflet map. The old flex centering lived here to
+   center the placeholder text; it now sits on .map__fallback instead, because
+   centering this container fights Leaflet's absolutely-positioned panes.
+   backdrop-filter is gone too: tiles cover it, so it only cost compositing. */
 .map {
   flex: 2;
   min-height: 420px;
+  display: flex;
+  flex-direction: column;
   border-radius: 20px;
   border: 1px solid var(--glass-border);
+  overflow: hidden;
   background:
     linear-gradient(135deg, rgba(255,255,255,0.5), rgba(190,234,255,0.35)),
     repeating-linear-gradient(45deg, rgba(255,255,255,0.15) 0 2px, transparent 2px 24px);
-  backdrop-filter: blur(6px);
   box-shadow: 0 8px 24px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+/* Placeholder before the map starts, plus the no-JS and map-unavailable state. */
+.map__fallback {
+  margin: auto;
+  padding: 16px;
+  text-align: center;
   color: rgba(26, 60, 77, 0.6);
   font-style: italic;
+}
+
+/* Leaflet requires an explicitly sized container. */
+#campus-map {
+  flex: 1;
+  min-height: 420px;
+}
+
+#campus-map[hidden] {
+  display: none;
 }
 
 .results {
@@ -213,6 +293,225 @@ main {
 .result:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 22px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* Listing contents. The panel mirrors the map pins, so these reuse the glass
+   tokens already in use rather than introducing a second visual language. */
+
+.result__title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.result__meta {
+  font-size: 0.9rem;
+  color: rgba(26, 60, 77, 0.75);
+}
+
+.result__meta:empty {
+  display: none;
+}
+
+/* No upcoming events is a normal state, not an error -- keep it quiet. */
+.result--empty {
+  color: rgba(26, 60, 77, 0.6);
+  font-style: italic;
+}
+
+.result--empty:hover {
+  transform: none;
+}
+
+/* Popup contents, built by campus_map.js. */
+.campus-map-popup__title {
+  display: block;
+  font-weight: 600;
+}
+
+.campus-map-popup__meta {
+  font-size: 0.9rem;
+  color: rgba(26, 60, 77, 0.75);
+}
+
+/* ---------- Event form ---------- */
+
+.form-heading {
+  margin-bottom: 18px;
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.event-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.35));
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 6px 16px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-weight: 600;
+}
+
+.field input[type="text"],
+.field input[type="datetime-local"],
+.field select,
+.field textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+  color: var(--text-dark);
+  font: inherit;
+}
+
+/* Visible keyboard focus, not just the browser default on a glass background. */
+.field input:focus-visible,
+.field select:focus-visible,
+.event-form button:focus-visible,
+.form-cancel:focus-visible {
+  outline: 3px solid var(--deep-blue);
+  outline-offset: 2px;
+}
+
+.field__help {
+  font-size: 0.85rem;
+  color: rgba(26, 60, 77, 0.7);
+}
+
+/* Errors carry a text marker as well as colour, so colour is not the only
+   signal that something needs fixing. */
+.field__errors,
+.form-errors,
+.map-picker__warning {
+  color: #8c2b1b;
+  font-size: 0.9rem;
+}
+
+.field__errors ul,
+.form-errors ul {
+  list-style: none;
+}
+
+.field__errors li::before,
+.form-errors li::before,
+.map-picker__warning::before {
+  content: "\26a0  ";
+}
+
+.map--picker {
+  min-height: 380px;
+}
+
+.map--picker #campus-map-picker {
+  flex: 1;
+  min-height: 380px;
+}
+
+#campus-map-picker[hidden] {
+  display: none;
+}
+
+.map-picker__warning[hidden] {
+  display: none;
+}
+
+.event-form__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.form-cancel {
+  color: var(--deep-blue);
+}
+
+.event-cancel {
+  margin-top: 24px;
+}
+
+.event-cancel__button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+  color: #8c2b1b;
+  font: inherit;
+  cursor: pointer;
+}
+
+.event-cancel__notice {
+  margin-top: 24px;
+  font-style: italic;
+  color: rgba(26, 60, 77, 0.7);
+}
+
+/* ---------- Leaflet skin ---------- */
+
+/* Reuse the existing glass tokens so the map controls match the rest of the
+   page rather than importing Leaflet's default visual language. */
+
+.leaflet-container {
+  background: transparent;
+  font: inherit;
+}
+
+.leaflet-bar,
+.leaflet-control-attribution {
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 6px 16px var(--shadow);
+  backdrop-filter: blur(6px);
+}
+
+.leaflet-bar {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: var(--glass-white);
+  color: var(--text-dark);
+  border-bottom-color: var(--glass-border);
+}
+
+.leaflet-bar a:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.leaflet-control-attribution {
+  border-radius: 10px 0 0 0;
+  background: var(--glass-white);
+  color: rgba(26, 60, 77, 0.8);
+}
+
+.leaflet-control-attribution a {
+  color: var(--deep-blue);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+  color: var(--text-dark);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 6px 16px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
 }
 
 /* ---------- Footer ---------- */
@@ -243,7 +542,109 @@ footer {
     flex-direction: column;
   }
 
+  .map,
+  #campus-map {
+    min-height: 320px;
+  }
+
   .results {
     max-height: none;
   }
+}
+/* ---------- Filter dropdown ---------- */
+
+.filter-options {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Filter by button */
+.filter-options summary {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.9),
+        rgba(255,255,255,0.4)
+    );
+
+    color: var(--deep-blue);
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9),
+                0 3px 8px var(--shadow);
+
+    list-style: none;
+    transition: transform 0.15s ease;
+}
+
+.filter-options summary::-webkit-details-marker {
+    display: none;
+}
+
+.filter-options summary:hover {
+    transform: translateY(-2px);
+}
+
+/* Dropdown panel */
+.filter-content {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    min-width: 240px;
+    padding: 18px;
+
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.95),
+        rgba(255,255,255,0.75)
+    );
+
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 16px var(--shadow),
+                inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* Filter labels */
+.filter-content label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+/* Filter selection fields */
+.filter-content select {
+    width: 100%;
+    padding: 10px 12px;
+
+    border-radius: 999px;
+    border: 1px solid var(--deep-blue);
+
+    background: var(--glass-white);
+    color: var(--text-dark);
+    font: inherit;
+    cursor: pointer;
+}
+
+/* Keyboard accessibility */
+.filter-options summary:focus-visible,
+.filter-content select:focus-visible {
+    outline: 3px solid var(--deep-blue);
+    outline-offset: 2px;
 }
