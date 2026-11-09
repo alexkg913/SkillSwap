@@ -13,3 +13,12 @@ class DirectMessage(models.Model):
         return f"From {self.sender} to {self.recipient} at {self.timestamp}"
 
 
+class EventMessage(models.Model):
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='event_sent_messages')
+    event = models.ForeignKey('events.TutoringEvent', on_delete=models.CASCADE, related_name='event_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"From {self.sender} in event {self.event} at {self.timestamp}"
+
