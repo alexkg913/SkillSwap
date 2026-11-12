@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-from django.http import request
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q # for complex queries
-from .models import DirectMessage
-from django.shortcuts import get_object_or_404, redirect, render
-=======
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q # for complex queries
@@ -12,7 +5,6 @@ from .models import DirectMessage
 from django.core.exceptions import PermissionDenied # for handling unauthorized access
 from .models import DirectMessage, EventMessage # for handling event messages
 from events.models import EventInteraction, TutoringEvent # for handling event messages
->>>>>>> origin/development
 
 
 # Create your views here.
