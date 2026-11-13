@@ -40,6 +40,41 @@ SKILL_CHOICES = [
     ]
 ]
 
+FSC_CLUB_CHOICES = [
+    (club, club)
+    for club in [
+        "Allies",
+        "Asian and Pacific Islander Association",
+        "Black Student Union",
+        "ELEVATE",
+        "FSC Hillel",
+        "Muslim Student Association",
+        "Fellowship of Christian Athletes",
+        "Enactus",
+        "Rotaract",
+        "Fempowered",
+        "The Southern",
+        "FSCTV",
+        "Cantilevers",
+        "FSC Climbing Club",
+        "Fitness for FSC",
+        "Mocettes",
+        "Beyond",
+        "Snake Pit",
+        "Greek Life: Alpha Chi Omega",
+        "Greek Life: Alpha Delta Pi",
+        "Greek Life: Delta Delta Delta",
+        "Greek Life: Gamma Phi Beta",
+        "Greek Life: Kappa Delta",
+        "Greek Life: Zeta Tau Alpha",
+        "Greek Life: Lambda Chi Alpha",
+        "Greek Life: Sigma Alpha Epsilon",
+        "Greek Life: Pi Kappa Phi",
+        "Greek Life: Sigma Chi",
+        "Greek Life: Theta Chi",
+    ]
+]
+
 COURSE_CHOICES = [
     (course, f"{course} — {name}")
     for course, name in [
@@ -155,9 +190,9 @@ class ProfileForm(forms.ModelForm):
     )
     interests_clubs = forms.CharField(
         required=False,
-        label="Interests & Clubs",
+        label="Clubs",
         widget=forms.Textarea(attrs={"rows": 4}),
-        help_text="List your interests or clubs, one per line or separated by commas.",
+        help_text="List your clubs, one per line or separated by commas.",
     )
     timezone = forms.ChoiceField(
         choices=[("", "Select a timezone")] + TIMEZONE_CHOICES,
