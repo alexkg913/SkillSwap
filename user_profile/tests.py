@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from .models import Profile
+from .forms import FSC_CLUB_CHOICES
+from .club_catalog import search_clubs, suggested_clubs
 from .skill_catalog import suggested_skills, skill_names
 
 
@@ -215,3 +217,100 @@ class SkillSearchTests(TestCase):
 
         self.assertRedirects(response, reverse("user_profile:user_settings"))
         self.assertEqual(Profile.objects.get(user=self.user).skills, ["Python"])
+
+
+class ClubPickerTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="club-student", email="clubs@example.com", password="test-password",
+            major="Biology",
+        )
+        self.client.force_login(self.user)
+        self.settings_url = reverse("user_profile:user_settings")
+
+    def test_multiple_clubs_save_and_render_as_profile_tags(self):
+        response = self.client.post(self.settings_url, {
+            "major": "Biology",
+            "interests_clubs": ["Beyond", "Greek Life: Theta Chi"],
+        })
+
+        self.assertRedirects(response, self.settings_url)
+        self.assertEqual(Profile.objects.get(user=self.user).interests_clubs,
+                         "Beyond\nGreek Life: Theta Chi")
+        profile = self.client.get(reverse("user_profile:profile"))
+        self.assertContains(profile, '<li class="profile-tag">Beyond</li>')
+        self.assertContains(profile, '<li class="profile-tag">Greek Life: Theta Chi</li>')
+
+    def test_existing_free_text_is_selected_and_can_be_retained(self):
+        profile = Profile.objects.create(user=self.user, interests_clubs="Beyond, My Old Club")
+
+        response = self.client.get(self.settings_url)
+
+        self.assertEqual(response.context["form"]["interests_clubs"].value(),
+                         ["Beyond", "My Old Club"])
+        response = self.client.post(self.settings_url, {
+            "major": "Biology", "interests_clubs": ["Beyond", "My Old Club"],
+        })
+        self.assertRedirects(response, self.settings_url)
+        profile.refresh_from_db()
+        self.assertEqual(profile.interests_clubs, "Beyond\nMy Old Club")
+
+    def test_new_unlisted_club_is_rejected_without_changing_saved_clubs(self):
+        profile = Profile.objects.create(user=self.user, interests_clubs="Beyond")
+
+        response = self.client.post(self.settings_url, {
+            "major": "Biology", "interests_clubs": ["Unlisted Club"],
+        })
+
+        self.assertFormError(response.context["form"], "interests_clubs",
+                             "Select a valid choice. Unlisted Club is not one of the available choices.")
+        profile.refresh_from_db()
+        self.assertEqual(profile.interests_clubs, "Beyond")
+
+    def test_settings_renders_only_selected_clubs_and_suggestions(self):
+        response = self.client.get(self.settings_url)
+
+        self.assertContains(response, 'id="club-search"')
+        self.assertContains(response, 'user_profile/js/club_search.js')
+        self.assertContains(response, 'value="Beyond"')
+        self.assertLessEqual(response.content.count(b'name="interests_clubs"'), 6)
+
+
+class ClubOptionsTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="club-search", email="club-search@example.com",
+            password="test-password", major="Biology",
+        )
+        self.url = reverse("user_profile:club_options")
+
+    def test_club_suggestions_are_bounded_and_major_specific(self):
+        self.client.force_login(self.user)
+        biology = self.client.get(self.url, {"major": "Biology"})
+        computing = self.client.get(self.url, {"major": "Computer Science"})
+
+        self.assertEqual(biology.status_code, 200)
+        self.assertEqual(len(biology.json()["clubs"]), 6)
+        self.assertNotEqual(set(biology.json()["clubs"]), set(computing.json()["clubs"]))
+        self.assertTrue(set(biology.json()["clubs"]) <= set(dict(FSC_CLUB_CHOICES)))
+        self.assertEqual(biology.json()["clubs"], suggested_clubs("Biology", self.user.username, FSC_CLUB_CHOICES))
+
+    def test_typo_search_finds_club_and_no_match_returns_empty_list(self):
+        self.client.force_login(self.user)
+
+        self.assertIn("Rotaract", self.client.get(self.url, {
+            "major": "Biology", "q": "rotarct",
+        }).json()["clubs"])
+        self.assertEqual(self.client.get(self.url, {
+            "major": "Biology", "q": "zzzzzzz",
+        }).json()["clubs"], [])
+        self.assertIn("Beyond", search_clubs("beynd", FSC_CLUB_CHOICES))
+
+    def test_anonymous_request_is_redirected(self):
+        response = self.client.get(self.url, {"major": "Biology"})
+        self.assertEqual(response.status_code, 302)
+
+    def test_invalid_major_is_rejected(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url, {"major": "unknown", "q": "Rotaract"})
+        self.assertEqual(response.status_code, 400)
