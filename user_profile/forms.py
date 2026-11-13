@@ -1,8 +1,11 @@
+import re
+
 from django import forms
 
 from login.choices import FSC_MAJOR_CHOICES
 
 from .models import Profile
+from .club_catalog import club_names, suggested_clubs
 from .skill_catalog import skill_lookup, suggested_skills
 
 
@@ -161,6 +164,11 @@ class CatalogSkillsField(forms.MultipleChoiceField):
         return value.casefold() in skill_lookup() or value in dict(SKILL_CHOICES)
 
 
+class CatalogClubsField(forms.MultipleChoiceField):
+    def valid_value(self, value):
+        return value in self.allowed_values
+
+
 class ProfileForm(forms.ModelForm):
     """Form for the profile fields a user may edit themselves."""
 
@@ -188,11 +196,12 @@ class ProfileForm(forms.ModelForm):
         widget=forms.Textarea(attrs={"rows": 4}),
         help_text="List courses you have completed, one per line or separated by commas.",
     )
-    interests_clubs = forms.CharField(
+    interests_clubs = CatalogClubsField(
+        choices=(),
         required=False,
         label="Clubs",
-        widget=forms.Textarea(attrs={"rows": 4}),
-        help_text="List your clubs, one per line or separated by commas.",
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Select the clubs you belong to.",
     )
     timezone = forms.ChoiceField(
         choices=[("", "Select a timezone")] + TIMEZONE_CHOICES,
@@ -242,3 +251,26 @@ class ProfileForm(forms.ModelForm):
         self.fields["skills"].choices = [
             (name, name) for name in names if self.fields["skills"].valid_value(name)
         ]
+
+        stored_clubs = [name.strip() for name in re.split(
+            r"[\r\n,]+", self.instance.interests_clubs or ""
+        ) if name.strip()]
+        allowed_clubs = set(club_names(FSC_CLUB_CHOICES)) | set(stored_clubs)
+        field = self.fields["interests_clubs"]
+        field.allowed_values = allowed_clubs
+        selected_clubs = self.data.getlist("interests_clubs") if self.is_bound else stored_clubs
+        if not self.is_bound:
+            self.initial["interests_clubs"] = stored_clubs
+        club_options = dict.fromkeys([
+            *selected_clubs,
+            *suggested_clubs(major, self.instance.user.username, FSC_CLUB_CHOICES),
+        ])
+        field.choices = [(name, name) for name in club_options if name in allowed_clubs]
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        profile.interests_clubs = "\n".join(self.cleaned_data["interests_clubs"])
+        if commit:
+            profile.save()
+            self.save_m2m()
+        return profile
