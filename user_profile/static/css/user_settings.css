@@ -270,25 +270,30 @@ h1 {
 }
 
 .skill-picker > small,
-#skill-search-empty {
+#skill-search-empty,
+#club-search-empty {
     color: var(--text-muted);
 }
 
-#id_skills {
+#id_skills,
+#id_interests_clubs {
     display: flex;
     flex-wrap: wrap;
     gap: .5rem;
 }
 
-#id_skills > div {
+#id_skills > div,
+#id_interests_clubs > div {
     order: 1;
 }
 
-#id_skills > div:has(input:checked) {
+#id_skills > div:has(input:checked),
+#id_interests_clubs > div:has(input:checked) {
     order: 0;
 }
 
-#id_skills label {
+#id_skills label,
+#id_interests_clubs label {
     position: relative;
     display: flex;
     align-items: center;
@@ -301,32 +306,38 @@ h1 {
     cursor: pointer;
 }
 
-#id_skills label:has(input:checked) {
+#id_skills label:has(input:checked),
+#id_interests_clubs label:has(input:checked) {
     border-color: var(--accent);
     background: rgba(103, 212, 232, .14);
     color: var(--text);
 }
 
-#id_skills > div[hidden] {
+#id_skills > div[hidden],
+#id_interests_clubs > div[hidden] {
     display: none;
 }
 
-#id_skills > .skill-suggestion--enter:not(:has(input:checked)) {
-    animation: skill-suggestion-fade-in 200ms ease-out both;
+#id_skills > .skill-suggestion--enter:not(:has(input:checked)),
+#id_interests_clubs > .club-suggestion--enter:not(:has(input:checked)) {
+    animation: skill-suggestion-fade-in 320ms ease-out both;
+    animation-delay: var(--skill-enter-delay, 0ms);
 }
 
 @keyframes skill-suggestion-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    #id_skills > .skill-suggestion--enter:not(:has(input:checked)) {
+    #id_skills > .skill-suggestion--enter:not(:has(input:checked)),
+    #id_interests_clubs > .club-suggestion--enter:not(:has(input:checked)) {
         animation: none;
     }
 }
 
-#id_skills input[type="checkbox"] {
+#id_skills input[type="checkbox"],
+#id_interests_clubs input[type="checkbox"] {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -338,12 +349,14 @@ h1 {
     border: 0;
 }
 
-#id_skills label:focus-within {
+#id_skills label:focus-within,
+#id_interests_clubs label:focus-within {
     outline: 3px solid var(--focus-ring);
     outline-offset: 2px;
 }
 
-#skill-search-empty[hidden] {
+#skill-search-empty[hidden],
+#club-search-empty[hidden] {
     display: none;
 }
 
