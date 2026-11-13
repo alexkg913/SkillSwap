@@ -311,6 +311,21 @@ h1 {
     display: none;
 }
 
+#id_skills > .skill-suggestion--enter:not(:has(input:checked)) {
+    animation: skill-suggestion-fade-in 200ms ease-out both;
+}
+
+@keyframes skill-suggestion-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #id_skills > .skill-suggestion--enter:not(:has(input:checked)) {
+        animation: none;
+    }
+}
+
 #id_skills input[type="checkbox"] {
     position: absolute;
     width: 1px;

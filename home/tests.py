@@ -211,7 +211,7 @@ class CampusMapEventPayloadTests(TestCase):
         payload = self.payload()
         self.assertTrue(payload)
         for event in payload:
-<<<<<<< HEAD
+
             for private in ("email", "host", "host_id", "id", "pk"):
                 self.assertNotIn(private, event)
             self.assertNotIn(self.host.email, json.dumps(event))
@@ -233,10 +233,10 @@ class CampusMapEventPayloadTests(TestCase):
     def test_empty_state_is_explicit_in_the_listings_panel(self):
         html = self.client.get(reverse("home:index")).content.decode()
         self.assertIn("No upcoming tutoring events yet.", html)
-=======
-            self.assertNotIn("email", event)
-            self.assertNotIn("host_id", event)
-            self.assertNotIn("id", event)
+
+        self.assertNotIn("email", event)
+        self.assertNotIn("host_id", event)
+        self.assertNotIn("id", event)
 
 
 class HomeHeaderTests(TestCase):
@@ -292,4 +292,3 @@ class HomeHeaderTests(TestCase):
         self.assertContains(response, 'aria-hidden="true">?</span>')
         self.assertNotContains(response, f'href="{reverse("login")}"')
         self.assertNotContains(response, f'href="{reverse("user_register")}"')
->>>>>>> feature/user_profile
