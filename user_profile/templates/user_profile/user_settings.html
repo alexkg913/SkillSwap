@@ -7,6 +7,7 @@
         <title>User Settings | SkillSwap</title>
         <link rel="stylesheet" href="{% static 'css/user_settings.css' %}">
         <script src="{% static 'user_profile/js/skill_search.js' %}" defer></script>
+        <script src="{% static 'user_profile/js/club_search.js' %}" defer></script>
     </head>
     <body>
         <header class="site-header">
@@ -99,7 +100,7 @@
 
                 <section class="settings-section profile-content-section" aria-labelledby="profile-content-heading">
                     <h2 id="profile-content-heading">About Yourself</h2>
-                    <p class="section-description">Share your skills, completed courses, interests, and clubs!</p>
+                    <p class="section-description">Share your skills, completed courses, and clubs!</p>
                     <div class="profile-content-fields">
                         <div class="skill-picker" data-search-url="{% url 'user_profile:skill_options' %}">
                             <label for="skill-search">Search skills</label>
@@ -110,7 +111,14 @@
                             <noscript><p>Enable JavaScript to search for more skills. You can still select the suggestions shown.</p></noscript>
                         </div>
                         {% include "user_profile/field.html" with field=form.classes_taken %}
-                        {% include "user_profile/field.html" with field=form.interests_clubs %}
+                        <div class="skill-picker" id="club-picker" data-search-url="{% url 'user_profile:club_options' %}">
+                            <label for="club-search">Search clubs</label>
+                            <input id="club-search" type="search" autocomplete="off" aria-controls="id_interests_clubs" aria-describedby="club-search-hint">
+                            <small id="club-search-hint">Search by name; close spellings are also shown. Selected clubs remain visible.</small>
+                            {% include "user_profile/field.html" with field=form.interests_clubs %}
+                            <p id="club-search-empty" role="status" hidden>No matching unselected clubs. Try another spelling.</p>
+                            <noscript><p>Enable JavaScript to search for more clubs. You can still select the suggestions shown.</p></noscript>
+                        </div>
                     </div>
                     <div class="settings-actions">
                         <button class="primary-button" type="submit">Save changes</button>

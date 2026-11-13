@@ -122,13 +122,17 @@
 
                     <section class="profile-card" aria-labelledby="interests-heading">
                         <div class="profile-card-header">
-                            <h2 id="interests-heading">Interests &amp; Clubs</h2>
+                            <h2 id="interests-heading">Clubs</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--interests">
-                            {% if profile.interests_clubs %}
-                                <p>{{ profile.interests_clubs|linebreaksbr }}</p>
+                            {% if clubs %}
+                                <ul class="profile-tag-list">
+                                    {% for club in clubs %}
+                                        <li class="profile-tag">{{ club }}</li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
-                                <p class="profile-empty-state">No interests or clubs have been added yet.</p>
+                                <p class="profile-empty-state">No clubs have been added yet.</p>
                             {% endif %}
                         </div>
                     </section>
