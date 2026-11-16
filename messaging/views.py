@@ -78,4 +78,4 @@ def event_chats(request):
         Q(host=request.user) | Q(id__in=going_ids)
     ).order_by('date')
 
-    return render(request, 'messaging/event_chats.html', {'events': events})
+    return render(request, 'messaging/event_chat_list.html', {'events': events})
