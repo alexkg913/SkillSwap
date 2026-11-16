@@ -206,13 +206,23 @@ class CampusMapEventPayloadTests(TestCase):
         self.assertIsInstance(pin["latitude"], float)
         self.assertIsInstance(pin["longitude"], float)
 
+    def test_pin_payload_includes_the_event_id(self):
+        # Deliberate: client code needs it to reference an event back to the
+        # server. Safe because the event is already public here, and because
+        # the views that accept an id authorise independently.
+        event = self.make_event()
+        pin = self.payload()[0]
+        self.assertEqual(pin["id"], event.pk)
+        self.assertIsInstance(pin["id"], int)
+
     def test_pin_payload_exposes_no_private_fields(self):
         self.make_event()
         payload = self.payload()
         self.assertTrue(payload)
         for event in payload:
-<<<<<<< HEAD
-            for private in ("email", "host", "host_id", "id", "pk"):
+            # The event pk is public (see serialize_event_for_map); account
+            # identifiers are not. The two assertions below are the real ones.
+            for private in ("email", "host", "host_id"):
                 self.assertNotIn(private, event)
             self.assertNotIn(self.host.email, json.dumps(event))
             self.assertNotIn(str(self.host.pk), json.dumps(event))
@@ -233,10 +243,6 @@ class CampusMapEventPayloadTests(TestCase):
     def test_empty_state_is_explicit_in_the_listings_panel(self):
         html = self.client.get(reverse("home:index")).content.decode()
         self.assertIn("No upcoming tutoring events yet.", html)
-=======
-            self.assertNotIn("email", event)
-            self.assertNotIn("host_id", event)
-            self.assertNotIn("id", event)
 
 
 class HomeHeaderTests(TestCase):
@@ -292,4 +298,3 @@ class HomeHeaderTests(TestCase):
         self.assertContains(response, 'aria-hidden="true">?</span>')
         self.assertNotContains(response, f'href="{reverse("login")}"')
         self.assertNotContains(response, f'href="{reverse("user_register")}"')
->>>>>>> feature/user_profile
