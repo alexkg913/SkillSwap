@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Event Chat</title>
+</head>
+<body>
+    <h1>Event Chats </h1>
+    <a href="{% url 'inbox' %}">Back to inbox</a>
+
+    {% for event in events %}
+        <div>
+            <a href="{% url 'event_chat' event.id %}">{{ event.title }}</a>
+            <small>{{ event.date }} at {{ event.location }}</small>
+        </div>
+    {% empty %}
+        <p>You have no event chats yet. You can join one by hosting or attending.</p>
+    {% endfor %}
+</body>
+</html>

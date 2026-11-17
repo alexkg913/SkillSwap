@@ -7,4 +7,5 @@ urlpatterns = [
     path('inbox/', views.inbox, name='inbox'),
     path('thread/<uuid:user_id>/', views.thread, name='thread'),
     path('event_chat/<int:event_id>/', views.event_chat, name='event_chat'),
+        path('event_chats/', views.event_chats, name='event_chats'),
 ]
