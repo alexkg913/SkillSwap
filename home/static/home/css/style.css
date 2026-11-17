@@ -616,3 +616,14 @@ footer {
     outline: 3px solid var(--deep-blue);
     outline-offset: 2px;
 }
+
+.event-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1px;
+  padding: 3px;
+}
+
+.event-action-active {
+  background-color: red;
+}

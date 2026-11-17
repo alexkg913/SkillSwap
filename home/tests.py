@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from events.models import CampusLocation, TutoringEvent
+from events.models import CampusLocation, EventInteraction, TutoringEvent
 
 User = get_user_model()
 
@@ -226,6 +226,62 @@ class CampusMapEventPayloadTests(TestCase):
         html = self.client.get(reverse("home:index")).content.decode()
         self.assertIn("Calculus II drop-in", html)
         self.assertIn("Roux Library", html)
+
+    def test_listings_show_only_the_current_students_interaction_state(self):
+        event = self.make_event()
+        student = User.objects.create_user(username="student")
+        EventInteraction.objects.create(
+            tutoring_event=event, student=student, saved=True, going=True
+        )
+        for user, expected in ((None, False), (self.host, False), (student, True)):
+            with self.subTest(user=user):
+                self.client.logout()
+                if user is not None:
+                    self.client.force_login(user)
+                response = self.client.get(reverse("home:index"))
+                listing = response.context["event_listings"][0]
+                self.assertEqual(listing["id"], event.pk)
+                self.assertEqual(listing["is_saved"], expected)
+                self.assertEqual(listing["is_going"], expected)
+                html = response.content.decode()
+                self.assertEqual(
+                    html.count('class="event-action-active"'), 2 if expected else 0
+                )
+                self.assertEqual(
+                    html.count('aria-pressed="true"'), 2 if expected else 0
+                )
+                self.assertEqual(
+                    html.count('aria-pressed="false"'), 0 if expected else 2
+                )
+                self.assertIn("Unsave Event" if expected else "Save Event", html)
+                if expected:
+                    self.assertIn("Cancel RSVP", html)
+                else:
+                    self.assertNotIn("Cancel RSVP", html)
+                pin = json_script_payload(html, "map-events")[0]
+                for field in ("id", "is_saved", "is_going"):
+                    self.assertNotIn(field, pin)
+
+    def test_listings_keep_saved_and_going_states_independent(self):
+        event = self.make_event()
+        interaction = EventInteraction.objects.create(
+            tutoring_event=event, student=self.host, saved=True
+        )
+        self.client.force_login(self.host)
+        for saved, going in ((True, False), (False, True)):
+            interaction.saved = saved
+            interaction.going = going
+            interaction.save()
+            response = self.client.get(reverse("home:index"))
+            listing = response.context["event_listings"][0]
+            self.assertEqual(listing["is_saved"], saved)
+            self.assertEqual(listing["is_going"], going)
+            html = response.content.decode()
+            self.assertEqual(html.count('class="event-action-active"'), 1)
+            self.assertEqual(html.count('aria-pressed="true"'), 1)
+            self.assertEqual(html.count('aria-pressed="false"'), 1)
+            self.assertIn("Unsave Event" if saved else "Save Event", html)
+            self.assertEqual("Cancel RSVP" in html, going)
 
     def test_empty_state_is_explicit_in_the_listings_panel(self):
         html = self.client.get(reverse("home:index")).content.decode()

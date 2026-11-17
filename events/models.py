@@ -131,3 +131,11 @@ class EventInteraction(models.Model):
     )
     going = models.BooleanField(default=False)
     saved = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tutoring_event", "student"],
+                name="unique_event_student_interaction",
+            ),
+        ]

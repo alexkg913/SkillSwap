@@ -71,6 +71,7 @@ def serialize_event_for_map(event):
     """
     local_start = timezone.localtime(event.date)
     return {
+        "id": event.pk,
         "title": event.title,
         "subject": event.subject,
         "tutor": event.tutor,

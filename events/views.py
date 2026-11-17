@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -7,7 +9,7 @@ from django.views.decorators.http import require_POST
 from home.views import map_config
 
 from .forms import TutoringEventForm
-from .models import TutoringEvent
+from .models import TutoringEvent, EventInteraction
 from .selectors import campus_building_coordinates
 
 
@@ -100,3 +102,29 @@ def cancel_event(request, pk):
     event.is_cancelled = True
     event.save(update_fields=["is_cancelled"])
     return redirect(reverse("home:index"))
+
+
+def _toggle_interaction(request, event_id, field):
+    event = get_object_or_404(
+        TutoringEvent, pk=event_id, isPublic=True, is_cancelled=False
+    )
+    with transaction.atomic():
+        interaction, _ = EventInteraction.objects.select_for_update().get_or_create(
+            tutoring_event=event,
+            student=request.user,
+        )
+        # Flip in the database rather than saving a potentially stale value.
+        EventInteraction.objects.filter(pk=interaction.pk).update(**{field: ~F(field)})
+    return redirect("home:index")
+
+
+@login_required
+@require_POST
+def rsvp_event(request, event_id):
+    return _toggle_interaction(request, event_id, "going")
+
+
+@login_required
+@require_POST
+def save_event(request, event_id):
+    return _toggle_interaction(request, event_id, "saved")
