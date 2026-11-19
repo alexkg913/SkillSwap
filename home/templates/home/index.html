@@ -37,8 +37,20 @@
         </header>
 
         <nav>
-            <a href="#">Find a Tutor</a>
-            <a href="#">Be a Tutor</a>
+            {% comment %}
+                Find a Tutor is for student accounts; a tutor gets their own
+                setup links instead. The views re-check the role server-side --
+                swapping a link here is not a permission check.
+            {% endcomment %}
+            {% if request.user.is_authenticated and request.user.is_tutor %}
+            <a href="{% url 'tutoring:setup' %}">My Tutoring Courses</a>
+            <a href="{% url 'tutoring:availability' %}">My Availability</a>
+            {% else %}
+            <a href="{% url 'tutoring:find' %}">Find a Tutor</a>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'tutoring:sessions' %}">My Sessions</a>
+            {% endif %}
             <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
             <a href="#">Messages</a>
             <a href="#">Profile</a>

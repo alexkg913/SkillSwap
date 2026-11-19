@@ -1,0 +1,49 @@
+{% extends "tutoring/_shell.html" %}
+
+{% block title %}My Courses{% endblock %}
+
+{% block content %}
+    <h2 class="form-heading">Courses I can tutor</h2>
+
+    {% if catalog_is_empty %}
+        <p class="result result--empty">Courses haven't been added yet.</p>
+    {% else %}
+        <form method="post" class="event-form tutoring-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <section class="event-form__fields">
+                {% include "tutoring/_course_picker.html" with field=form.course_codes mode="multi" picker_id="course-picker" selected=selected %}
+            </section>
+
+            <div class="event-form__actions">
+                <button type="submit" class="register">Save courses</button>
+                <a class="form-cancel" href="{% url 'tutoring:availability' %}">My availability</a>
+            </div>
+        </form>
+
+        <section class="tutoring-results" aria-labelledby="selected-courses-heading">
+            <h3 id="selected-courses-heading">Students can currently find you for</h3>
+            <ul class="results">
+                {% for course in selected %}
+                    <li class="result">
+                        <p class="result__title">{{ course.code }}</p>
+                        <p class="result__meta">{{ course.title }}</p>
+                    </li>
+                {% empty %}
+                    <li class="result result--empty">
+                        No courses selected yet, so you will not appear in any search.
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'tutoring/js/course_search.js' %}"></script>
+{% endblock %}

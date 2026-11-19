@@ -70,6 +70,43 @@ do not need relitigating:
 - Current state, values in use, and what remains: `docs/osm-leaflet-integration-notes.md`.
   Full design rationale: `docs/campus-map-plan.md`.
 
+### Find a Tutor
+
+Course/time tutor search and booking is implemented in the **`tutoring`** app.
+Decisions already made, so they do not need relitigating:
+
+- **Course codes come from `assets/fsc_courses.json`**, read through
+  `tutoring/catalog.py`. 1,174 entries parsed from the FSC Academic Catalog
+  2026/2027. There is **no `Course` model** -- codes are validated `CharField`s,
+  matching how majors and skills already work. Do not seed a course table or
+  inline course lists into a module. Provenance and regeneration:
+  `assets/fsc_courses.PROVENANCE.md`.
+- **`login.User.is_tutor`** is the account role: non-null, defaults false, one
+  role at a time. Enforce it with `tutoring.views.tutor_required` /
+  `student_required`, never by hiding a link.
+- **Availability is concrete UTC intervals**, not recurring rules, and all
+  intervals are half-open `[start, end)` so back-to-back sessions are allowed.
+  A window must *fully contain* a requested session to match.
+- **Search results never carry an account identifier.** They reference a
+  `TutorCourse` id; the server resolves the tutor. No email (it is the
+  `USERNAME_FIELD`) and no account UUID reaches a page, same rule as
+  `events/selectors.py`.
+- **Booking re-checks everything inside a transaction** and returns a `303`
+  back to refreshed results on conflict. SQLite cannot express interval
+  exclusion, so a partial unique constraint on `(tutor, start_at)` plus the
+  in-transaction re-check is the protection; read
+  `docs/find-a-tutor-notes.md` before changing it.
+- **The course field is a searchable combobox, not a `<select>`.** Courses come
+  from `tutoring/courses/` (`views.course_options`) as JSON, driven by
+  `static/tutoring/js/course_search.js` -- the same shape as the skills picker.
+  The submitted value is a hidden input and is validated server-side against
+  the full allowed catalog, so never treat what the box offered as a
+  constraint. Do not render the catalog into a page.
+- Sessions are 60 minutes (`tutoring.models.SESSION_MINUTES`). Times are
+  entered and shown in Eastern, stored UTC, and nonexistent or ambiguous local
+  times are rejected rather than guessed.
+- Current state, decisions, and known rough edges: `docs/find-a-tutor-notes.md`.
+
 ## Working process
 
 1. Read applicable instructions, inspect the working tree, and identify the code related to the request.

@@ -1,0 +1,90 @@
+{% comment %}
+    Searchable course picker.
+
+    The catalog is far too large to render as a <select>, so this is a
+    combobox backed by the tutoring:course_options endpoint. The hidden inputs
+    in .course-picker__values are what actually submit; the server validates
+    them against the whole catalog either way.
+
+    Expects: field (the bound form field), mode ("single" or "multi"),
+    picker_id, and for multi, selected (code/title dicts). For single,
+    selected_label is the text to show when the page re-renders.
+{% endcomment %}
+<div class="course-picker field"
+     id="{{ picker_id }}"
+     data-mode="{{ mode }}"
+     data-search-url="{% url 'tutoring:course_options' %}">
+
+    <label for="{{ picker_id }}-input">{{ field.label }}</label>
+
+    {% comment %} The listbox is positioned against this wrapper, so the
+    hint and status text below cannot shift it. {% endcomment %}
+    <div class="course-picker__combo">
+        <input type="search"
+               id="{{ picker_id }}-input"
+               class="course-picker__input"
+               autocomplete="off"
+               spellcheck="false"
+               role="combobox"
+               aria-expanded="false"
+               aria-autocomplete="list"
+               aria-controls="{{ picker_id }}-listbox"
+               aria-describedby="{{ picker_id }}-hint"
+               placeholder="Search by code or title, e.g. MAT 2022"
+               value="{{ selected_label|default:'' }}">
+
+        <ul class="course-picker__listbox"
+            id="{{ picker_id }}-listbox"
+            role="listbox"
+            aria-label="Matching courses"
+            hidden></ul>
+    </div>
+
+    <small id="{{ picker_id }}-hint">
+        {% if mode == "multi" %}
+            Search for a course, then pick it to add. Selected courses are listed below.
+        {% else %}
+            Start typing a course code or title, then pick one from the list.
+        {% endif %}
+    </small>
+
+    <p class="course-picker__status" role="status"></p>
+
+    {% comment %} The real form values. {% endcomment %}
+    <div class="course-picker__values" data-field-name="{{ field.html_name }}" hidden>
+        {{ field }}
+    </div>
+
+    {% if mode == "multi" %}
+        <ul class="course-picker__chips">
+            {% for course in selected %}
+                <li class="course-picker__chip" data-code="{{ course.code }}">
+                    <span>{{ course.code }} &mdash; {{ course.title }}</span>
+                    <button type="button"
+                            class="course-picker__chip-remove"
+                            aria-label="Remove {{ course.code }}">&times;</button>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if field.errors %}
+        <div class="field__errors" role="alert">{{ field.errors }}</div>
+    {% endif %}
+
+    <noscript>
+        <p class="course-picker__noscript">
+            Course search needs JavaScript. Without it, type an exact course
+            code below &mdash; for example <code>MAT 2022</code>.
+        </p>
+        {% comment %}
+            A plain text input under the same name, so the field is still
+            usable without JavaScript. The server validates the code against
+            the catalog and rejects anything that is not a real course.
+        {% endcomment %}
+        <input type="text"
+               name="{{ field.html_name }}"
+               class="course-picker__fallback"
+               aria-label="{{ field.label }} (course code)">
+    </noscript>
+</div>

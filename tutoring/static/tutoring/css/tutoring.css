@@ -1,0 +1,177 @@
+/* Tutoring pages.
+
+   The glass tokens, .result cards and .field styles come from
+   home/css/style.css; this file only adds what the tutoring pages need on top
+   of them, so there is one visual language rather than two. */
+
+.tutoring-form {
+  margin-bottom: 28px;
+}
+
+.tutoring-results {
+  margin-bottom: 28px;
+}
+
+.tutoring-results h3 {
+  margin-bottom: 12px;
+}
+
+/* The displayed timezone is stated wherever a session time appears, because a
+   wrong reading means a missed session. */
+.tutoring-results__tz {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(26, 60, 77, 0.65);
+  margin-left: 6px;
+}
+
+.tutoring-results .results {
+  /* These lists are page content rather than a fixed-height map side panel,
+     so they grow instead of scrolling inside themselves. */
+  max-height: none;
+  overflow-y: visible;
+}
+
+.tutoring-book {
+  margin-top: 12px;
+}
+
+.tutoring-messages {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tutoring-messages__item {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+}
+
+.tutoring-messages__item--success {
+  border-left: 4px solid #2f7a4d;
+}
+
+.tutoring-messages__item--error {
+  border-left: 4px solid #a3341f;
+}
+
+@media (max-width: 600px) {
+  .tutoring-results .results {
+    padding-right: 0;
+  }
+}
+
+/* Searchable course picker.
+
+   A combobox rather than a <select>: the catalog has ~960 selectable courses,
+   which is both unusable as a dropdown and far too much markup to ship. The
+   listbox is positioned against .course-picker__combo, which wraps only the
+   input, so the hint and status text below it cannot shift the list. */
+
+.course-picker__combo {
+  position: relative;
+}
+
+.course-picker__input {
+  /* Matches the .field input rules in home/css/style.css. */
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+  color: var(--text-dark);
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.course-picker__listbox {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: #fff;
+  box-shadow: 0 10px 24px var(--shadow);
+}
+
+.course-picker__option {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.course-picker__option--active,
+.course-picker__option:hover {
+  background: rgba(26, 60, 77, 0.08);
+}
+
+.course-picker__status {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: rgba(26, 60, 77, 0.75);
+}
+
+.course-picker__status:empty {
+  display: none;
+}
+
+.course-picker__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.course-picker__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+  font-size: 0.9rem;
+}
+
+.course-picker__chip-remove {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 2px;
+  color: rgba(26, 60, 77, 0.7);
+}
+
+.course-picker__chip-remove:hover {
+  color: #a3341f;
+}
+
+.course-picker__noscript,
+.course-picker__fallback {
+  margin-top: 8px;
+}
+
+.course-picker__fallback {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-white);
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}

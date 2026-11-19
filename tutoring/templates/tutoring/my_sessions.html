@@ -1,0 +1,46 @@
+{% extends "tutoring/_shell.html" %}
+
+{% block title %}My Sessions{% endblock %}
+
+{% block content %}
+    <h2 class="form-heading">My upcoming sessions</h2>
+
+    <ul class="results">
+        {% for row in rows %}
+            <li class="result">
+                <p class="result__title">
+                    {{ row.session.course_code }}
+                    {% if row.course_title %}&mdash; {{ row.course_title }}{% endif %}
+                </p>
+                <p class="result__meta">
+                    {{ row.session.start_at|date:"D j M Y, g:i A" }}
+                    &ndash; {{ row.session.end_at|date:"g:i A" }} Eastern Time
+                    <br>
+                    {% if row.role == "tutor" %}
+                        Your tutor: {{ row.other_party }}
+                    {% else %}
+                        Your student: {{ row.other_party }}
+                    {% endif %}
+                </p>
+
+                {% comment %}
+                    Either participant may cancel. POST only, and it sets a
+                    status rather than deleting the row.
+                {% endcomment %}
+                <form method="post"
+                      action="{% url 'tutoring:cancel' row.session.pk %}"
+                      class="event-cancel">
+                    {% csrf_token %}
+                    <button type="submit" class="event-cancel__button">Cancel session</button>
+                </form>
+            </li>
+        {% empty %}
+            <li class="result result--empty">
+                No upcoming sessions.
+                {% if not request.user.is_tutor %}
+                    <a href="{% url 'tutoring:find' %}">Find a tutor</a> to book one.
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
