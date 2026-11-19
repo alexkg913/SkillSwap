@@ -12,7 +12,7 @@ from datetime import timedelta
 from django import forms
 from django.utils import timezone
 
-from .catalog import FOUNDATION_GROUP, UNDERGRADUATE, course_choices, course_titles
+from .catalog import FOUNDATION_GROUP, UNDERGRADUATE, active_courses
 from .models import SESSION_MINUTES, TutorAvailability, TutorCourse
 
 # Graduate listings are excluded from the pickers: peer tutoring here is an
@@ -22,26 +22,44 @@ from .models import SESSION_MINUTES, TutorAvailability, TutorCourse
 TUTORING_COURSE_LEVELS = (UNDERGRADUATE, FOUNDATION_GROUP)
 
 
-def tutoring_course_choices():
-    return course_choices(*TUTORING_COURSE_LEVELS)
+def tutoring_courses():
+    """Courses that may be searched for, offered, or booked right now."""
+    return active_courses(TUTORING_COURSE_LEVELS)
 
 
 def course_label(code):
     """The "CODE — Title" label a search box shows for a chosen course."""
-    title = course_titles().get(code)
+    title = tutoring_courses().filter(code=code).values_list("title", flat=True).first()
     return f"{code} \u2014 {title}" if title else code
 
 
-class CourseCodeMultipleField(forms.MultipleChoiceField):
-    """Multiple course codes, ignoring blanks.
+class CourseField(forms.ModelChoiceField):
+    """One course, submitted and validated by its code.
 
-    The no-JavaScript fallback input submits an empty string when it is left
-    alone, which would otherwise fail choice validation and stop a tutor
-    clearing their course list.
+    ``to_field_name="code"`` means validation is a single indexed lookup
+    against the allowed queryset, so the 1,000-row catalog is never loaded to
+    check one value.
     """
 
-    def to_python(self, value):
-        return [code for code in super().to_python(value) if code.strip()]
+    def __init__(self, **kwargs):
+        super().__init__(queryset=tutoring_courses(), to_field_name="code", **kwargs)
+
+
+class CourseMultipleField(forms.ModelMultipleChoiceField):
+    """Several courses by code, ignoring blanks.
+
+    The no-JavaScript fallback input submits an empty string when it is left
+    alone, which would otherwise fail validation and stop a tutor clearing
+    their course list.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(queryset=tutoring_courses(), to_field_name="code", **kwargs)
+
+    def clean(self, value):
+        if value:
+            value = [code for code in value if str(code).strip()]
+        return super().clean(value)
 
 
 class LocalDateTimeField(forms.DateTimeField):
@@ -60,8 +78,7 @@ class FindTutorForm(forms.Form):
     # markup. The field still validates against every allowed course, so a
     # submitted code is checked server-side regardless of what the page
     # offered. Same trade as the skills picker in user_profile.
-    course_code = forms.ChoiceField(
-        choices=(),
+    course_code = CourseField(
         label="Course",
         widget=forms.HiddenInput,
         error_messages={"invalid_choice": "Choose a course from the search results."},
@@ -70,12 +87,6 @@ class FindTutorForm(forms.Form):
         label="Starts at (Eastern Time)",
         help_text=f"Sessions are {SESSION_MINUTES} minutes long.",
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Assigned here, not at class definition, so the catalog file is read
-        # on first use rather than at import.
-        self.fields["course_code"].choices = tutoring_course_choices()
 
     @property
     def course_label(self):
@@ -115,10 +126,12 @@ class BookingForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Only courses offered by an account that is still a tutor.
+        # Only offers by an account that is still a tutor, for a course that
+        # has not been retired since the results page loaded.
         self.fields["tutor_course"].queryset = TutorCourse.objects.filter(
-            tutor__is_tutor=True
-        ).select_related("tutor")
+            tutor__is_tutor=True,
+            course__is_active=True,
+        ).select_related("tutor", "course")
 
     def clean_start_at(self):
         start_at = self.cleaned_data["start_at"]
@@ -141,17 +154,12 @@ class TutorCoursesForm(forms.Form):
 
     # Hidden inputs maintained by the search box, for the same reason as
     # FindTutorForm.course_code. Validation still covers the full catalog.
-    course_codes = CourseCodeMultipleField(
-        choices=(),
+    course_codes = CourseMultipleField(
         required=False,
         label="Courses you can tutor",
         widget=forms.MultipleHiddenInput,
         error_messages={"invalid_choice": "%(value)s is not a course in the catalog."},
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["course_codes"].choices = tutoring_course_choices()
 
 
 class AvailabilityForm(forms.ModelForm):

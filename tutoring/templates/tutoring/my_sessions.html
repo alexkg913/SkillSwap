@@ -9,7 +9,7 @@
         {% for row in rows %}
             <li class="result">
                 <p class="result__title">
-                    {{ row.session.course_code }}
+                    {{ row.session.course.code }}
                     {% if row.course_title %}&mdash; {{ row.course_title }}{% endif %}
                 </p>
                 <p class="result__meta">

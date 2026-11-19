@@ -75,12 +75,20 @@ do not need relitigating:
 Course/time tutor search and booking is implemented in the **`tutoring`** app.
 Decisions already made, so they do not need relitigating:
 
-- **Course codes come from `assets/fsc_courses.json`**, read through
-  `tutoring/catalog.py`. 1,174 entries parsed from the FSC Academic Catalog
-  2026/2027. There is **no `Course` model** -- codes are validated `CharField`s,
-  matching how majors and skills already work. Do not seed a course table or
-  inline course lists into a module. Provenance and regeneration:
-  `assets/fsc_courses.PROVENANCE.md`.
+- **Courses live in the `tutoring.Course` table**, seeded by migration
+  `tutoring/0002_course_table` from `assets/fsc_courses.json` (1,174 entries
+  from the FSC Academic Catalog 2026/2027) and maintained in the Django admin.
+  `TutorCourse.course` and `TutoringSession.course` are foreign keys with
+  `to_field="code"`, so the stored value is still the readable code. Read
+  courses through `tutoring/catalog.py`; do not inline course lists into a
+  module.
+- **Remove a course by retiring it** (`Course.is_active = False`), not by
+  deleting it: it leaves search, offers, and booking, but past sessions keep
+  it. Sessions `PROTECT` their course; offers `CASCADE`. A course's code is
+  read-only in the admin once created.
+- **The JSON file is an import source, not the source of truth.** After
+  regenerating it, run `python manage.py sync_courses` (add `--retire-missing`
+  to retire dropped courses). Provenance: `assets/fsc_courses.PROVENANCE.md`.
 - **`login.User.is_tutor`** is the account role: non-null, defaults false, one
   role at a time. Enforce it with `tutoring.views.tutor_required` /
   `student_required`, never by hiding a link.

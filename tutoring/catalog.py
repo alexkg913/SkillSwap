@@ -1,79 +1,56 @@
-"""Read the bundled FSC course catalog without inlining it into a module.
+"""Read-side helpers for the course catalog.
 
-The catalog data lives in ``assets/fsc_courses.json`` so it can be regenerated
-from a new academic catalog without touching Python. See
-``assets/fsc_courses.PROVENANCE.md`` for the source and how to refresh it.
+Courses live in the ``Course`` table (``tutoring.models.Course``), seeded from
+``assets/fsc_courses.json`` and maintained in the Django admin. Nothing here is
+cached in-process: an admin adding or retiring a course takes effect on the
+next request, in every worker.
+
+Only *active* courses are returned. A retired course stays in the table so
+past sessions keep it, but it cannot be searched for, offered, or booked.
 
 Course codes are the stored value and are treated as stable; titles are display
 text only.
 """
 
-import json
-from functools import lru_cache
-from pathlib import Path
+from .models import Course
+
+UNDERGRADUATE = Course.Level.UNDERGRADUATE
+GRADUATE = Course.Level.GRADUATE
+FOUNDATION_GROUP = Course.Level.FOUNDATION_GROUP
 
 
-CATALOG_PATH = Path(__file__).resolve().parent.parent / "assets" / "fsc_courses.json"
-
-# Courses a student takes as part of the undergraduate programme. Graduate
-# entries are kept separate because most peer tutoring happens at this level.
-UNDERGRADUATE = "undergraduate"
-GRADUATE = "graduate"
-
-# A WRIGHT Foundations requirement met by any course in a group rather than by
-# one numbered course, so it has no single catalog course number.
-FOUNDATION_GROUP = "foundation_group"
+def active_courses(levels=()):
+    """Active courses, optionally limited to ``levels``, ordered by code."""
+    queryset = Course.objects.filter(is_active=True)
+    if levels:
+        queryset = queryset.filter(level__in=levels)
+    return queryset
 
 
-@lru_cache(maxsize=1)
 def courses():
-    """Return the catalog as a tuple of ``(code, title, level)`` triples.
-
-    File order is retained, which is subject prefix then course number, so a
-    rendered dropdown is predictable. Duplicate codes are dropped, keeping the
-    first entry, rather than silently shadowing one another in a dict.
-    """
-    with CATALOG_PATH.open(encoding="utf-8") as catalog:
-        data = json.load(catalog)
-
-    seen = set()
-    entries = []
-    for entry in data["courses"]:
-        code = entry["code"].strip()
-        if not code or code in seen:
-            continue
-        seen.add(code)
-        entries.append((code, entry["title"].strip(), entry["level"]))
-    return tuple(entries)
+    """Every active course as ``(code, title, level)`` triples, by code."""
+    return tuple(active_courses().values_list("code", "title", "level"))
 
 
-@lru_cache(maxsize=1)
 def course_titles():
-    """Map every known course code to its catalog title."""
-    return {code: title for code, title, _ in courses()}
+    """Map every active course code to its title."""
+    return dict(active_courses().values_list("code", "title"))
 
 
 def is_valid_course(code):
-    """True when ``code`` is a known course code.
-
-    Server-side validation for anything that accepts a submitted course: a
-    form field's own ``choices`` check only covers what that form rendered.
-    """
-    return code in course_titles()
+    """True when ``code`` is an active course."""
+    return bool(code) and active_courses().filter(code=code).exists()
 
 
-@lru_cache(maxsize=None)
 def course_choices(*levels):
     """Django choices of ``(code, "CODE — Title")``, optionally by level.
 
     Called with no arguments every level is included. The value is the bare
     code so the stored data does not change when a title is reworded.
     """
-    wanted = set(levels)
     return tuple(
         (code, f"{code} — {title}")
-        for code, title, level in courses()
-        if not wanted or level in wanted
+        for code, title in active_courses(levels).values_list("code", "title")
     )
 
 
@@ -82,43 +59,32 @@ def _normalize(value):
     return " ".join(value.split()).casefold()
 
 
-@lru_cache(maxsize=1)
-def _search_index():
-    """Precomputed comparison keys, built once per process.
-
-    ``squashed`` has spaces removed so "mat2022" still finds "MAT 2022".
-    """
-    return tuple(
-        (code, title, level, _normalize(code), _normalize(code).replace(" ", ""),
-         _normalize(title))
-        for code, title, level in courses()
-    )
-
-
 def search_courses(query, levels=(), limit=20):
     """Bounded, case-insensitive course matches for a search box.
 
     Ranked deterministically: a course code prefix first, then a title prefix,
-    then a code or title that merely contains the query. Matching is plain
+    then a code or title that merely contains the query, then (for
+    multi-word queries) every word appearing somewhere. Matching is plain
     substring work -- no fuzzy spelling -- because course codes are short and
     structured, so a typo-tolerant match on them produces noise rather than
     help.
 
-    ``levels`` limits the result to those catalog levels; empty means all.
+    The ranking runs in Python over the active rows for ``levels``: about a
+    thousand short strings, which is cheaper than expressing the "MAT2022"
+    space-insensitive match portably in SQL.
     """
     query = _normalize(query)[:80]
     if not query:
         return ()
 
-    wanted = set(levels)
     squashed_query = query.replace(" ", "")
     tokens = query.split()
 
     code_prefix, title_prefix, contained, all_tokens = [], [], [], []
-    for code, title, level, code_key, code_squashed, title_key in _search_index():
-        if wanted and level not in wanted:
-            continue
-        if code_key.startswith(query) or code_squashed.startswith(squashed_query):
+    for code, title in active_courses(levels).values_list("code", "title"):
+        code_key = _normalize(code)
+        title_key = _normalize(title)
+        if code_key.startswith(query) or code_key.replace(" ", "").startswith(squashed_query):
             code_prefix.append((code, title))
         elif title_key.startswith(query):
             title_prefix.append((code, title))

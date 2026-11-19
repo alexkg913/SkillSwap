@@ -7,8 +7,12 @@ supersedes the 74-entry WRIGHT Foundations list that was previously inlined in
 `user_profile/forms.py`; 71 of those 74 are present here under the same codes,
 and the three that are not are explained below.
 
-Read it through `user_profile/course_catalog.py`, never by parsing the file at
-the point of use.
+**This file is a seed, not the live catalog.** Courses live in the
+`tutoring.Course` table: migration `tutoring/0002_course_table` loaded this
+file once, and courses are added or retired in the Django admin after that.
+Editing this file changes nothing until it is synced (see *Regenerating*).
+Application code reads courses through `tutoring/catalog.py`, never by parsing
+this file.
 
 ## Structure
 
@@ -47,8 +51,16 @@ The source PDF is not committed -- it is 6 MB and is published by the college.
 To refresh for a new academic year, download the catalog, extract the text of
 the two course-description sections, and rebuild the JSON so that each
 all-caps `CODE TITLE` heading becomes one entry, joining headings that wrap
-across lines. Then check that the count moved in a direction you expect and
-that `python manage.py test user_profile` still passes.
+across lines. Then check that the count moved in a direction you expect, and
+load it into the database:
+
+```sh
+python manage.py sync_courses                   # add new codes, refresh titles
+python manage.py sync_courses --retire-missing  # also retire dropped courses
+```
+
+`sync_courses` never deletes a course and never re-activates one retired in
+the admin. Run `python manage.py test tutoring` afterwards.
 
 A course code in this file is a catalog listing. It is not evidence that a
 student completed the course, nor that they are qualified to tutor it.

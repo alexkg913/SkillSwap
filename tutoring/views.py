@@ -17,13 +17,14 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
-from .catalog import course_titles, search_courses
+from .catalog import search_courses
 from .forms import (
     TUTORING_COURSE_LEVELS,
     AvailabilityForm,
     BookingForm,
     FindTutorForm,
     TutorCoursesForm,
+    tutoring_courses,
 )
 from .models import TutorAvailability, TutorCourse, TutoringSession
 from .selectors import (
@@ -111,7 +112,7 @@ def find_tutor(request):
         "results": results,
         "interval": interval,
         "searched": results is not None,
-        "catalog_is_empty": not course_titles(),
+        "catalog_is_empty": not tutoring_courses().exists(),
         "course_label": form.course_label,
     })
 
@@ -145,12 +146,15 @@ def book_session(request):
             # and the insert atomic.
             locked_course = (
                 TutorCourse.objects.select_for_update()
-                .select_related("tutor")
+                .select_related("tutor", "course")
                 .get(pk=tutor_course.pk)
             )
 
             if not locked_course.tutor.is_tutor:
                 raise _Conflict("That tutor is no longer taking sessions.")
+
+            if not locked_course.course.is_active:
+                raise _Conflict("That course is no longer offered for tutoring.")
 
             covered = TutorAvailability.objects.filter(
                 tutor=locked_course.tutor,
@@ -166,26 +170,26 @@ def book_session(request):
             session = TutoringSession.objects.create(
                 student=request.user,
                 tutor=locked_course.tutor,
-                course_code=locked_course.course_code,
+                course=locked_course.course,
                 start_at=start_at,
                 end_at=end_at,
                 status=TutoringSession.Status.CONFIRMED,
             )
     except _Conflict as conflict:
         return _conflict_response(
-            request, str(conflict), tutor_course.course_code, start_at
+            request, str(conflict), tutor_course.course_id, start_at
         )
     except IntegrityError:
         # The partial unique constraint caught a concurrent identical booking.
         return _conflict_response(
             request, "That slot was just booked by someone else.",
-            tutor_course.course_code, start_at,
+            tutor_course.course_id, start_at,
         )
 
     messages.success(
         request,
         "Session confirmed with %s for %s."
-        % (tutor_display_name(session.tutor), session.course_code),
+        % (tutor_display_name(session.tutor), session.course.code),
     )
     return redirect("tutoring:sessions")
 
@@ -211,11 +215,11 @@ def _conflict_response(request, message, course_code, start_at):
 def my_sessions(request):
     """Upcoming confirmed sessions for whoever is signed in."""
     sessions = upcoming_sessions_for(request.user, timezone.now())
-    titles = course_titles()
     rows = [
         {
             "session": session,
-            "course_title": titles.get(session.course_code, ""),
+            # A retired course still has its title, so history reads clearly.
+            "course_title": session.course.title,
             "other_party": tutor_display_name(
                 session.tutor if session.student_id == request.user.pk else session.student
             ),
@@ -257,28 +261,33 @@ def tutor_courses(request):
             messages.success(request, "Your courses are saved.")
             return redirect("tutoring:setup")
     else:
-        form = TutorCoursesForm(initial={"course_codes": courses_for_tutor(request.user)})
+        offered = courses_for_tutor(request.user)
+        form = TutorCoursesForm(initial={"course_codes": [code for code, _ in offered]})
 
-    titles = course_titles()
     selected = [
-        {"code": code, "title": titles.get(code, "")}
-        for code in courses_for_tutor(request.user)
+        {"code": code, "title": title} for code, title in courses_for_tutor(request.user)
     ]
     return render(request, "tutoring/tutor_courses.html", {
         "form": form,
         "selected": selected,
-        "catalog_is_empty": not titles,
+        "catalog_is_empty": not tutoring_courses().exists(),
     })
 
 
-def _replace_tutor_courses(tutor, course_codes):
-    """Make the tutor's offered courses exactly ``course_codes``."""
-    wanted = set(course_codes)
+def _replace_tutor_courses(tutor, courses):
+    """Make the tutor's offered courses exactly ``courses``.
+
+    Offers of retired courses are not in ``courses`` (the form only accepts
+    active ones), so saving also clears them out.
+    """
+    wanted = {course.code for course in courses}
     with transaction.atomic():
-        TutorCourse.objects.filter(tutor=tutor).exclude(course_code__in=wanted).delete()
-        existing = set(courses_for_tutor(tutor))
+        TutorCourse.objects.filter(tutor=tutor).exclude(course_id__in=wanted).delete()
+        existing = set(
+            TutorCourse.objects.filter(tutor=tutor).values_list("course_id", flat=True)
+        )
         TutorCourse.objects.bulk_create(
-            [TutorCourse(tutor=tutor, course_code=code) for code in wanted - existing]
+            [TutorCourse(tutor=tutor, course_id=code) for code in sorted(wanted - existing)]
         )
 
 

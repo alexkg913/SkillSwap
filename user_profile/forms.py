@@ -41,8 +41,8 @@ SKILL_CHOICES = [
     ]
 ]
 
-# The catalog is loaded from assets/fsc_courses.json rather than inlined here.
-# Passed as a callable so the file is read on first render, not at import.
+# Courses come from the tutoring.Course table rather than being inlined here.
+# Passed as a callable so the database is queried on render, not at import.
 COURSE_CHOICES = course_choices
 
 

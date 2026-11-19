@@ -13,23 +13,70 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from .catalog import is_valid_course
-
 # A booked session is this long. The project has no existing session-duration
 # policy, so the student UI offers a single fixed duration.
 SESSION_MINUTES = 60
 
-# Course codes are stored as text validated against the catalog rather than as
-# a foreign key: the catalog is a bundled data file, not a table. See
-# assets/fsc_courses.PROVENANCE.md.
 COURSE_CODE_MAX_LENGTH = 32
 
 
 def validate_course_code(value):
-    """Reject a course code the bundled catalog does not list."""
-    if not is_valid_course(value):
+    """Reject a code that is not an active course.
+
+    No longer attached to a field -- the ``course`` foreign keys enforce
+    existence -- but migration 0001 still references it, so it must stay
+    importable.
+    """
+    if not Course.objects.filter(code=value, is_active=True).exists():
         raise ValidationError("%(value)s is not a course in the catalog.",
                               params={"value": value})
+
+
+class Course(models.Model):
+    """One course from the FSC catalog that tutoring can be offered for.
+
+    Seeded from ``assets/fsc_courses.json`` by migration 0002 and maintained
+    in the Django admin after that. ``code`` is the stable identifier other
+    rows point at (foreign keys use ``to_field="code"``), so the stored value
+    in ``TutorCourse`` and ``TutoringSession`` is still the readable code.
+
+    Retire a course with ``is_active`` rather than deleting it: a retired
+    course disappears from search, new offers, and new bookings, while past
+    sessions keep their course. Deleting is allowed only while no session
+    references the course.
+    """
+
+    class Level(models.TextChoices):
+        UNDERGRADUATE = "undergraduate", "Undergraduate"
+        GRADUATE = "graduate", "Graduate"
+        # A WRIGHT Foundations requirement met by any course in a group, so it
+        # has no single catalog course number.
+        FOUNDATION_GROUP = "foundation_group", "Foundations group"
+
+    code = models.CharField(max_length=COURSE_CODE_MAX_LENGTH, unique=True)
+    title = models.CharField(max_length=200)
+    level = models.CharField(
+        max_length=20,
+        choices=Level.choices,
+        default=Level.UNDERGRADUATE,
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Untick to retire the course: it stops appearing in search "
+                  "and cannot be offered or booked, but past sessions keep it.",
+    )
+
+    class Meta:
+        ordering = ["code"]
+
+    def __str__(self):
+        return f"{self.code} \u2014 {self.title}"
+
+    def clean(self):
+        # Codes are compared exactly everywhere, so stray whitespace would
+        # create a near-duplicate that search shows twice.
+        self.code = " ".join(self.code.split())
+        self.title = " ".join(self.title.split())
 
 
 class TutorCourse(models.Model):
@@ -40,27 +87,31 @@ class TutorCourse(models.Model):
         on_delete=models.CASCADE,
         related_name="tutor_courses",
     )
-    course_code = models.CharField(
-        max_length=COURSE_CODE_MAX_LENGTH,
-        validators=[validate_course_code],
+    # Deleting a course withdraws every offer of it; nothing was booked
+    # through an offer alone, so there is no history to lose.
+    course = models.ForeignKey(
+        Course,
+        to_field="code",
+        on_delete=models.CASCADE,
+        related_name="tutor_offers",
     )
 
     class Meta:
-        ordering = ["course_code"]
+        ordering = ["course"]
         constraints = [
             models.UniqueConstraint(
-                fields=["tutor", "course_code"],
+                fields=["tutor", "course"],
                 name="tutorcourse_unique_per_tutor",
             ),
         ]
         indexes = [
             # The search filters on course first, then joins to the tutor.
-            models.Index(fields=["course_code", "tutor"],
+            models.Index(fields=["course", "tutor"],
                          name="tutorcourse_search_idx"),
         ]
 
     def __str__(self):
-        return f"{self.tutor} teaches {self.course_code}"
+        return f"{self.tutor} teaches {self.course_id}"
 
 
 class TutorAvailability(models.Model):
@@ -119,9 +170,13 @@ class TutoringSession(models.Model):
         on_delete=models.PROTECT,
         related_name="tutoring_sessions",
     )
-    course_code = models.CharField(
-        max_length=COURSE_CODE_MAX_LENGTH,
-        validators=[validate_course_code],
+    # PROTECT: a booked session is a record, so its course cannot be deleted
+    # out from under it. Retire the course with ``is_active`` instead.
+    course = models.ForeignKey(
+        Course,
+        to_field="code",
+        on_delete=models.PROTECT,
+        related_name="sessions",
     )
     start_at = models.DateTimeField()
     end_at = models.DateTimeField()
@@ -158,7 +213,7 @@ class TutoringSession(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.course_code} with {self.tutor} at {self.start_at}"
+        return f"{self.course_id} with {self.tutor} at {self.start_at}"
 
     @property
     def is_upcoming(self):

@@ -4,7 +4,7 @@
     The catalog is far too large to render as a <select>, so this is a
     combobox backed by the tutoring:course_options endpoint. The hidden inputs
     in .course-picker__values are what actually submit; the server validates
-    them against the whole catalog either way.
+    them against the active courses in the database either way.
 
     Expects: field (the bound form field), mode ("single" or "multi"),
     picker_id, and for multi, selected (code/title dicts). For single,

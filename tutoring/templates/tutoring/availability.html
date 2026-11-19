@@ -81,7 +81,7 @@
         <ul class="results">
             {% for session in sessions %}
                 <li class="result">
-                    <p class="result__title">{{ session.course_code }}</p>
+                    <p class="result__title">{{ session.course.code }}</p>
                     <p class="result__meta">
                         {{ session.start_at|date:"D j M, g:i A" }}
                         &ndash; {{ session.end_at|date:"g:i A" }}

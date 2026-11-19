@@ -6,7 +6,6 @@ request handling, matching the pattern in events/selectors.py.
 
 from django.db.models import Exists, OuterRef, Q
 
-from .catalog import course_titles
 from .models import TutorAvailability, TutorCourse, TutoringSession
 
 
@@ -25,13 +24,14 @@ def overlapping_sessions(tutor_field, start_at, end_at):
     )
 
 
-def available_tutor_courses(course_code, start_at, end_at):
+def available_tutor_courses(course, start_at, end_at):
     """``TutorCourse`` rows whose tutor can take ``[start_at, end_at)``.
 
-    A row matches when all of these hold:
+    ``course`` is a ``Course`` or its code. A row matches when all of these
+    hold:
 
     1. the account is flagged ``is_tutor``;
-    2. the row is for the requested course;
+    2. the row is for the requested course, and that course is not retired;
     3. one availability window *fully contains* the requested interval -- a
        window that only partly covers it is not a match, because the tutor
        would not be free for the whole session;
@@ -49,7 +49,8 @@ def available_tutor_courses(course_code, start_at, end_at):
 
     return (
         TutorCourse.objects.filter(
-            course_code=course_code,
+            course=course,
+            course__is_active=True,
             tutor__is_tutor=True,
         )
         .annotate(
@@ -57,7 +58,7 @@ def available_tutor_courses(course_code, start_at, end_at):
             is_booked=Exists(clashing_session),
         )
         .filter(has_window=True, is_booked=False)
-        .select_related("tutor")
+        .select_related("tutor", "course")
         # Deterministic order: display name, then pk to break ties.
         .order_by("tutor__first_name", "tutor__last_name", "tutor__username", "pk")
     )
@@ -88,25 +89,31 @@ def serialize_tutor_result(tutor_course, start_at, end_at):
         "tutor_course_id": tutor_course.pk,
         "tutor_name": tutor_display_name(tutor),
         "major": tutor.major,
-        "course_code": tutor_course.course_code,
-        "course_title": course_titles().get(tutor_course.course_code, ""),
+        "course_code": tutor_course.course.code,
+        "course_title": tutor_course.course.title,
         "start_at": start_at,
         "end_at": end_at,
     }
 
 
-def search_tutors(course_code, start_at, end_at):
+def search_tutors(course, start_at, end_at):
     """Search results for the Find a Tutor page."""
     return [
         serialize_tutor_result(tutor_course, start_at, end_at)
-        for tutor_course in available_tutor_courses(course_code, start_at, end_at)
+        for tutor_course in available_tutor_courses(course, start_at, end_at)
     ]
 
 
 def courses_for_tutor(tutor):
-    """Course codes a tutor currently offers."""
+    """``(code, title)`` for each active course a tutor offers.
+
+    An offer of a retired course is left out, so it drops off the tutor's list
+    the next time they save it.
+    """
     return list(
-        TutorCourse.objects.filter(tutor=tutor).values_list("course_code", flat=True)
+        TutorCourse.objects.filter(tutor=tutor, course__is_active=True)
+        .order_by("course__code")
+        .values_list("course__code", "course__title")
     )
 
 
@@ -123,7 +130,7 @@ def upcoming_sessions_for(user, now):
             status=TutoringSession.Status.CONFIRMED,
             end_at__gt=now,
         )
-        .select_related("student", "tutor")
+        .select_related("student", "tutor", "course")
         .order_by("start_at")
     )
 

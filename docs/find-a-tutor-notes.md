@@ -9,7 +9,7 @@ Current state, decisions already made, and what is deliberately not built.
 
 | Area | Where |
 | --- | --- |
-| Course catalog | `tutoring/catalog.py`, data in `assets/fsc_courses.json` |
+| Course catalog | `tutoring.Course` table, read via `tutoring/catalog.py`; seed in `assets/fsc_courses.json` |
 | Models | `tutoring/models.py` |
 | Matching query | `tutoring/selectors.py` |
 | Validation | `tutoring/forms.py` |
@@ -23,12 +23,34 @@ Routes are under `/tutoring/`: `find/`, `book/`, `sessions/`,
 
 ## Decisions
 
-**Course codes are validated text, not a foreign key.** The catalog is a
-bundled data file rather than a table, so `TutorCourse.course_code` and
-`TutoringSession.course_code` are `CharField`s validated against it. This
-follows the existing pattern for majors (`login/choices.py`) and skills
-(`user_profile/skill_catalog.py`). There is no `Course` model and no seed
-migration. See `assets/fsc_courses.PROVENANCE.md`.
+**Courses are a table, so they can be added and removed.** `tutoring.Course`
+holds `code`, `title`, `level`, and `is_active`. Migration
+`0002_course_table` created it, seeded it from `assets/fsc_courses.json`, and
+turned the old `course_code` text columns into foreign keys
+(`TutorCourse.course`, `TutoringSession.course`) with `to_field="code"`, so
+the stored value is still the code. Any stored code the file did not list was
+kept as a retired placeholder rather than breaking the constraint.
+
+- **Add** a course in the Django admin, or with `manage.py sync_courses`.
+- **Remove** a course by unticking `is_active` (or the "Retire selected
+  courses" admin action). A retired course disappears from search, the course
+  picker, new offers, and booking -- including a booking from a results page
+  loaded before it was retired, which the in-transaction re-check catches.
+  Past sessions keep the course and its title. A tutor's offer of a retired
+  course stops matching and drops off their list on their next save.
+- **Delete** is allowed only while no session references the course
+  (`PROTECT`); deleting withdraws any offers of it (`CASCADE`).
+- A course's **code is read-only** in the admin after creation: it is what
+  offers and sessions store, so changing it would rename history. Add a new
+  course and retire the old one instead.
+
+Nothing is cached in-process, so changes take effect on the next request.
+`catalog.search_courses` ranks the ~1,000 active rows in Python per request,
+which is a few milliseconds; the space-insensitive "MAT2022" match is awkward
+to express portably in SQL.
+
+Majors (`login/choices.py`) and skills (`user_profile/skill_catalog.py`) are
+still in-code lists; only courses moved to the database.
 
 **Availability is concrete intervals, not recurring rules.** A tutor adds the
 specific windows they are free. Recurrence plus daylight saving is where
@@ -61,7 +83,7 @@ is both unusable and about 75 KB of markup per page. `tutoring/courses/`
 `static/tutoring/js/course_search.js` drives the listbox, mirroring the skills
 picker (`user_profile.views.skill_options` + `skill_search.js`). The submitted
 value is a hidden input, so **the server validates every code against the full
-allowed catalog regardless of what the page offered** — the search box only
+allowed active courses regardless of what the page offered** — the search box only
 decides what is convenient to pick, never what is permitted. The find page is
 now about 3.8 KB.
 

@@ -1,9 +1,17 @@
 """Tests for the course catalog, tutor matching, and booking."""
 
+import json
+import tempfile
 from datetime import timedelta
+from io import StringIO
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.management import CommandError, call_command
+from django.db import IntegrityError, connection
+from django.db.migrations.executor import MigrationExecutor
+from django.db.models import ProtectedError
+from django.test import TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -17,7 +25,14 @@ from .catalog import (
     is_valid_course,
     search_courses,
 )
-from .models import SESSION_MINUTES, TutorAvailability, TutorCourse, TutoringSession
+from .course_import import read_catalog_file, sync_courses
+from .models import (
+    SESSION_MINUTES,
+    Course,
+    TutorAvailability,
+    TutorCourse,
+    TutoringSession,
+)
 from .selectors import search_tutors
 
 User = get_user_model()
@@ -46,7 +61,7 @@ def at(hour, *, days=1, minutes=0):
 
 
 class CourseCatalogTests(TestCase):
-    """The course catalog is read from assets/fsc_courses.json."""
+    """The Course table, as seeded from assets/fsc_courses.json."""
 
     def test_catalog_loads_and_codes_are_unique(self):
         rows = courses()
@@ -137,7 +152,7 @@ class MatchingTests(TestCase):
         self.end_at = self.start_at + timedelta(minutes=SESSION_MINUTES)
 
     def offer(self, course=COURSE):
-        return TutorCourse.objects.create(tutor=self.tutor, course_code=course)
+        return TutorCourse.objects.create(tutor=self.tutor, course_id=course)
 
     def free(self, start_at, end_at):
         return TutorAvailability.objects.create(
@@ -201,7 +216,7 @@ class MatchingTests(TestCase):
         TutoringSession.objects.create(
             student=make_user("other@example.edu"),
             tutor=self.tutor,
-            course_code=COURSE,
+            course_id=COURSE,
             start_at=self.start_at + timedelta(minutes=30),
             end_at=self.end_at + timedelta(minutes=30),
             status=TutoringSession.Status.CONFIRMED,
@@ -215,7 +230,7 @@ class MatchingTests(TestCase):
         TutoringSession.objects.create(
             student=make_user("other@example.edu"),
             tutor=self.tutor,
-            course_code=COURSE,
+            course_id=COURSE,
             start_at=self.start_at,
             end_at=self.end_at,
             status=TutoringSession.Status.CANCELLED,
@@ -230,7 +245,7 @@ class MatchingTests(TestCase):
         TutoringSession.objects.create(
             student=make_user("other@example.edu"),
             tutor=self.tutor,
-            course_code=COURSE,
+            course_id=COURSE,
             start_at=self.start_at - timedelta(minutes=SESSION_MINUTES),
             end_at=self.start_at,
             status=TutoringSession.Status.CONFIRMED,
@@ -244,7 +259,7 @@ class MatchingTests(TestCase):
         TutoringSession.objects.create(
             student=make_user("other@example.edu"),
             tutor=self.tutor,
-            course_code=COURSE,
+            course_id=COURSE,
             start_at=self.end_at,
             end_at=self.end_at + timedelta(minutes=SESSION_MINUTES),
             status=TutoringSession.Status.CONFIRMED,
@@ -266,7 +281,7 @@ class MatchingTests(TestCase):
         self.offer()
         self.free(self.start_at, self.end_at)
         second = make_user("bea@example.edu", is_tutor=True, first_name="Bea")
-        TutorCourse.objects.create(tutor=second, course_code=COURSE)
+        TutorCourse.objects.create(tutor=second, course_id=COURSE)
         TutorAvailability.objects.create(
             tutor=second, start_at=self.start_at, end_at=self.end_at
         )
@@ -368,14 +383,14 @@ class TutorSetupTests(TestCase):
 
         self.assertRedirects(response, reverse("tutoring:setup"))
         self.assertEqual(
-            set(TutorCourse.objects.values_list("course_code", flat=True)),
+            set(TutorCourse.objects.values_list("course_id", flat=True)),
             {COURSE, OTHER_COURSE},
         )
 
         # Saving a smaller set removes the ones that were deselected.
         self.client.post(reverse("tutoring:setup"), {"course_codes": [COURSE]})
         self.assertEqual(
-            list(TutorCourse.objects.values_list("course_code", flat=True)), [COURSE]
+            list(TutorCourse.objects.values_list("course_id", flat=True)), [COURSE]
         )
 
     def test_a_course_outside_the_catalog_is_rejected(self):
@@ -446,7 +461,7 @@ class TutorSetupTests(TestCase):
         TutoringSession.objects.create(
             student=make_user("student@example.edu"),
             tutor=self.tutor,
-            course_code=COURSE,
+            course_id=COURSE,
             start_at=at(10),
             end_at=at(11),
         )
@@ -476,7 +491,7 @@ class SearchViewTests(TestCase):
         self.student = make_user("student@example.edu")
         self.tutor = make_user("tutor@example.edu", is_tutor=True, first_name="Ada")
         self.start_at = at(14)
-        TutorCourse.objects.create(tutor=self.tutor, course_code=COURSE)
+        TutorCourse.objects.create(tutor=self.tutor, course_id=COURSE)
         TutorAvailability.objects.create(
             tutor=self.tutor,
             start_at=self.start_at,
@@ -555,7 +570,7 @@ class BookingTests(TestCase):
         self.start_at = at(14)
         self.end_at = self.start_at + timedelta(minutes=SESSION_MINUTES)
         self.tutor_course = TutorCourse.objects.create(
-            tutor=self.tutor, course_code=COURSE
+            tutor=self.tutor, course_id=COURSE
         )
         self.window = TutorAvailability.objects.create(
             tutor=self.tutor, start_at=self.start_at, end_at=self.start_at + timedelta(hours=3)
@@ -580,7 +595,7 @@ class BookingTests(TestCase):
         session = TutoringSession.objects.get()
         self.assertEqual(session.student, self.student)
         self.assertEqual(session.tutor, self.tutor)
-        self.assertEqual(session.course_code, COURSE)
+        self.assertEqual(session.course_id, COURSE)
         self.assertEqual(session.start_at, self.start_at)
         self.assertEqual(session.end_at, self.end_at)
         self.assertEqual(session.status, TutoringSession.Status.CONFIRMED)
@@ -625,7 +640,7 @@ class BookingTests(TestCase):
         TutoringSession.objects.create(
             student=make_user("first@example.edu"),
             tutor=self.tutor,
-            course_code=COURSE,
+            course_id=COURSE,
             start_at=self.start_at,
             end_at=self.end_at,
         )
@@ -684,7 +699,7 @@ class BookingTests(TestCase):
         from django.db import IntegrityError, transaction
 
         TutoringSession.objects.create(
-            student=self.student, tutor=self.tutor, course_code=COURSE,
+            student=self.student, tutor=self.tutor, course_id=COURSE,
             start_at=self.start_at, end_at=self.end_at,
         )
 
@@ -692,7 +707,7 @@ class BookingTests(TestCase):
             with transaction.atomic():
                 TutoringSession.objects.create(
                     student=make_user("clash@example.edu"), tutor=self.tutor,
-                    course_code=COURSE, start_at=self.start_at, end_at=self.end_at,
+                    course_id=COURSE, start_at=self.start_at, end_at=self.end_at,
                 )
 
     def test_cancelled_session_frees_the_slot_again(self):
@@ -709,7 +724,7 @@ class SessionListAndCancelTests(TestCase):
         self.student = make_user("student@example.edu", first_name="Sam")
         self.tutor = make_user("tutor@example.edu", is_tutor=True, first_name="Ada")
         self.session = TutoringSession.objects.create(
-            student=self.student, tutor=self.tutor, course_code=COURSE,
+            student=self.student, tutor=self.tutor, course_id=COURSE,
             start_at=at(14), end_at=at(15),
         )
 
@@ -788,7 +803,7 @@ class TimezoneTests(TestCase):
     def setUp(self):
         self.tutor = make_user("tutor@example.edu", is_tutor=True)
         self.student = make_user("student@example.edu")
-        TutorCourse.objects.create(tutor=self.tutor, course_code=COURSE)
+        TutorCourse.objects.create(tutor=self.tutor, course_id=COURSE)
         self.client.force_login(self.student)
 
     def test_a_local_time_is_stored_as_utc(self):
@@ -1027,7 +1042,7 @@ class CoursePickerMarkupTests(TestCase):
 
     def test_already_chosen_courses_render_as_chips(self):
         tutor = make_user("tutor@example.edu", is_tutor=True)
-        TutorCourse.objects.create(tutor=tutor, course_code=COURSE)
+        TutorCourse.objects.create(tutor=tutor, course_id=COURSE)
         self.client.force_login(tutor)
 
         response = self.client.get(reverse("tutoring:setup"))
@@ -1087,7 +1102,7 @@ class CoursePickerMarkupTests(TestCase):
     def test_a_blank_fallback_value_clears_courses_instead_of_erroring(self):
         """The no-JS fallback input submits "" when left alone."""
         tutor = make_user("tutor@example.edu", is_tutor=True)
-        TutorCourse.objects.create(tutor=tutor, course_code=COURSE)
+        TutorCourse.objects.create(tutor=tutor, course_id=COURSE)
         self.client.force_login(tutor)
 
         response = self.client.post(reverse("tutoring:setup"),
@@ -1105,5 +1120,328 @@ class CoursePickerMarkupTests(TestCase):
 
         self.assertRedirects(response, reverse("tutoring:setup"))
         self.assertEqual(
-            list(TutorCourse.objects.values_list("course_code", flat=True)), [COURSE]
+            list(TutorCourse.objects.values_list("course_id", flat=True)), [COURSE]
         )
+
+
+class CourseManagementTests(TestCase):
+    """Courses can be added and retired, and both take effect immediately."""
+
+    def setUp(self):
+        self.student = make_user("student@example.edu")
+        self.tutor = make_user("tutor@example.edu", is_tutor=True, first_name="Ada")
+        self.start_at = at(14)
+        self.end_at = self.start_at + timedelta(minutes=SESSION_MINUTES)
+
+    def retire(self, code=COURSE):
+        Course.objects.filter(code=code).update(is_active=False)
+
+    def offer_and_free(self):
+        offer = TutorCourse.objects.create(tutor=self.tutor, course_id=COURSE)
+        TutorAvailability.objects.create(
+            tutor=self.tutor, start_at=self.start_at, end_at=self.end_at
+        )
+        return offer
+
+    def find_params(self, code=COURSE):
+        return {
+            "course_code": code,
+            "start_at": timezone.localtime(self.start_at).strftime("%Y-%m-%dT%H:%M"),
+        }
+
+    def test_a_new_course_is_searchable_without_a_restart(self):
+        Course.objects.create(code="CSC 4998", title="Capstone Workshop")
+
+        self.assertIn("CSC 4998", [code for code, _ in search_courses("capstone")])
+        self.assertTrue(is_valid_course("CSC 4998"))
+
+    def test_a_new_course_can_be_offered_and_found(self):
+        Course.objects.create(code="CSC 4998", title="Capstone Workshop")
+        self.client.force_login(self.tutor)
+
+        response = self.client.post(reverse("tutoring:setup"),
+                                    {"course_codes": ["CSC 4998"]})
+
+        self.assertRedirects(response, reverse("tutoring:setup"))
+        TutorAvailability.objects.create(
+            tutor=self.tutor, start_at=self.start_at, end_at=self.end_at
+        )
+        results = search_tutors("CSC 4998", self.start_at, self.end_at)
+        self.assertEqual([row["course_title"] for row in results], ["Capstone Workshop"])
+
+    def test_a_retired_course_is_not_searchable(self):
+        self.retire()
+
+        self.assertNotIn(COURSE, [code for code, _ in search_courses("MAT 2022")])
+        self.assertNotIn(COURSE, course_titles())
+        self.assertFalse(is_valid_course(COURSE))
+
+    def test_the_options_endpoint_omits_a_retired_course(self):
+        self.retire()
+        self.client.force_login(self.student)
+
+        response = self.client.get(reverse("tutoring:course_options"), {"q": "MAT 2022"})
+
+        self.assertEqual(response.json()["courses"], [])
+
+    def test_a_retired_course_cannot_be_searched_for_by_a_crafted_request(self):
+        self.offer_and_free()
+        self.retire()
+        self.client.force_login(self.student)
+
+        response = self.client.get(reverse("tutoring:find"), self.find_params())
+
+        self.assertFalse(response.context["searched"])
+        self.assertTrue(response.context["form"].errors)
+
+    def test_offers_of_a_retired_course_do_not_match(self):
+        self.offer_and_free()
+        self.retire()
+
+        self.assertEqual(search_tutors(COURSE, self.start_at, self.end_at), [])
+
+    def test_a_retired_course_cannot_be_booked_from_a_stale_results_page(self):
+        offer = self.offer_and_free()
+        self.retire()
+        self.client.force_login(self.student)
+
+        self.client.post(reverse("tutoring:book"), {
+            "tutor_course": offer.pk,
+            "start_at": self.start_at.isoformat(),
+        })
+
+        self.assertFalse(TutoringSession.objects.exists())
+
+    def test_a_tutor_cannot_newly_offer_a_retired_course(self):
+        self.retire()
+        self.client.force_login(self.tutor)
+
+        response = self.client.post(reverse("tutoring:setup"), {"course_codes": [COURSE]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(TutorCourse.objects.exists())
+
+    def test_a_retired_offer_drops_off_the_setup_page_and_the_next_save(self):
+        TutorCourse.objects.create(tutor=self.tutor, course_id=COURSE)
+        TutorCourse.objects.create(tutor=self.tutor, course_id=OTHER_COURSE)
+        self.retire()
+        self.client.force_login(self.tutor)
+
+        page = self.client.get(reverse("tutoring:setup"))
+        self.assertNotContains(page, 'data-code="%s"' % COURSE)
+        self.assertContains(page, 'data-code="%s"' % OTHER_COURSE)
+
+        self.client.post(reverse("tutoring:setup"), {"course_codes": [OTHER_COURSE]})
+        self.assertEqual(
+            list(TutorCourse.objects.values_list("course_id", flat=True)), [OTHER_COURSE]
+        )
+
+    def test_past_sessions_keep_a_retired_course_and_its_title(self):
+        TutoringSession.objects.create(
+            student=self.student, tutor=self.tutor, course_id=COURSE,
+            start_at=self.start_at, end_at=self.end_at,
+        )
+        self.retire()
+        self.client.force_login(self.student)
+
+        response = self.client.get(reverse("tutoring:sessions"))
+
+        self.assertContains(response, COURSE)
+        self.assertContains(response, "Elementary Statistics")
+
+    def test_a_course_with_sessions_cannot_be_deleted(self):
+        TutoringSession.objects.create(
+            student=self.student, tutor=self.tutor, course_id=COURSE,
+            start_at=self.start_at, end_at=self.end_at,
+        )
+
+        with self.assertRaises(ProtectedError):
+            Course.objects.get(code=COURSE).delete()
+
+    def test_deleting_a_course_withdraws_its_offers(self):
+        TutorCourse.objects.create(tutor=self.tutor, course_id=COURSE)
+
+        Course.objects.get(code=COURSE).delete()
+
+        self.assertFalse(TutorCourse.objects.exists())
+
+    def test_an_offer_for_an_unknown_code_is_rejected_by_the_database(self):
+        TutorCourse.objects.create(tutor=self.tutor, course_id="ZZZ 9999")
+
+        # SQLite defers foreign key checks to commit, which TestCase never
+        # reaches, so ask for the check explicitly.
+        with self.assertRaises(IntegrityError):
+            connection.check_constraints(table_names=["tutoring_tutorcourse"])
+        # TestCase runs the same check at teardown; remove the bad row first.
+        TutorCourse.objects.filter(course_id="ZZZ 9999").delete()
+
+
+class CourseAdminTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser(
+            username="admin", email="admin@example.edu", password="test-password"
+        )
+        self.client.force_login(self.admin)
+
+    def test_a_course_can_be_added_in_the_admin(self):
+        response = self.client.post(reverse("admin:tutoring_course_add"), {
+            "code": "  CSC   4998 ",
+            "title": "Capstone Workshop",
+            "level": Course.Level.UNDERGRADUATE,
+            "is_active": "on",
+        })
+
+        self.assertEqual(response.status_code, 302)
+        # Whitespace is normalised so search does not show a near-duplicate.
+        self.assertTrue(Course.objects.filter(code="CSC 4998", is_active=True).exists())
+
+    def test_a_duplicate_code_is_rejected(self):
+        response = self.client.post(reverse("admin:tutoring_course_add"), {
+            "code": COURSE,
+            "title": "Duplicate",
+            "level": Course.Level.UNDERGRADUATE,
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Course.objects.filter(code=COURSE).count(), 1)
+
+    def test_the_code_of_an_existing_course_is_read_only(self):
+        course = Course.objects.get(code=COURSE)
+
+        response = self.client.get(reverse("admin:tutoring_course_change", args=[course.pk]))
+
+        self.assertNotContains(response, 'name="code"')
+
+    def test_the_retire_action_retires_selected_courses(self):
+        course = Course.objects.get(code=COURSE)
+
+        self.client.post(reverse("admin:tutoring_course_changelist"), {
+            "action": "retire_courses",
+            "_selected_action": [course.pk],
+        })
+
+        course.refresh_from_db()
+        self.assertFalse(course.is_active)
+
+
+class SyncCoursesTests(TestCase):
+    """manage.py sync_courses loads a catalog file into the table."""
+
+    def write_catalog(self, courses):
+        handle = tempfile.NamedTemporaryFile(
+            "w", suffix=".json", delete=False, encoding="utf-8"
+        )
+        with handle:
+            json.dump({"courses": courses}, handle)
+        self.addCleanup(Path(handle.name).unlink)
+        return handle.name
+
+    def run_sync(self, path, *args):
+        out = StringIO()
+        call_command("sync_courses", path, *args, stdout=out)
+        return out.getvalue()
+
+    def test_seeded_table_matches_the_bundled_file(self):
+        entries = read_catalog_file()
+
+        self.assertEqual(sync_courses(Course, entries), (0, 0, 0))
+
+    def test_new_codes_are_added_and_titles_refreshed(self):
+        path = self.write_catalog([
+            {"code": "CSC 4998", "title": "Capstone Workshop", "level": "undergraduate"},
+            {"code": COURSE, "title": "Statistics, Renamed", "level": "undergraduate"},
+        ])
+
+        output = self.run_sync(path)
+
+        self.assertIn("1 added, 1 updated, 0 retired", output)
+        self.assertTrue(Course.objects.filter(code="CSC 4998").exists())
+        self.assertEqual(Course.objects.get(code=COURSE).title, "Statistics, Renamed")
+
+    def test_a_course_retired_by_hand_stays_retired(self):
+        Course.objects.filter(code=COURSE).update(is_active=False)
+
+        self.run_sync(self.write_catalog([
+            {"code": COURSE, "title": "Elementary Statistics", "level": "undergraduate"},
+        ]))
+
+        self.assertFalse(Course.objects.get(code=COURSE).is_active)
+
+    def test_missing_courses_are_kept_unless_asked_to_retire_them(self):
+        path = self.write_catalog([
+            {"code": COURSE, "title": "Elementary Statistics", "level": "undergraduate"},
+        ])
+
+        self.run_sync(path)
+        self.assertTrue(Course.objects.get(code=OTHER_COURSE).is_active)
+
+        self.run_sync(path, "--retire-missing")
+        self.assertFalse(Course.objects.get(code=OTHER_COURSE).is_active)
+        self.assertTrue(Course.objects.get(code=COURSE).is_active)
+        # Retired, never deleted.
+        self.assertTrue(Course.objects.filter(code=OTHER_COURSE).exists())
+
+    def test_a_malformed_file_changes_nothing(self):
+        before = Course.objects.count()
+        path = self.write_catalog([
+            {"code": "CSC 4998", "title": "Capstone Workshop", "level": "undergraduate"},
+            {"code": "CSC 4997", "title": "", "level": "undergraduate"},
+        ])
+
+        with self.assertRaises(CommandError):
+            self.run_sync(path)
+
+        self.assertEqual(Course.objects.count(), before)
+
+
+class CourseTableMigrationTests(TransactionTestCase):
+    """0002 turns course_code text into foreign keys without losing rows."""
+
+    def targets(self, tutoring_migration):
+        """Every other app at its latest migration, tutoring at the one given."""
+        executor = MigrationExecutor(connection)
+        others = [node for node in executor.loader.graph.leaf_nodes() if node[0] != "tutoring"]
+        return others + [("tutoring", tutoring_migration)]
+
+    def migrate_to(self, tutoring_migration):
+        targets = self.targets(tutoring_migration)
+        executor = MigrationExecutor(connection)
+        executor.migrate(targets)
+        executor.loader.build_graph()
+        return executor.loader.project_state(targets).apps
+
+    def tearDown(self):
+        # Leave the schema at the latest migration for the next test.
+        executor = MigrationExecutor(connection)
+        executor.migrate(executor.loader.graph.leaf_nodes())
+
+    def test_existing_offers_and_sessions_survive(self):
+        old_apps = self.migrate_to("0001_initial")
+
+        OldUser = old_apps.get_model(*User._meta.label.split("."))
+        tutor = OldUser.objects.create(username="t", email="t@example.edu", is_tutor=True)
+        student = OldUser.objects.create(username="s", email="s@example.edu")
+        OldTutorCourse = old_apps.get_model("tutoring", "TutorCourse")
+        OldSession = old_apps.get_model("tutoring", "TutoringSession")
+        OldTutorCourse.objects.create(tutor=tutor, course_code=COURSE)
+        # A code the catalog file does not list must not break the migration.
+        OldTutorCourse.objects.create(tutor=tutor, course_code="OLD 1234")
+        OldSession.objects.create(
+            student=student, tutor=tutor, course_code=COURSE,
+            start_at=at(14), end_at=at(15),
+        )
+
+        new_apps = self.migrate_to("0002_course_table")
+
+        NewCourse = new_apps.get_model("tutoring", "Course")
+        NewTutorCourse = new_apps.get_model("tutoring", "TutorCourse")
+        NewSession = new_apps.get_model("tutoring", "TutoringSession")
+        self.assertEqual(
+            sorted(NewTutorCourse.objects.values_list("course_id", flat=True)),
+            [COURSE, "OLD 1234"],
+        )
+        self.assertEqual(list(NewSession.objects.values_list("course_id", flat=True)),
+                         [COURSE])
+        self.assertTrue(NewCourse.objects.get(code=COURSE).is_active)
+        self.assertFalse(NewCourse.objects.get(code="OLD 1234").is_active)
+        self.assertGreater(NewCourse.objects.filter(is_active=True).count(), 1000)
