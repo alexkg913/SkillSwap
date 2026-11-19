@@ -174,9 +174,10 @@ nav a {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-nav a:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(127,255,212,0.4));
-  color: var(--deep-blue);
+nav a:hover,
+nav:not(:hover) a[aria-current="page"] {
+  background: linear-gradient(180deg, #a6e6ff, var(--deep-blue));
+  color: #ffffff;
 }
 
 /* ---------- Main ---------- */
@@ -647,4 +648,15 @@ footer {
 .filter-content select:focus-visible {
     outline: 3px solid var(--deep-blue);
     outline-offset: 2px;
+}
+
+.event-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1px;
+  padding: 3px;
+}
+
+.event-action-active {
+  background-color: red;
 }
