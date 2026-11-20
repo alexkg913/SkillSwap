@@ -21,6 +21,7 @@
 
             <section class="log-in">
                 {% if request.user.is_authenticated %}
+                <p class="welcome-message"> Welcome Back, </p>
                 <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
                     {% if request.user.profile.avatar %}
                     <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">

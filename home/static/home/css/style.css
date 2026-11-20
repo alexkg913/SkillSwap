@@ -753,3 +753,10 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+
+.welcome-message{
+  color: var(--deep-blue);
+  padding-top: 14px;
+  font-weight: bold;
+}
