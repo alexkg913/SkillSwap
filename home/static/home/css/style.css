@@ -120,6 +120,39 @@ header h1 {
   box-shadow: 0 6px 14px var(--shadow);
 }
 
+.log-in .profile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 3px;
+  background: var(--glass-white);
+  box-shadow: 0 3px 8px var(--shadow);
+}
+
+.profile-link__avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-link__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--deep-blue);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.log-in .profile-link:focus-visible {
+  outline: 3px solid var(--deep-blue);
+  outline-offset: 3px;
+}
+
 /* ---------- Nav ---------- */
 
 nav {

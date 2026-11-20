@@ -62,7 +62,14 @@ def serialize_event_for_map(event):
     Exposes public fields only -- the home page is reachable without logging
     in. Nothing derived from the host *account* is included: `tutor` is the
     display text the host typed, while `host` is the FK used for permission
-    checks and never leaves the server. No primary keys, no email addresses.
+    checks and never leaves the server. No account identifiers: not the host's
+    email (which is also the USERNAME_FIELD) and not the host's UUID.
+
+    The event's own `id` *is* included. The event is already fully public on
+    this page, so its pk reveals nothing new, and client code needs it to
+    reference an event back to the server. Note that hiding an id is not what
+    protects a record: every view that accepts one re-checks authorisation
+    itself, which is what actually prevents acting on someone else's event.
 
     Coordinates are cast to float on purpose. json_script serializes with
     DjangoJSONEncoder, which renders Decimal as a JSON *string*; campus_map.js
