@@ -17,10 +17,23 @@
         {% endfor %}
         </div>
     </div>
-    
 
-    <div class="my-events">
-        <h2>My Events</h2>
+    <div class="saved-events">
+    <h2>My Events</h2>
+    <div class="event-grid">
+    {% for interaction in my_events %}
+        <div class="event-card">
+            <p class="event-subject">{{ interaction.subject }}</p>
+            <h3 class="event-title">{{ interaction.title }}</h3>
+            <p class="event-tutor"> Tutor: {{ interaction.tutor }}</p>
+            <p class="event-date">Date: {{ interaction.date }}</p>
+            
+        </div>
+    {% empty %}
+        <p>No created events found.</p>
+    {% endfor %}
     </div>
+</div>
+    
     
 {% endblock %}

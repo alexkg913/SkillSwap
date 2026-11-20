@@ -39,9 +39,16 @@ def saved_events(request):
         .filter(saved=True, student=request.user)
         .select_related("tutoring_event")
     )
+    events = (
+            TutoringEvent.objects
+            .filter(host=request.user)
+        )
+    
     return render(request, "events/saved_events.html", {
         "saved_events": interactions,
+        "my_events": events
     })
+
 
 def _form_context(form, heading, event):
     return {

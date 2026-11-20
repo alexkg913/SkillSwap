@@ -638,7 +638,7 @@ footer {
   flex-direction: column;
   align-self: center;
   align-items: center;
-  width: fit-content;
+  width: 85%; 
   position: relative;
   margin-top: 15px;
 }
@@ -649,7 +649,8 @@ footer {
  color: var(--deep-blue);
  font-size: xx-large;
  position: absolute;
- transform: translate(-170%, -125%); 
+ left: 75px;
+ transform: translateY(-125%); 
  
 }
 

@@ -40,7 +40,7 @@
             >Create a Tutoring Event</a>
             <a href="{% url 'events:saved_events' %}"
             {% if request.resolver_match.view_name == 'events:saved_events' %}aria-current="page"{% endif %}
-            >Saved Events</a>
+            >Events</a>
             <a href="{% url 'inbox' %}"
             {% if request.resolver_match.view_name == 'inbox' %}aria-current="page"{% endif %}
             >Messages</a>
