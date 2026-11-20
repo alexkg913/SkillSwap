@@ -36,12 +36,12 @@ def be_tutor(request):
 def saved_events(request):
     interactions = (
         EventInteraction.objects
-        .filter(saved=True, student=request.user)
+        .filter(saved=True, student=request.user, tutoring_event__is_cancelled=False)
         .select_related("tutoring_event")
     )
     events = (
             TutoringEvent.objects
-            .filter(host=request.user)
+            .filter(host=request.user, is_cancelled=False)
         )
     
     return render(request, "events/saved_events.html", {
@@ -116,7 +116,7 @@ def cancel_event(request, pk):
     event = _hosted_by(request, pk)
     event.is_cancelled = True
     event.save(update_fields=["is_cancelled"])
-    return redirect(reverse("home:index"))
+    return redirect(reverse("events:saved_events"))
 
 
 def _toggle_interaction(request, event_id, field):

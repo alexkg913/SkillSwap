@@ -13,4 +13,5 @@ urlpatterns = [
     path("saved-events/", views.saved_events, name="saved_events"),
     path("<int:event_id>/rsvp/", views.rsvp_event, name="rsvp"),
     path("<int:event_id>/save/", views.save_event, name="save"),
+    path("cancel/<int:pk>/", views.cancel_event, name="cancel_event")
 ]
