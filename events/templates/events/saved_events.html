@@ -3,14 +3,19 @@
 {% block content %}
     <div class="saved-events">
         <h2>Saved Events</h2>
+        <div class="event-grid">
         {% for interaction in saved_events %}
             <div class="event-card">
-                <h2>{{ interaction.tutoring_event.title }}</h2>
-                <p>{{ interaction.tutoring_event.date }}</p>
+                <p class="event-subject">{{ interaction.tutoring_event.subject }}</p>
+                <h3 class="event-title">{{ interaction.tutoring_event.title }}</h3>
+                <p class="event-tutor"> Tutor: {{ interaction.tutoring_event.tutor }}</p>
+                <p class="event-date">Date: {{ interaction.tutoring_event.date }}</p>
+                
             </div>
         {% empty %}
             <p>No saved events found.</p>
         {% endfor %}
+        </div>
     </div>
     
 
