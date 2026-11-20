@@ -1,5 +1,21 @@
 {% extends "home/base.html" %}
 
 {% block content %}
-    <h2>Saved Events</h2>
+    <div class="saved-events">
+        <h2>Saved Events</h2>
+        {% for interaction in saved_events %}
+            <div class="event-card">
+                <h2>{{ interaction.tutoring_event.title }}</h2>
+                <p>{{ interaction.tutoring_event.date }}</p>
+            </div>
+        {% empty %}
+            <p>No saved events found.</p>
+        {% endfor %}
+    </div>
+    
+
+    <div class="my-events">
+        <h2>My Events</h2>
+    </div>
+    
 {% endblock %}

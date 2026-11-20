@@ -160,6 +160,60 @@ class NonOwnerTests(TestCase):
         self.assertFalse(self.event.is_cancelled)
 
 
+class SavedEventsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.student = User.objects.create_user(
+            username="student", email="student@example.edu"
+        )
+        cls.other = User.objects.create_user(
+            username="other", email="other@example.edu"
+        )
+        cls.event = TutoringEvent.objects.create(
+            title="Saved study group",
+            subject="MAT 2022",
+            tutor="Sam",
+            date=timezone.now() + timedelta(days=1),
+            location="Library",
+            isPublic=True,
+            host=cls.other,
+            latitude=ON_CAMPUS[0],
+            longitude=ON_CAMPUS[1],
+        )
+
+    def test_anonymous_visitors_are_redirected_to_login(self):
+        url = reverse("events:saved_events")
+        response = self.client.get(url)
+        self.assertRedirects(response, reverse("login") + "?next=" + url)
+
+    def test_saving_displays_event_and_unsaving_removes_it(self):
+        self.client.force_login(self.student)
+        for expected_saved in (True, False):
+            self.client.post(reverse("events:save", args=[self.event.pk]))
+            response = self.client.get(reverse("events:saved_events"))
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, "events/saved_events.html")
+            if expected_saved:
+                self.assertContains(response, self.event.title)
+                self.assertNotContains(response, "No saved events found.")
+            else:
+                self.assertNotContains(response, self.event.title)
+                self.assertContains(response, "No saved events found.")
+
+    def test_other_students_saves_and_going_only_events_are_not_displayed(self):
+        EventInteraction.objects.create(
+            tutoring_event=self.event, student=self.other, saved=True
+        )
+        EventInteraction.objects.create(
+            tutoring_event=self.event, student=self.student, going=True
+        )
+        self.client.force_login(self.student)
+        response = self.client.get(reverse("events:saved_events"))
+        self.assertQuerySetEqual(response.context["saved_events"], [])
+        self.assertNotContains(response, self.event.title)
+        self.assertContains(response, "No saved events found.")
+
+
 class EventInteractionTests(TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -32,8 +32,16 @@ def find_tutor(request):
 def be_tutor(request):
     return render(request, "events/be_tutor.html")
 
+@login_required
 def saved_events(request):
-    return render(request, "events/saved_events.html")
+    interactions = (
+        EventInteraction.objects
+        .filter(saved=True, student=request.user)
+        .select_related("tutoring_event")
+    )
+    return render(request, "events/saved_events.html", {
+        "saved_events": interactions,
+    })
 
 def _form_context(form, heading, event):
     return {
