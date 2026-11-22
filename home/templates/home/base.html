@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap</title>
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+</head>
+<body>
+
+    <div class="page">
+
+        <header>
+
+            <h1>
+                <strong>SkillSwap</strong>
+            </h1>
+
+            <section class="log-in">
+                {% if request.user.is_authenticated %}
+                <p class="welcome-message"> Welcome Back, </p>
+                <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
+                    {% if request.user.profile.avatar %}
+                    <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">
+                    {% else %}
+                    <span class="profile-link__avatar profile-link__fallback" aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+                    {% endif %}
+                </a>
+                {% else %}
+                <a class="sign-in" href="{% url 'login' %}">Sign In</a>
+                <a class="register" href="{% url 'user_register' %}">Register</a>
+                {% endif %}
+            </section>
+
+
+        </header>
+
+        <nav>
+            <a href="{% url 'home:index' %}"
+            {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
+            >Home</a>
+            <a href="{% url 'events:find_tutor' %}"
+            {% if request.resolver_match.view_name == 'events:find_tutor' %}aria-current="page"{% endif %}
+            >Find a Tutor</a>
+            <a href="{% url 'events:be_tutor' %}"
+            {% if request.resolver_match.view_name == 'events:be_tutor' %}aria-current="page"{% endif %}
+            >Be a Tutor</a>
+            <a href="{% url 'events:create' %}"
+            {% if request.resolver_match.view_name == 'events:create' %}aria-current="page"{% endif %}
+            >Create a Tutoring Event</a>
+            <a href="{% url 'events:saved_events' %}"
+            {% if request.resolver_match.view_name == 'events:saved_events' %}aria-current="page"{% endif %}
+            >Events</a>
+            <a href="{% url 'inbox' %}"
+            {% if request.resolver_match.view_name == 'inbox' %}aria-current="page"{% endif %}
+            >Messages</a>
+            <a href="{% url 'user_profile:profile' %}"
+            {% if request.resolver_match.view_name == 'user_profile:profile' %}aria-current="page"{% endif %}
+            >Profile</a>
+        </nav>
+
+            <main>
+                {% block content %}
+                {% endblock %}
+            </main>
+
+        </div>
+
+        <footer>
+                <div class="footer-content">
+                    <p>&copy SkillSwap 2026</p>
+                    <a href="https://github.com/alexkg913/SkillSwap" target="_blank" rel="noopener noreferrer">Visit our GitHub Repository</a>
+                </div>
+        </footer>
+
+        
+
+</body>
+</html>

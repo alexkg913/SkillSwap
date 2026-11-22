@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,6 +21,7 @@
 
             <section class="log-in">
                 {% if request.user.is_authenticated %}
+                <p class="welcome-message"> Welcome Back, </p>
                 <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
                     {% if request.user.profile.avatar %}
                     <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">
@@ -37,11 +39,15 @@
         </header>
 
         <nav>
-            <a href="#">Find a Tutor</a>
-            <a href="#">Be a Tutor</a>
+            <a href="{% url 'home:index' %}"
+            {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
+            >Home</a>
+            <a href="{% url 'events:find_tutor' %}">Find a Tutor</a>
+            <a href="{% url 'events:be_tutor' %}">Be a Tutor</a>
             <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
-            <a href="#">Messages</a>
-            <a href="#">Profile</a>
+            <a href="{% url 'events:saved_events' %}">Events</a>
+            <a href="{% url 'inbox' %}">Messages</a>
+            <a href="{% url 'user_profile:profile' %}">Profile</a>
         </nav>
 
             <main>
@@ -133,6 +139,29 @@
                                 {% if event.tutor %}
                                     <p class="result__meta">Tutor: {{ event.tutor }}</p>
                                 {% endif %}
+
+                                
+                                <div class="event-actions">
+                                    <form method="post" action="{% url 'events:save' event.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="{% if event.is_saved %}event-action-active{% else %}event-action-default{% endif %}"
+                                                aria-pressed="{{ event.is_saved|yesno:'true,false' }}">
+                                            SAVE
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="{% url 'events:rsvp' event.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="{% if event.is_going %}event-action-active{% else %}event-action-default{% endif %}"
+                                                aria-pressed="{{ event.is_going|yesno:'true,false' }}">
+                                            RSVP
+                                        </button>
+                                    </form>
+
+                                </div>
+                                
                             </div>
                         {% empty %}
                             <div class="result result--empty">
@@ -150,6 +179,7 @@
         <footer>
                 <div class="footer-content">
                     <p>&copy SkillSwap 2026</p>
+                    <a href="https://github.com/alexkg913/SkillSwap" target="_blank" rel="noopener noreferrer">Visit our GitHub Repository</a>
                 </div>
         </footer>
 

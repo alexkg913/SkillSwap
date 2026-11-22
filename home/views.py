@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.shortcuts import render
 
+from events.models import EventInteraction
 from events.selectors import map_event_payload, available_subjects, available_tutors
 
 
@@ -45,19 +46,42 @@ def index(request):
         tutor=tutor,
 
     )
+    interactions = {}
+    if request.user.is_authenticated:
+        interactions = {
+            interaction.tutoring_event_id: interaction
+            for interaction in EventInteraction.objects.filter(
+                student=request.user,
+                tutoring_event_id__in=[event["id"] for event in events],
+            )
+        }
+
+    event_listings = []
+    for event in events:
+        interaction = interactions.get(event["id"])
+        event_listings.append({
+            **event,
+            "is_saved": interaction.saved if interaction else False,
+            "is_going": interaction.going if interaction else False,
+        })
+
     subjects = available_subjects()
     tutors = available_tutors()
     
 
     context = {
         "map_config": map_config(),
-        "map_events": events,
-        # The listings panel renders the same payload server-side, so the pins
-        # are an enhancement rather than the only way to reach an event.
-        "event_listings": events,
+        # Action IDs and student-specific state belong only in the listings,
+        # not in the public map JSON.
+        "map_events": [
+            {key: value for key, value in event.items() if key != "id"}
+            for event in events
+        ],
+        "event_listings": event_listings,
         "subjects": subjects,
         "tutors" : tutors,
         "query": query,
         
     }
     return render(request, "home/index.html", context)
+

@@ -121,11 +121,6 @@ class TutorListing(models.Model):
 
 class EventInteraction(models.Model):
 
-    # limit status field to three options {default(no interaction), save event, going to event(RSVP)}
-    class Status(models.TextChoices):
-        DEFAULT = "default", "No Interaction" 
-        GOING = "going" , "Going"
-        SAVED = "saved" , "Saved"
 
     tutoring_event = models.ForeignKey(
         TutoringEvent, 
@@ -134,8 +129,13 @@ class EventInteraction(models.Model):
             settings.AUTH_USER_MODEL,
             on_delete=models.CASCADE
     )
-    status = models.CharField(
-        max_length= 10,
-        choices=Status.choices,
-        default=Status.DEFAULT
-    )
+    going = models.BooleanField(default=False)
+    saved = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tutoring_event", "student"],
+                name="unique_event_student_interaction",
+            ),
+        ]

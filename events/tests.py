@@ -2,12 +2,14 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.db import IntegrityError, connection, transaction
+from django.db.migrations.executor import MigrationExecutor
+from django.test import Client, TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from .forms import TutoringEventForm
-from .models import CampusLocation, TutoringEvent
+from .models import CampusLocation, EventInteraction, TutoringEvent
 
 User = get_user_model()
 
@@ -156,6 +158,218 @@ class NonOwnerTests(TestCase):
         self.assertEqual(response.status_code, 405)
         self.event.refresh_from_db()
         self.assertFalse(self.event.is_cancelled)
+
+
+class SavedEventsTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.student = User.objects.create_user(
+            username="student", email="student@example.edu"
+        )
+        cls.other = User.objects.create_user(
+            username="other", email="other@example.edu"
+        )
+        cls.event = TutoringEvent.objects.create(
+            title="Saved study group",
+            subject="MAT 2022",
+            tutor="Sam",
+            date=timezone.now() + timedelta(days=1),
+            location="Library",
+            isPublic=True,
+            host=cls.other,
+            latitude=ON_CAMPUS[0],
+            longitude=ON_CAMPUS[1],
+        )
+
+    def test_anonymous_visitors_are_redirected_to_login(self):
+        url = reverse("events:saved_events")
+        response = self.client.get(url)
+        self.assertRedirects(response, reverse("login") + "?next=" + url)
+
+    def test_saving_displays_event_and_unsaving_removes_it(self):
+        self.client.force_login(self.student)
+        for expected_saved in (True, False):
+            self.client.post(reverse("events:save", args=[self.event.pk]))
+            response = self.client.get(reverse("events:saved_events"))
+            self.assertEqual(response.status_code, 200)
+            self.assertTemplateUsed(response, "events/saved_events.html")
+            if expected_saved:
+                self.assertContains(response, self.event.title)
+                self.assertNotContains(response, "No saved events found.")
+            else:
+                self.assertNotContains(response, self.event.title)
+                self.assertContains(response, "No saved events found.")
+
+    def test_other_students_saves_and_going_only_events_are_not_displayed(self):
+        EventInteraction.objects.create(
+            tutoring_event=self.event, student=self.other, saved=True
+        )
+        EventInteraction.objects.create(
+            tutoring_event=self.event, student=self.student, going=True
+        )
+        self.client.force_login(self.student)
+        response = self.client.get(reverse("events:saved_events"))
+        self.assertQuerySetEqual(response.context["saved_events"], [])
+        self.assertNotContains(response, self.event.title)
+        self.assertContains(response, "No saved events found.")
+
+
+class EventInteractionTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.student = User.objects.create_user(username="student")
+        cls.event = TutoringEvent.objects.create(
+            title="Study group",
+            subject="MAT 2022",
+            tutor="Sam",
+            date=timezone.now() + timedelta(days=1),
+            location="Library",
+            isPublic=True,
+            host=cls.student,
+            latitude=ON_CAMPUS[0],
+            longitude=ON_CAMPUS[1],
+        )
+
+    def test_actions_create_their_boolean_flag(self):
+        self.client.force_login(self.student)
+        for action, flag in (("rsvp", "going"), ("save", "saved")):
+            with self.subTest(action=action):
+                response = self.client.post(
+                    reverse("events:" + action, args=[self.event.pk])
+                )
+                self.assertRedirects(response, reverse("home:index"))
+                interaction = EventInteraction.objects.get(
+                    tutoring_event=self.event, student=self.student
+                )
+                self.assertTrue(getattr(interaction, flag))
+                interaction.delete()
+
+    def test_actions_toggle_and_preserve_the_other_flag(self):
+        self.client.force_login(self.student)
+        for action, flag, other_flag in (
+            ("rsvp", "going", "saved"), ("save", "saved", "going")
+        ):
+            for other_value in (False, True):
+                with self.subTest(action=action, other_value=other_value):
+                    interaction = EventInteraction.objects.create(
+                        tutoring_event=self.event,
+                        student=self.student,
+                        **{other_flag: other_value},
+                    )
+                    for expected in (True, False):
+                        response = self.client.post(
+                            reverse("events:" + action, args=[self.event.pk])
+                        )
+                        self.assertRedirects(response, reverse("home:index"))
+                        interaction.refresh_from_db()
+                        self.assertEqual(getattr(interaction, flag), expected)
+                        self.assertEqual(getattr(interaction, other_flag), other_value)
+                        self.assertEqual(EventInteraction.objects.count(), 1)
+                    interaction.delete()
+
+    def test_submitted_student_id_cannot_change_another_students_interaction(self):
+        other = User.objects.create_user(username="other", email="other@example.edu")
+        interaction = EventInteraction.objects.create(
+            tutoring_event=self.event, student=other, going=True, saved=True
+        )
+        self.client.force_login(self.student)
+        for action in ("rsvp", "save"):
+            self.client.post(
+                reverse("events:" + action, args=[self.event.pk]),
+                {"student_id": other.pk, "student": other.pk},
+            )
+        interaction.refresh_from_db()
+        self.assertTrue(interaction.going)
+        self.assertTrue(interaction.saved)
+        own = EventInteraction.objects.get(student=self.student)
+        self.assertTrue(own.going)
+        self.assertTrue(own.saved)
+
+    def test_private_cancelled_and_missing_events_cannot_be_toggled(self):
+        self.client.force_login(self.student)
+        interaction = EventInteraction.objects.create(
+            tutoring_event=self.event, student=self.student, going=True, saved=True
+        )
+        for public, cancelled in ((False, False), (True, True)):
+            self.event.isPublic = public
+            self.event.is_cancelled = cancelled
+            self.event.save()
+            for action in ("rsvp", "save"):
+                response = self.client.post(
+                    reverse("events:" + action, args=[self.event.pk])
+                )
+                self.assertEqual(response.status_code, 404)
+            interaction.refresh_from_db()
+            self.assertTrue(interaction.going)
+            self.assertTrue(interaction.saved)
+        for action in ("rsvp", "save"):
+            response = self.client.post(
+                reverse("events:" + action, args=[self.event.pk + 1000])
+            )
+            self.assertEqual(response.status_code, 404)
+        self.assertEqual(EventInteraction.objects.count(), 1)
+
+    def test_database_rejects_duplicate_interactions(self):
+        EventInteraction.objects.create(tutoring_event=self.event, student=self.student)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            EventInteraction.objects.create(
+                tutoring_event=self.event, student=self.student
+            )
+
+    def test_actions_require_csrf(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.student)
+        for action in ("rsvp", "save"):
+            response = client.post(reverse("events:" + action, args=[self.event.pk]))
+            self.assertEqual(response.status_code, 403)
+        self.assertFalse(EventInteraction.objects.exists())
+
+    def test_actions_require_login_and_post(self):
+        for action in ("rsvp", "save"):
+            url = reverse("events:" + action, args=[self.event.pk])
+            self.client.logout()
+            self.assertEqual(self.client.post(url).status_code, 302)
+            self.client.force_login(self.student)
+            self.assertEqual(self.client.get(url).status_code, 405)
+        self.assertFalse(EventInteraction.objects.exists())
+
+
+class InteractionUniquenessMigrationTests(TransactionTestCase):
+    def test_duplicates_merge_without_losing_flags(self):
+        before = [('events', '0011_remove_eventinteraction_status_and_more')]
+        after = [('events', '0012_unique_event_student_interaction')]
+        executor = MigrationExecutor(connection)
+        executor.migrate(before)
+        try:
+            apps = executor.loader.project_state(before).apps
+            app_label, model_name = settings.AUTH_USER_MODEL.split('.')
+            Student = apps.get_model(app_label, model_name)
+            Event = apps.get_model('events', 'TutoringEvent')
+            Interaction = apps.get_model('events', 'EventInteraction')
+            student = Student.objects.create(username='migration-student')
+            event = Event.objects.create(
+                title='Study group', subject='MAT 2022', tutor='Sam',
+                date=timezone.now(), location='Library', isPublic=True,
+                host_id=student.pk, latitude=ON_CAMPUS[0], longitude=ON_CAMPUS[1],
+            )
+            first = Interaction.objects.create(
+                tutoring_event=event, student=student, going=True
+            )
+            Interaction.objects.create(tutoring_event=event, student=student, saved=True)
+            Interaction.objects.create(tutoring_event=event, student=student)
+            executor = MigrationExecutor(connection)
+            executor.migrate(after)
+            Interaction = executor.loader.project_state(after).apps.get_model(
+                'events', 'EventInteraction'
+            )
+            interaction = Interaction.objects.get(
+                tutoring_event_id=event.pk, student_id=student.pk
+            )
+            self.assertEqual(interaction.pk, first.pk)
+            self.assertTrue(interaction.going)
+            self.assertTrue(interaction.saved)
+        finally:
+            MigrationExecutor(connection).migrate(after)
 
 
 class FormValidationTests(TestCase):
