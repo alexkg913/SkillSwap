@@ -5,6 +5,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.db.models import Prefetch
 
 from home.views import map_config
 
@@ -42,6 +43,13 @@ def saved_events(request):
     events = (
             TutoringEvent.objects
             .filter(host=request.user, is_cancelled=False)
+            .prefetch_related(
+                Prefetch(
+                "eventinteraction_set",
+                queryset=EventInteraction.objects.filter(going=True).select_related("student"),
+                to_attr="attendees"
+                )
+            )
         )
     
     return render(request, "events/saved_events.html", {

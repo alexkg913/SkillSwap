@@ -27,6 +27,14 @@
             <h3 class="event-title">{{ event.title }}</h3>
             <p class="event-tutor"> Tutor: {{ event.tutor }}</p>
             <p class="event-date">Date: {{ event.date }}</p>
+            <p class="event-students">Students Attending: 
+            {% for interaction in event.attendees %}
+                {{ interaction.student.get_full_name|default:interaction.student.username }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                None
+            {% endfor %}
+            </p>
+
             <form method="POST" action="{% url 'events:cancel_event' event.id %}">
                 {% csrf_token %}
                 <button class="event-cancel">Cancel Event</button>
