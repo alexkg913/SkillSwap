@@ -50,7 +50,7 @@ def event_chat(request, event_id):
 
     is_host = event.host_id == request.user.id # Check if the logged-in user is the host of the event
     is_going = EventInteraction.objects.filter(
-        tutoring_event=event, student=request.user, status=EventInteraction.Status.GOING).exists() # Check if the logged-in user is going to the event
+        tutoring_event=event, student=request.user, going=True).exists() # Check if the logged-in user is going to the event
 
     if not (is_host or is_going):
         raise PermissionDenied("You do not have permission to view this event chat.") # Raise a permission denied error if the user is neither the host nor going to the event
@@ -72,7 +72,7 @@ def event_chat(request, event_id):
 @login_required(login_url='/login/')
 def event_chats(request):
     going_ids = EventInteraction.objects.filter(
-        student = request.user, status = EventInteraction.Status.GOING
+        student = request.user, going=True
     ).values_list('tutoring_event_id', flat=True)
     events = TutoringEvent.objects.filter(
         Q(host=request.user) | Q(id__in=going_ids)
