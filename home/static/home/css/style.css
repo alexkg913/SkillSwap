@@ -4,7 +4,8 @@
   --sky-blue: #4fc3f7;
   --deep-blue: #0288d1;
   --aqua: #0e8168;
-  --leaf-green: #578b1b;
+  --leaf-green: #97cf58;
+  --leafy-green: #3e5c1c;
   --glass-white: rgba(255, 255, 255, 0.55);
   --glass-border: rgba(255, 255, 255, 0.8);
   --text-dark: #1a3c4d;
@@ -219,9 +220,12 @@ main {
   font-weight: 600;
   color: #fff;
   background: linear-gradient(180deg, var(--aqua), var(--leaf-green));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 3px 10px var(--shadow);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 3px 8px var(--shadow);
   cursor: pointer;
   transition: transform 0.15s ease;
+  font-family: inherit;
+  font-size: 16px;
+  
 }
 
 .search-bar button:hover {
@@ -232,6 +236,7 @@ main {
   display: flex;
   gap: 24px;
   flex: 1;
+  align-items: flex-start;
 }
 
 /* Glass panel that holds the Leaflet map. The old flex centering lived here to
@@ -240,7 +245,8 @@ main {
    backdrop-filter is gone too: tiles cover it, so it only cost compositing. */
 .map {
   flex: 2;
-  min-height: 420px;
+  min-height: 680px;
+  
   display: flex;
   flex-direction: column;
   border-radius: 20px;
@@ -277,7 +283,7 @@ main {
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
-  max-height: 480px;
+  max-height: 680px;
   padding: 6px 4px 6px 2px;
 }
 
@@ -613,9 +619,10 @@ footer {
 
     background: linear-gradient(
         180deg,
-        rgba(255,255,255,0.95),
-        rgba(255,255,255,0.75)
+        rgba(255,255,255,0.9),
+        rgba(255,255,255,0.4)
     );
+
 
     backdrop-filter: blur(10px);
     box-shadow: 0 6px 16px var(--shadow),
@@ -656,9 +663,24 @@ footer {
   gap: 1px;
   padding: 3px;
 }
-
+.event-action-default{
+  padding: 3px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border-color: white;
+  background: rgb(187, 224, 238);
+  font-weight: bold;
+  color: darkslategray;
+}
 .event-action-active {
-  background-color: red;
+  margin-top: 5px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--aqua), var(--leaf-green));
+  border-color: var(--leaf-green);
+  padding: 3px;
+  border-radius: 8px;
+  font-weight: bold;
+  
 }
 
 .saved-events{

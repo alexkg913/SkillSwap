@@ -145,7 +145,7 @@
                                     <form method="post" action="{% url 'events:save' event.id %}">
                                         {% csrf_token %}
                                         <button type="submit"
-                                                class="{% if event.is_saved %}event-action-active{% endif %}"
+                                                class="{% if event.is_saved %}event-action-active{% else %}event-action-default{% endif %}"
                                                 aria-pressed="{{ event.is_saved|yesno:'true,false' }}">
                                             SAVE
                                         </button>
@@ -154,7 +154,7 @@
                                     <form method="post" action="{% url 'events:rsvp' event.id %}">
                                         {% csrf_token %}
                                         <button type="submit"
-                                                class="{% if event.is_going %}event-action-active{% endif %}"
+                                                class="{% if event.is_going %}event-action-active{% else %}event-action-default{% endif %}"
                                                 aria-pressed="{{ event.is_going|yesno:'true,false' }}">
                                             RSVP
                                         </button>
