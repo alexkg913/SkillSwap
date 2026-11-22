@@ -22,8 +22,8 @@ class EventChatTests(TestCase):
             tutor='Host', isPublic=True, host=self.host,
             latitude=Decimal('28.0'), longitude=Decimal('-81.0'),
         )
-        EventInteraction.objects.create(tutoring_event=self.event, student=self.going, status=EventInteraction.Status.GOING)
-        EventInteraction.objects.create(tutoring_event=self.event, student=self.saved, status=EventInteraction.Status.SAVED)
+        EventInteraction.objects.create(tutoring_event=self.event, student=self.going, going=True)
+        EventInteraction.objects.create(tutoring_event=self.event, student=self.saved, saved=True)
         self.url = reverse('event_chat', args=[self.event.id])
 
     def test_host_can_open_and_post(self):
