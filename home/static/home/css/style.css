@@ -729,6 +729,10 @@ footer {
   flex-direction: column;
 }
 
+.event-card a {
+  margin-top: 5px;
+}
+
 .event-card:hover{
     transform: translateY(-3px);
     box-shadow: 0 6px 15px var(--shadow);
