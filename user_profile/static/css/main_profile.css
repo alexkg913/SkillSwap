@@ -369,6 +369,29 @@ body {
     overflow-wrap: anywhere;
 }
 
+.profile-major {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.7rem;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--accent);
+    border-radius: 0.65rem;
+    color: var(--text);
+    overflow-wrap: anywhere;
+}
+
+.profile-major-label {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.profile-major-value {
+    font-weight: 600;
+}
+
 .profile-empty-state {
     padding: 0.75rem 0.9rem;
     border: 1px dashed rgba(167, 227, 239, 0.24);

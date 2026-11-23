@@ -69,11 +69,14 @@
                             <h2 id="bio-heading">About Me</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--about">
-                            {% if profile.about_me %}
-                                <p>{{ profile.about_me|linebreaksbr }}</p><br>
-                            {% endif %}
                             {% if request.user.major %}
-                                <p>Major: {{ request.user.major }}<br /></p>
+                                <div class="profile-major">
+                                    <span class="profile-major-label">Major:</span>
+                                    <span class="profile-major-value">{{ request.user.major }}</span>
+                                </div>
+                            {% endif %}
+                            {% if profile.about_me %}
+                                <p>{{ profile.about_me|linebreaksbr }}</p>
                             {% endif %}
                             {% if not profile.about_me and not request.user.major %}
                                 <p class="profile-empty-state">Tell other students a little about yourself.</p>
