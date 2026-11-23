@@ -1,6 +1,21 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
-    <h1>I spy with my little eye...</h1>
-
-    <p>Is this work in progress?</p>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Security Settings | SkillSwap</title>
+    <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+    <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
+</head>
+<body>
+    <header class="account-menu-header">
+        <a href="{% url 'home:index' %}">SkillSwap</a>
+        {% include "user_profile/pfp_quickdropdown.html" %}
+    </header>
+    <main>
+        <h1>Security Settings</h1>
+        <p>This page is a work in progress.</p>
+    </main>
+</body>
 </html>

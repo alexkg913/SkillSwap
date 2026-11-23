@@ -1,0 +1,37 @@
+{% if request.user.is_authenticated %}
+<details class="account-menu">
+    <summary class="account-menu__trigger" aria-label="Open account menu">
+        {% if request.user.profile.avatar %}
+            <img src="{{ request.user.profile.avatar.url }}" alt="">
+        {% else %}
+            <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+        {% endif %}
+    </summary>
+    <div class="account-menu__panel">
+        <div class="account-menu__identity">
+            <span class="account-menu__portrait" aria-hidden="true">
+                {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" alt="">
+                {% else %}
+                    {{ request.user.first_name|first|upper|default:"?" }}
+                {% endif %}
+            </span>
+            <div>
+                <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                <span>@{{ request.user.username }}</span>
+            </div>
+        </div>
+        <div class="account-menu__links">
+            <a href="{% url 'home:index' %}">Home</a>
+            <a href="{% url 'user_profile:profile' %}">Profile</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Sign Out</button>
+            </form>
+        </div>
+        <div class="account-menu__links">
+            <a href="{% url 'user_profile:user_settings' %}">User Settings</a>
+        </div>
+    </div>
+</details>
+{% endif %}

@@ -66,5 +66,6 @@ def club_options(request):
              suggested_clubs(major, request.user.username, FSC_CLUB_CHOICES))
     return JsonResponse({"clubs": clubs})
 
+@login_required(login_url="login")
 def security_settings(request):
     return render(request, "user_profile/security_settings.html")

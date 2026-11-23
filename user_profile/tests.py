@@ -16,31 +16,29 @@ class SettingsHeaderAvatarTests(TestCase):
         )
         self.client.force_login(self.user)
 
-    def test_logout_form_precedes_profile_avatar_link(self):
+    def test_sign_out_is_inside_dropdown(self):
         response = self.client.get(reverse("user_profile:user_settings"))
 
         self.assertEqual(response.status_code, 200)
         logout_form = f'<form method="post" action="{reverse("logout")}">'
-        avatar_link = (
-            f'<a class="account-avatar" href="{reverse("user_profile:profile")}" '
-            'aria-label="View your profile">'
-        )
+        trigger = '<summary class="account-menu__trigger"'
         self.assertContains(response, logout_form)
-        self.assertContains(response, avatar_link)
-        self.assertLess(response.content.index(logout_form.encode()), response.content.index(avatar_link.encode()))
+        self.assertContains(response, trigger)
+        self.assertContains(response, '<button type="submit">Sign Out</button>')
+        self.assertLess(response.content.index(trigger.encode()), response.content.index(logout_form.encode()))
 
     def test_uploaded_avatar_appears_in_header(self):
         Profile.objects.create(user=self.user, avatar="profiles/avatars/example.png")
 
         response = self.client.get(reverse("user_profile:user_settings"))
 
-        self.assertContains(response, 'class="account-avatar"')
+        self.assertContains(response, 'class="account-menu__trigger"')
         self.assertContains(response, 'src="/media/profiles/avatars/example.png" alt=""')
 
     def test_missing_avatar_uses_initial_in_header(self):
         response = self.client.get(reverse("user_profile:user_settings"))
 
-        self.assertContains(response, 'class="account-avatar"')
+        self.assertContains(response, 'class="account-menu__trigger"')
         self.assertContains(response, '<span aria-hidden="true">T</span>')
 
 
@@ -52,32 +50,65 @@ class ProfileHeaderAvatarTests(TestCase):
         )
         self.client.force_login(self.user)
 
-    def test_logout_form_precedes_profile_avatar_link(self):
+    def test_sign_out_is_inside_dropdown(self):
         response = self.client.get(reverse("user_profile:profile"))
 
         self.assertEqual(response.status_code, 200)
         logout_form = f'<form method="post" action="{reverse("logout")}">'
-        avatar_link = (
-            f'<a class="account-avatar" href="{reverse("user_profile:profile")}" '
-            'aria-label="View your profile">'
-        )
+        trigger = '<summary class="account-menu__trigger"'
         self.assertContains(response, logout_form)
-        self.assertContains(response, avatar_link)
-        self.assertLess(response.content.index(logout_form.encode()), response.content.index(avatar_link.encode()))
+        self.assertContains(response, trigger)
+        self.assertContains(response, '<button type="submit">Sign Out</button>')
+        self.assertLess(response.content.index(trigger.encode()), response.content.index(logout_form.encode()))
 
     def test_uploaded_avatar_appears_in_header(self):
         Profile.objects.create(user=self.user, avatar="profiles/avatars/example.png")
 
         response = self.client.get(reverse("user_profile:profile"))
 
-        self.assertContains(response, 'class="account-avatar"')
+        self.assertContains(response, 'class="account-menu__trigger"')
         self.assertContains(response, 'src="/media/profiles/avatars/example.png" alt=""')
 
     def test_missing_avatar_uses_initial_in_header(self):
         response = self.client.get(reverse("user_profile:profile"))
 
-        self.assertContains(response, 'class="account-avatar"')
+        self.assertContains(response, 'class="account-menu__trigger"')
         self.assertContains(response, '<span aria-hidden="true">T</span>')
+
+
+class AccountMenuPagesTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="menu-student", email="menu@example.com",
+            first_name="Sam", last_name="Student", password="test-password"
+        )
+
+    def test_menu_on_app_pages_for_signed_in_user(self):
+        self.client.force_login(self.user)
+        for url in (
+            reverse("home:index"),
+            reverse("user_profile:profile"),
+            reverse("user_profile:user_settings"),
+            reverse("user_profile:security_settings"),
+            reverse("events:create"),
+            reverse("inbox"),
+        ):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, 'class="account-menu__trigger"')
+                self.assertContains(response, "Sam Student")
+                self.assertContains(response, "@menu-student")
+                self.assertNotContains(response, "Appearance")
+
+    def test_anonymous_home_has_no_account_menu(self):
+        response = self.client.get(reverse("home:index"))
+        self.assertNotContains(response, 'class="account-menu__trigger"')
+
+    def test_sign_out_requires_post(self):
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(reverse("logout")).status_code, 405)
+        self.assertEqual(self.client.post(reverse("logout")).status_code, 302)
+        self.assertFalse(self.client.session.get("_auth_user_id"))
 
 
 class ProfileSkillsTests(TestCase):

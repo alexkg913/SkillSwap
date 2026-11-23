@@ -7,6 +7,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{ request.user.first_name }}’s Profile | SkillSwap</title>
         <link rel="stylesheet" href="{% static 'css/main_profile.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+        <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
     </head>
     <body>
         <header class="site-header">
@@ -18,19 +20,7 @@
                 <a href="{% url 'user_profile:user_settings' %}">Settings</a>
             </nav>
 
-            <div class="account-actions">
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Log out</button>
-                </form>
-                <a class="account-avatar" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
-                    {% if profile.avatar %}
-                        <img src="{{ profile.avatar.url }}" alt="">
-                    {% else %}
-                        <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
-                    {% endif %}
-                </a>
-            </div>
+            {% include "user_profile/pfp_quickdropdown.html" %}
         </header>
 
         <main class="profile-page">

@@ -6,6 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Settings | SkillSwap</title>
         <link rel="stylesheet" href="{% static 'css/user_settings.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+        <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
         <script src="{% static 'user_profile/js/skill_search.js' %}" defer></script>
         <script src="{% static 'user_profile/js/club_search.js' %}" defer></script>
     </head>
@@ -17,19 +19,7 @@
                 <a href="#" aria-label="Events (not available yet)">Events</a>
                 <a href="{% url 'user_profile:user_settings' %}" aria-current="page">Settings</a>
             </nav>
-            <div class="account-actions">
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Log out</button>
-                </form>
-                <a class="account-avatar" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
-                    {% if form.instance.avatar %}
-                        <img src="{{ form.instance.avatar.url }}" alt="">
-                    {% else %}
-                        <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
-                    {% endif %}
-                </a>
-            </div>
+            {% include "user_profile/pfp_quickdropdown.html" %}
         </header>
 
         <main class="settings-page">
