@@ -107,6 +107,14 @@ class AccountMenuPagesTests(TestCase):
         response = self.client.get(reverse("home:index"))
         self.assertNotContains(response, 'class="account-menu__trigger"')
 
+    def test_home_and_event_pages_load_dark_chrome_override(self):
+        self.client.force_login(self.user)
+        for url in (reverse("home:index"), reverse("events:create")):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(response, 'home/css/appearance_dark.css')
+                self.assertContains(response, 'data-appearance-select')
+
     def test_sign_out_requires_post(self):
         self.client.force_login(self.user)
         self.assertEqual(self.client.get(reverse("logout")).status_code, 405)

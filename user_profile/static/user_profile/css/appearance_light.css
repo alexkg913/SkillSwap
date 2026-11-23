@@ -72,6 +72,19 @@ html[data-appearance="light"] .primary-button { color: #fff; }
 html[data-appearance="light"] .profile-actions a:hover,
 html[data-appearance="light"] .profile-actions button:hover { color: #fff; }
 
+/* Match the home search controls to the profile's filled and outlined actions. */
+html[data-appearance="light"] .search-bar > button {
+    background: #026b9e;
+    color: #fff;
+}
+html[data-appearance="light"] .search-bar > button:hover { background: #014d76; }
+html[data-appearance="light"] .filter-options summary {
+    border: 1px solid #026b9e;
+    background: transparent;
+    color: #026b9e;
+    box-shadow: none;
+}
+
 html[data-appearance="light"] .account-menu {
     color: #1a3c4d;
 }

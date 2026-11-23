@@ -220,6 +220,7 @@ main {
   padding: 12px 24px;
   border: none;
   border-radius: 999px;
+  font: inherit;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(180deg, var(--aqua), var(--leaf-green));
