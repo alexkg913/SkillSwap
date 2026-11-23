@@ -2,10 +2,16 @@ import re
 
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.password_validation import validate_password
+from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
+from django.views.decorators.debug import sensitive_post_parameters
 
 from login.choices import FSC_MAJOR_CHOICES
+from login.views import ResetPasswordForm
 
 from .forms import FSC_CLUB_CHOICES, ProfileForm, SKILL_CHOICES
 from .models import Profile
@@ -67,5 +73,20 @@ def club_options(request):
     return JsonResponse({"clubs": clubs})
 
 @login_required(login_url="login")
+@sensitive_post_parameters("password", "password_confirm")
+@never_cache
 def security_settings(request):
-    return render(request, "user_profile/security_settings.html")
+    form = ResetPasswordForm(request.POST if request.method == "POST" else None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            validate_password(form.cleaned_data["password"], user=request.user)
+        except ValidationError as errors:
+            form.add_error("password", errors)
+        else:
+            request.user.set_password(form.cleaned_data["password"])
+            request.user.save(update_fields=["password"])
+            update_session_auth_hash(request, request.user)
+            messages.success(request, "Your password has been changed.")
+            return redirect("user_profile:security_settings")
+
+    return render(request, "user_profile/security_settings.html", {"form": form})
