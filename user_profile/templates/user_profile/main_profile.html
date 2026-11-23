@@ -6,31 +6,24 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{ request.user.first_name }}’s Profile | SkillSwap</title>
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
         <link rel="stylesheet" href="{% static 'css/main_profile.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
+        <script src="{% static 'user_profile/js/appearance.js' %}"></script>
+        <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
     </head>
     <body>
         <header class="site-header">
             <a class="site-brand" href="/">SkillSwap</a>
 
             <nav class="main-nav" aria-label="Main navigation">
-                <a href="/">Home</a>
-                <a href="#" aria-label="Events (not available yet)">Events</a>
-                <a href="{% url 'user_profile:user_settings' %}">Settings</a>
+                <a href="/"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+                <a href="#" aria-label="Events (not available yet)"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+                <a href="{% url 'user_profile:user_settings' %}"><i class="fi fi-rr-settings" aria-hidden="true"></i> Settings</a>
             </nav>
 
-            <div class="account-actions">
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Log out</button>
-                </form>
-                <a class="account-avatar" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
-                    {% if profile.avatar %}
-                        <img src="{{ profile.avatar.url }}" alt="">
-                    {% else %}
-                        <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
-                    {% endif %}
-                </a>
-            </div>
+            {% include "user_profile/pfp_quickdropdown.html" %}
         </header>
 
         <main class="profile-page">
@@ -64,8 +57,8 @@
                                 </div>
 
                                 <div class="profile-actions" aria-label="Profile actions">
-                                    <a href="{% url 'user_profile:user_settings' %}">Edit Profile</a>
-                                    <button type="button">Share your profile</button>
+                                    <a href="{% url 'user_profile:user_settings' %}"><i class="fi fi-rr-pencil" aria-hidden="true"></i> Edit Profile</a>
+                                    <button type="button"><i class="fi fi-rr-share" aria-hidden="true"></i> Share your profile</button>
                                 </div>
                             </div>
                         </div>
@@ -73,14 +66,17 @@
 
                     <section class="profile-card bio-card" aria-labelledby="bio-heading">
                         <div class="profile-card-header">
-                            <h2 id="bio-heading">About</h2>
+                            <h2 id="bio-heading">About Me</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--about">
-                            {% if profile.about_me %}
-                                <p>{{ profile.about_me|linebreaksbr }}</p><br>
-                            {% endif %}
                             {% if request.user.major %}
-                                <p>Major: {{ request.user.major }}<br /></p>
+                                <div class="profile-major">
+                                    <span class="profile-major-label">Major:</span>
+                                    <span class="profile-major-value">{{ request.user.major }}</span>
+                                </div>
+                            {% endif %}
+                            {% if profile.about_me %}
+                                <p>{{ profile.about_me|linebreaksbr }}</p>
                             {% endif %}
                             {% if not profile.about_me and not request.user.major %}
                                 <p class="profile-empty-state">Tell other students a little about yourself.</p>
@@ -90,7 +86,7 @@
 
                     <section class="profile-card" aria-labelledby="skills-heading">
                         <div class="profile-card-header">
-                            <h2 id="skills-heading">Skills</h2>
+                            <h2 id="skills-heading"><i class="fi fi-rr-badge" aria-hidden="true"></i> Skills</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--skills">
                             {% if profile.skills %}
@@ -109,7 +105,7 @@
                 <aside class="profile-sidebar" aria-label="Additional profile information">
                     <section class="profile-card" aria-labelledby="classes-heading">
                         <div class="profile-card-header">
-                            <h2 id="classes-heading">Classes Taken</h2>
+                            <h2 id="classes-heading"><i class="fi fi-rr-books" aria-hidden="true"></i> Classes Taken</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--classes">
                             {% if profile.classes_taken %}
@@ -122,33 +118,37 @@
 
                     <section class="profile-card" aria-labelledby="interests-heading">
                         <div class="profile-card-header">
-                            <h2 id="interests-heading">Interests &amp; Clubs</h2>
+                            <h2 id="interests-heading"><i class="fi fi-rr-users" aria-hidden="true"></i> Clubs</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--interests">
-                            {% if profile.interests_clubs %}
-                                <p>{{ profile.interests_clubs|linebreaksbr }}</p>
+                            {% if clubs %}
+                                <ul class="profile-tag-list">
+                                    {% for club in clubs %}
+                                        <li class="profile-tag">{{ club }}</li>
+                                    {% endfor %}
+                                </ul>
                             {% else %}
-                                <p class="profile-empty-state">No interests or clubs have been added yet.</p>
+                                <p class="profile-empty-state">No clubs have been added yet.</p>
                             {% endif %}
                         </div>
                     </section>
 
                     <section class="profile-card" aria-labelledby="socials-heading">
                         <div class="profile-card-header">
-                            <h2 id="socials-heading">Socials</h2>
+                            <h2 id="socials-heading"><i class="fi fi-rr-globe" aria-hidden="true"></i> Socials</h2>
                         </div>
                         <div class="profile-card-content profile-card-content--socials">
                             {% if profile.github or profile.handshake or profile.yik_yak or profile.linkedin or profile.facebook or profile.discord or profile.instagram or profile.slack or profile.twitter %}
                                 <ul class="profile-detail-list">
-                                    {% if profile.github %}<li><a href="{{ profile.github }}">GitHub</a></li>{% endif %}
-                                    {% if profile.handshake %}<li><a href="{{ profile.handshake }}">Handshake</a></li>{% endif %}
-                                    {% if profile.yik_yak %}<li><a href="{{ profile.yik_yak }}">YikYak</a></li>{% endif %}
-                                    {% if profile.linkedin %}<li><a href="{{ profile.linkedin }}">LinkedIn</a></li>{% endif %}
-                                    {% if profile.facebook %}<li><a href="{{ profile.facebook }}">Facebook</a></li>{% endif %}
-                                    {% if profile.discord %}<li><a href="{{ profile.discord }}">Discord</a></li>{% endif %}
-                                    {% if profile.instagram %}<li><a href="{{ profile.instagram }}">Instagram</a></li>{% endif %}
-                                    {% if profile.slack %}<li><a href="{{ profile.slack }}">Slack</a></li>{% endif %}
-                                    {% if profile.twitter %}<li><a href="{{ profile.twitter }}">Twitter</a></li>{% endif %}
+                                    {% if profile.github %}<li><a href="{{ profile.github }}" aria-label="GitHub" title="GitHub"><img src="https://api.iconify.design/fa6-brands/github.svg" alt=""></a></li>{% endif %}
+                                    {% if profile.handshake %}<li><a href="{{ profile.handshake }}" aria-label="Handshake" title="Handshake"><i class="fi fi-rr-link" aria-hidden="true"></i></a></li>{% endif %}
+                                    {% if profile.yik_yak %}<li><a href="{{ profile.yik_yak }}" aria-label="Yik Yak" title="Yik Yak"><i class="fi fi-rr-link" aria-hidden="true"></i></a></li>{% endif %}
+                                    {% if profile.linkedin %}<li><a href="{{ profile.linkedin }}" aria-label="LinkedIn" title="LinkedIn"><img src="https://api.iconify.design/fa6-brands/linkedin.svg?color=%230A66C2" alt=""></a></li>{% endif %}
+                                    {% if profile.facebook %}<li><a href="{{ profile.facebook }}" aria-label="Facebook" title="Facebook"><img src="https://api.iconify.design/fa6-brands/facebook.svg?color=%231877F2" alt=""></a></li>{% endif %}
+                                    {% if profile.discord %}<li><a href="{{ profile.discord }}" aria-label="Discord" title="Discord"><img src="https://api.iconify.design/fa6-brands/discord.svg?color=%235865F2" alt=""></a></li>{% endif %}
+                                    {% if profile.instagram %}<li><a href="{{ profile.instagram }}" aria-label="Instagram" title="Instagram"><img src="https://api.iconify.design/fa6-brands/instagram.svg?color=%23E4405F" alt=""></a></li>{% endif %}
+                                    {% if profile.slack %}<li><a href="{{ profile.slack }}" aria-label="Slack" title="Slack"><img src="https://api.iconify.design/fa6-brands/slack.svg?color=%23DFAAFF" alt=""></a></li>{% endif %}
+                                    {% if profile.twitter %}<li><a href="{{ profile.twitter }}" aria-label="Twitter / X" title="Twitter / X"><img src="https://api.iconify.design/fa6-brands/x-twitter.svg" alt=""></a></li>{% endif %}
                                 </ul>
                             {% else %}
                                 <p class="profile-empty-state">No social links have been added yet.</p>

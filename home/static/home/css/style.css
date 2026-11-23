@@ -54,10 +54,15 @@ body {
 /* ---------- Header ---------- */
 
 header {
+  /* Keep the account menu above the nav, listings, and Leaflet controls.
+     The header's backdrop-filter creates a stacking context of its own. */
+  position: relative;
+  z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 32px;
+  min-height: 74px;
+  padding: 8px clamp(1rem, 4vw, 3.5rem);
   background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.35));
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--glass-border);
@@ -166,6 +171,9 @@ nav {
 }
 
 nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   text-decoration: none;
   color: var(--text-dark);
   font-weight: 600;
@@ -179,6 +187,12 @@ nav a:hover,
 nav:not(:hover) a[aria-current="page"] {
   background: linear-gradient(180deg, #a6e6ff, var(--deep-blue));
   color: #ffffff;
+}
+
+nav a .fi,
+.search-bar button .fi,
+.filter-options summary .fi {
+  margin-right: 0;
 }
 
 /* ---------- Main ---------- */
@@ -214,9 +228,14 @@ main {
 }
 
 .search-bar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   padding: 12px 24px;
   border: none;
   border-radius: 999px;
+  font: inherit;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(180deg, var(--aqua), var(--leaf-green));
@@ -569,6 +588,7 @@ footer {
 .filter-options summary {
     display: flex;
     align-items: center;
+    gap: 0.4rem;
     padding: 12px 24px;
 
     border-radius: 999px;

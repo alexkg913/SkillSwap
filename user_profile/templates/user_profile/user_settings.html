@@ -5,36 +5,30 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Settings | SkillSwap</title>
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
         <link rel="stylesheet" href="{% static 'css/user_settings.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
+        <script src="{% static 'user_profile/js/appearance.js' %}"></script>
+        <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
         <script src="{% static 'user_profile/js/skill_search.js' %}" defer></script>
+        <script src="{% static 'user_profile/js/club_search.js' %}" defer></script>
     </head>
     <body>
         <header class="site-header">
             <a class="site-brand" href="/">SkillSwap</a>
             <nav class="main-nav" aria-label="Main navigation">
-                <a href="/">Home</a>
-                <a href="#" aria-label="Events (not available yet)">Events</a>
-                <a href="{% url 'user_profile:user_settings' %}" aria-current="page">Settings</a>
+                <a href="/"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+                <a href="#" aria-label="Events (not available yet)"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+                <a href="{% url 'user_profile:user_settings' %}" aria-current="page"><i class="fi fi-rr-settings" aria-hidden="true"></i> Settings</a>
             </nav>
-            <div class="account-actions">
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit">Log out</button>
-                </form>
-                <a class="account-avatar" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
-                    {% if form.instance.avatar %}
-                        <img src="{{ form.instance.avatar.url }}" alt="">
-                    {% else %}
-                        <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
-                    {% endif %}
-                </a>
-            </div>
+            {% include "user_profile/pfp_quickdropdown.html" %}
         </header>
 
         <main class="settings-page">
             <div class="settings-tabs" aria-label="Settings sections">
-                <a class="settings-tab settings-tab--active" href="{% url 'user_profile:user_settings' %}" aria-current="page">User Settings</a>
-                <a class="settings-tab" href="{% url 'user_profile:security_settings' %}">Security Settings</a>
+                <a class="settings-tab settings-tab--active" href="{% url 'user_profile:user_settings' %}" aria-current="page"><i class="fi fi-rr-user" aria-hidden="true"></i> User Settings</a>
+                <a class="settings-tab" href="{% url 'user_profile:security_settings' %}"><i class="fi fi-rr-lock" aria-hidden="true"></i> Security Settings</a>
             </div>
 
             <h1>User Settings</h1>
@@ -59,7 +53,7 @@
                             {% endif %}
                         </div>
                         <div class="image-copy">
-                            <h3>Change your avatar</h3>
+                            <h3><i class="fi fi-rr-camera" aria-hidden="true"></i> Change your avatar</h3>
                             <p>Use a square JPG, JPEG, or PNG image at least 300 × 300 pixels.</p>
                             {% include "user_profile/field.html" with field=form.avatar hide_label=True %}
                         </div>
@@ -93,13 +87,13 @@
                     </div>
 
                     <div class="settings-actions">
-                        <button class="primary-button" type="submit">Save changes</button>
+                        <button class="primary-button" type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save changes</button>
                     </div>
                 </section>
 
                 <section class="settings-section profile-content-section" aria-labelledby="profile-content-heading">
                     <h2 id="profile-content-heading">About Yourself</h2>
-                    <p class="section-description">Share your skills, completed courses, interests, and clubs!</p>
+                    <p class="section-description">Share your skills, completed courses, and clubs!</p>
                     <div class="profile-content-fields">
                         <div class="skill-picker" data-search-url="{% url 'user_profile:skill_options' %}">
                             <label for="skill-search">Search skills</label>
@@ -110,10 +104,17 @@
                             <noscript><p>Enable JavaScript to search for more skills. You can still select the suggestions shown.</p></noscript>
                         </div>
                         {% include "user_profile/field.html" with field=form.classes_taken %}
-                        {% include "user_profile/field.html" with field=form.interests_clubs %}
+                        <div class="skill-picker" id="club-picker" data-search-url="{% url 'user_profile:club_options' %}">
+                            <label for="club-search">Search clubs</label>
+                            <input id="club-search" type="search" autocomplete="off" aria-controls="id_interests_clubs" aria-describedby="club-search-hint">
+                            <small id="club-search-hint">Search by name; close spellings are also shown. Selected clubs remain visible.</small>
+                            {% include "user_profile/field.html" with field=form.interests_clubs %}
+                            <p id="club-search-empty" role="status" hidden>No matching unselected clubs. Try another spelling.</p>
+                            <noscript><p>Enable JavaScript to search for more clubs. You can still select the suggestions shown.</p></noscript>
+                        </div>
                     </div>
                     <div class="settings-actions">
-                        <button class="primary-button" type="submit">Save changes</button>
+                        <button class="primary-button" type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save changes</button>
                     </div>
                 </section>
 
@@ -140,7 +141,7 @@
                         {% include "user_profile/field.html" with field=form.twitter %}
                     </div>
                     <div class="settings-actions">
-                        <button class="primary-button" type="submit">Save changes</button>
+                        <button class="primary-button" type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save changes</button>
                     </div>
                 </section>
             </form>

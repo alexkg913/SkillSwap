@@ -6,8 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillSwap</title>
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="{% static 'home/vendor/leaflet/leaflet.css' %}">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+    <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
+    <link rel="stylesheet" href="{% static 'home/css/appearance_dark.css' %}">
+    <script src="{% static 'user_profile/js/appearance.js' %}"></script>
+    <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
 </head>
 <body>
 
@@ -19,35 +25,26 @@
                 <strong>SkillSwap</strong>
             </h1>
 
+            {% if request.user.is_authenticated %}
+                {% include "user_profile/pfp_quickdropdown.html" %}
+            {% else %}
             <section class="log-in">
-                {% if request.user.is_authenticated %}
-                <p class="welcome-message"> Welcome Back, </p>
-                <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
-                    {% if request.user.profile.avatar %}
-                    <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">
-                    {% else %}
-                    <span class="profile-link__avatar profile-link__fallback" aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
-                    {% endif %}
-                </a>
-                {% else %}
                 <a class="sign-in" href="{% url 'login' %}">Sign In</a>
                 <a class="register" href="{% url 'user_register' %}">Register</a>
-                {% endif %}
             </section>
-
-
+            {% endif %}
         </header>
 
         <nav>
             <a href="{% url 'home:index' %}"
             {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
             >Home</a>
-            <a href="{% url 'events:find_tutor' %}">Find a Tutor</a>
-            <a href="{% url 'events:be_tutor' %}">Be a Tutor</a>
-            <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
+            <a href="{% url 'events:find_tutor' %}"><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
+            <a href="{% url 'events:be_tutor' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
+            <a href="{% url 'events:create' %}"><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
             <a href="{% url 'events:saved_events' %}">Events</a>
-            <a href="{% url 'inbox' %}">Messages</a>
-            <a href="{% url 'user_profile:profile' %}">Profile</a>
+            <a href="{% url 'inbox' %}"><i class="fi fi-rr-envelope" aria-hidden="true"></i> Messages</a>
+            <a href="{% url 'user_profile:profile' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
         </nav>
 
             <main>
@@ -56,7 +53,7 @@
                     <input type="search" name="q" placeholder="Search..." value="{{ query }}">
 
                     <details class="filter-options">
-                        <summary>Filter by</summary>
+                        <summary><i class="fi fi-rr-bars-filter" aria-hidden="true"></i> Filter by</summary>
 
                         <div class="filter-content">
 
@@ -87,7 +84,7 @@
                         </div>
                     </details>
 
-                    <button type="submit">Search</button>
+                    <button type="submit"><i class="fi fi-rr-search" aria-hidden="true"></i> Search</button>
 
                 </form>
 

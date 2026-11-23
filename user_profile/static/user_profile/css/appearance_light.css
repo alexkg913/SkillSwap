@@ -1,0 +1,136 @@
+/* Light is an override: without this attribute, existing page styles remain unchanged. */
+html[data-appearance="light"] {
+    color-scheme: light;
+    --page-bg: #bceaff;
+    --surface: #f0faff;
+    --surface-raised: #e0f4ff;
+    --text: #1a3c4d;
+    --text-muted: #385c70;
+    --accent: #026b9e;
+    --accent-hover: #014d76;
+    --focus-ring: rgba(2, 107, 158, .5);
+    --shadow: rgba(2, 60, 90, .18);
+}
+
+html[data-appearance="light"] body:has(.site-header),
+html[data-appearance="light"] body:has(.account-menu-header) {
+    color: #1a3c4d;
+    background: linear-gradient(180deg, #e9f9ff, #bceaff 60%, #7fd8f7);
+    background-attachment: fixed;
+}
+
+html[data-appearance="light"] .site-header,
+html[data-appearance="light"] .account-menu-header {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, .55));
+    border-color: rgba(2, 107, 158, .22);
+    box-shadow: 0 2px 10px rgba(2, 60, 90, .12);
+}
+html[data-appearance="light"] .account-menu-header a { color: #1a3c4d; }
+html[data-appearance="light"] .main-nav a:hover,
+html[data-appearance="light"] .main-nav a:focus-visible {
+    background: rgba(2, 136, 209, .13);
+}
+
+html[data-appearance="light"] .profile-card {
+    border-color: rgba(2, 107, 158, .2);
+    background: linear-gradient(145deg, rgba(255, 255, 255, .88), rgba(231, 248, 255, .84));
+    box-shadow: 0 8px 22px rgba(2, 60, 90, .12);
+}
+html[data-appearance="light"] .profile-card h2,
+html[data-appearance="light"] .profile-detail-list li,
+html[data-appearance="light"] .settings-tabs,
+html[data-appearance="light"] .image-settings {
+    border-color: rgba(2, 107, 158, .2);
+}
+html[data-appearance="light"] .profile-empty-state {
+    border-color: rgba(2, 107, 158, .28);
+    background: rgba(255, 255, 255, .5);
+}
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a {
+    border-color: rgba(2, 107, 158, .35);
+    background: rgba(2, 136, 209, .12);
+    color: #1a3c4d;
+}
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a:hover {
+    background: rgba(2, 136, 209, .2);
+    color: #1a3c4d;
+}
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a[aria-label="GitHub"] img,
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a[aria-label="Twitter / X"] img {
+    filter: none;
+}
+html[data-appearance="light"] .profile-tag,
+html[data-appearance="light"] #id_skills label:has(input:checked),
+html[data-appearance="light"] #id_interests_clubs label:has(input:checked) {
+    border-color: rgba(2, 107, 158, .35);
+    background: rgba(2, 136, 209, .12);
+}
+html[data-appearance="light"] .settings-section,
+html[data-appearance="light"] .form-field input,
+html[data-appearance="light"] .form-field textarea,
+html[data-appearance="light"] .form-field select,
+html[data-appearance="light"] .skill-picker > input[type="search"],
+html[data-appearance="light"] #id_skills label,
+html[data-appearance="light"] #id_interests_clubs label,
+html[data-appearance="light"] .email-card {
+    border-color: rgba(2, 107, 158, .3);
+}
+html[data-appearance="light"] .field-errors,
+html[data-appearance="light"] .form-errors { color: #a82232; }
+html[data-appearance="light"] .form-field--error input,
+html[data-appearance="light"] .form-field--error textarea,
+html[data-appearance="light"] .form-field--error select { border-color: #a82232; }
+html[data-appearance="light"] .profile-actions a,
+html[data-appearance="light"] .primary-button { color: #fff; }
+html[data-appearance="light"] .profile-actions a:hover,
+html[data-appearance="light"] .profile-actions button:hover { color: #fff; }
+
+/* Match the home search controls to the profile's filled and outlined actions. */
+html[data-appearance="light"] .search-bar > button {
+    background: #026b9e;
+    color: #fff;
+}
+html[data-appearance="light"] .search-bar > button:hover { background: #014d76; }
+html[data-appearance="light"] .filter-options summary {
+    border: 1px solid #026b9e;
+    background: transparent;
+    color: #026b9e;
+    box-shadow: none;
+}
+
+html[data-appearance="light"] .account-menu {
+    color: #1a3c4d;
+}
+html[data-appearance="light"] .account-menu__inbox {
+    background: transparent;
+    color: #1a3c4d;
+}
+html[data-appearance="light"] .account-menu__inbox:hover { background: #d2edfb; }
+html[data-appearance="light"] .account-menu__inbox:focus-visible { outline-color: #026b9e; }
+html[data-appearance="light"] .account-menu__trigger,
+html[data-appearance="light"] .account-menu__portrait {
+    border-color: #026b9e;
+    background: #e0f4ff;
+    color: #1a3c4d;
+}
+html[data-appearance="light"] .account-menu__panel {
+    border-color: rgba(2, 107, 158, .35);
+    background: #f0faff;
+    box-shadow: 0 12px 32px rgba(2, 60, 90, .25);
+}
+html[data-appearance="light"] .account-menu__identity div span { color: #385c70; }
+html[data-appearance="light"] .account-menu__links { border-color: rgba(2, 107, 158, .25); }
+html[data-appearance="light"] .account-menu__links a,
+html[data-appearance="light"] .account-menu__links button,
+html[data-appearance="light"] .account-menu__appearance,
+html[data-appearance="light"] .log-in .account-menu__links a { color: #1a3c4d; }
+html[data-appearance="light"] .account-menu__links a:hover,
+html[data-appearance="light"] .account-menu__links button:hover,
+html[data-appearance="light"] .log-in .account-menu__links a:hover {
+    background: #d2edfb;
+}
+html[data-appearance="light"] .account-menu__appearance select {
+    border-color: #77b4d2;
+    background: #fff;
+    color: #1a3c4d;
+}

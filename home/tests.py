@@ -37,6 +37,10 @@ class CampusMapRenderTests(TestCase):
     def test_home_page_renders_for_anonymous_visitor(self):
         self.assertEqual(self.response.status_code, 200)
 
+    def test_navigation_links_to_messages_and_profile(self):
+        self.assertIn(f'href="{reverse("inbox")}"', self.html)
+        self.assertIn(f'href="{reverse("user_profile:profile")}"', self.html)
+
     def test_map_container_is_present_and_labelled(self):
         self.assertIn('id="campus-map"', self.html)
         self.assertIn('role="application"', self.html)
@@ -222,7 +226,7 @@ class CampusMapEventPayloadTests(TestCase):
         for event in payload:
             # The event pk is public (see serialize_event_for_map); account
             # identifiers are not. The two assertions below are the real ones.
-            for private in ("email", "host", "host_id"):
+            for private in ("email", "host", "host_id", "id", "pk"):
                 self.assertNotIn(private, event)
             self.assertNotIn(self.host.email, json.dumps(event))
             self.assertNotIn(str(self.host.pk), json.dumps(event))
@@ -299,6 +303,13 @@ class CampusMapEventPayloadTests(TestCase):
     def test_empty_state_is_explicit_in_the_listings_panel(self):
         html = self.client.get(reverse("home:index")).content.decode()
         self.assertIn("No upcoming tutoring events yet.", html)
+<<<<<<< HEAD
+=======
+
+        self.assertNotIn("email", event)
+        self.assertNotIn("host_id", event)
+        self.assertNotIn("id", event)
+>>>>>>> feature/user_profile
 
 
 class HomeHeaderTests(TestCase):
@@ -321,7 +332,7 @@ class HomeHeaderTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, f'href="{reverse("user_profile:profile")}"')
-        self.assertContains(response, 'aria-label="View your profile"')
+        self.assertContains(response, 'aria-label="Open account menu"')
         self.assertContains(response, 'src="/media/profiles/avatars/example.png"')
         self.assertNotContains(response, f'href="{reverse("login")}"')
         self.assertNotContains(response, f'href="{reverse("user_register")}"')
@@ -336,7 +347,7 @@ class HomeHeaderTests(TestCase):
         response = self.client.get(reverse("home:index"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'class="profile-link__avatar profile-link__fallback"')
+        self.assertContains(response, 'class="account-menu__trigger"')
         self.assertContains(response, 'aria-hidden="true">T</span>')
         self.assertNotContains(response, f'href="{reverse("login")}"')
         self.assertNotContains(response, f'href="{reverse("user_register")}"')

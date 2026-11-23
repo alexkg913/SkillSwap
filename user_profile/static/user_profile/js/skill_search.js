@@ -10,8 +10,15 @@ if (picker && search && major && list && status) {
   let timer;
   let requestNumber = 0;
 
-  function addSkill(name) {
+  function addSkill(name, animateSuggestion = false, delay = 0) {
     const wrapper = document.createElement("div");
+    if (animateSuggestion) {
+      wrapper.style.setProperty("--skill-enter-delay", `${delay}ms`);
+      wrapper.classList.add("skill-suggestion--enter");
+      wrapper.addEventListener("animationend", () => {
+        wrapper.classList.remove("skill-suggestion--enter");
+      }, { once: true });
+    }
     const label = document.createElement("label");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -23,7 +30,7 @@ if (picker && search && major && list && status) {
     list.append(wrapper);
   }
 
-  async function refresh() {
+  async function refresh(animateSuggestions = false) {
     const current = ++requestNumber;
     const url = new URL(picker.dataset.searchUrl, window.location.href);
     url.searchParams.set("major", major.value);
@@ -46,9 +53,11 @@ if (picker && search && major && list && status) {
           present.add(checkbox.value);
         }
       }
+      let newSuggestions = 0;
       for (const name of skills) {
         if (!present.has(name)) {
-          addSkill(name);
+          addSkill(name, animateSuggestions, newSuggestions * 55);
+          newSuggestions += 1;
           present.add(name);
         }
       }
@@ -68,10 +77,10 @@ if (picker && search && major && list && status) {
   search.addEventListener("input", () => {
     ++requestNumber;
     clearTimeout(timer);
-    timer = setTimeout(refresh, 250);
+    timer = setTimeout(() => refresh(true), 250);
   });
   major.addEventListener("change", () => {
     clearTimeout(timer);
-    refresh();
+    refresh(!search.value.trim());
   });
 }
