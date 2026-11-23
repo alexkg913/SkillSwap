@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ event.title }}</title>
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
     <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
@@ -16,7 +17,7 @@
         {% include "user_profile/pfp_quickdropdown.html" %}
     </header>
     <h1>{{even.title }}</h1>
-    <a href="{% url 'inbox' %}">Back to inbox</a>
+    <a href="{% url 'inbox' %}"><i class="fi fi-rr-arrow-left" aria-hidden="true"></i> Back to inbox</a>
 
     {% for message in event_messags %}
         <div>

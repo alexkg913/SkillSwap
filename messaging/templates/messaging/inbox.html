@@ -5,6 +5,7 @@
 
     <meta charset="UTF-8">
     <title>Inbox</title>
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
     <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
@@ -17,7 +18,7 @@
         {% include "user_profile/pfp_quickdropdown.html" %}
     </header>
 
-    <h1>Inbox</h1>
+    <h1><i class="fi fi-rr-envelope" aria-hidden="true"></i> Inbox</h1>
  <!-- Display the list of conversations -->
     {% if conversations %}
         <ul>
