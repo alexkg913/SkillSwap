@@ -7,6 +7,8 @@
     <title>{{ heading }} &middot; SkillSwap</title>
     <link rel="stylesheet" href="{% static 'home/vendor/leaflet/leaflet.css' %}">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+    <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
 </head>
 <body>
 
@@ -14,6 +16,7 @@
 
         <header>
             <h1><strong>SkillSwap</strong></h1>
+            {% include "user_profile/pfp_quickdropdown.html" %}
         </header>
 
         <nav>
