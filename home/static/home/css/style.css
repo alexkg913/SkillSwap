@@ -53,6 +53,10 @@ body {
 /* ---------- Header ---------- */
 
 header {
+  /* Keep the account menu above the nav, listings, and Leaflet controls.
+     The header's backdrop-filter creates a stacking context of its own. */
+  position: relative;
+  z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: space-between;
