@@ -1,3 +1,12 @@
+.fi {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    vertical-align: middle;
+    margin-right: 0.2rem;
+}
+
 .account-menu {
     position: relative;
     z-index: 100;
@@ -100,6 +109,7 @@
     border-top: 1px solid #496678;
 }
 .account-menu__links:last-child { padding-bottom: 0; }
+.account-menu__links .fi { width: 1em; }
 .account-menu__links form { margin: 0; }
 .account-menu__links a,
 .account-menu__links button {

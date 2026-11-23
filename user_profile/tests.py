@@ -24,7 +24,7 @@ class SettingsHeaderAvatarTests(TestCase):
         trigger = '<summary class="account-menu__trigger"'
         self.assertContains(response, logout_form)
         self.assertContains(response, trigger)
-        self.assertContains(response, '<button type="submit">Sign Out</button>')
+        self.assertContains(response, '<button type="submit"><i class="fi fi-rr-sign-out-alt" aria-hidden="true"></i> Sign Out</button>')
         self.assertLess(response.content.index(trigger.encode()), response.content.index(logout_form.encode()))
 
     def test_uploaded_avatar_appears_in_header(self):
@@ -58,7 +58,7 @@ class ProfileHeaderAvatarTests(TestCase):
         trigger = '<summary class="account-menu__trigger"'
         self.assertContains(response, logout_form)
         self.assertContains(response, trigger)
-        self.assertContains(response, '<button type="submit">Sign Out</button>')
+        self.assertContains(response, '<button type="submit"><i class="fi fi-rr-sign-out-alt" aria-hidden="true"></i> Sign Out</button>')
         self.assertLess(response.content.index(trigger.encode()), response.content.index(logout_form.encode()))
 
     def test_uploaded_avatar_appears_in_header(self):

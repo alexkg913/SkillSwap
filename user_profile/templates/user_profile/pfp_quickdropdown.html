@@ -22,10 +22,10 @@
             </div>
         </div>
         <div class="account-menu__links">
-            <a href="{% url 'home:index' %}">Home</a>
-            <a href="{% url 'user_profile:profile' %}">Profile</a>
+            <a href="{% url 'home:index' %}"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+            <a href="{% url 'user_profile:profile' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
             <label class="account-menu__appearance" for="account-appearance">
-                Appearance
+                <span><i class="fi fi-rr-palette" aria-hidden="true"></i> Appearance</span>
                 <select id="account-appearance" data-appearance-select>
                     <option value="dark">Dark</option>
                     <option value="light">Light</option>
@@ -33,11 +33,11 @@
             </label>
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button type="submit">Sign Out</button>
+                <button type="submit"><i class="fi fi-rr-sign-out-alt" aria-hidden="true"></i> Sign Out</button>
             </form>
         </div>
         <div class="account-menu__links">
-            <a href="{% url 'user_profile:user_settings' %}">User Settings</a>
+            <a href="{% url 'user_profile:user_settings' %}"><i class="fi fi-rr-settings" aria-hidden="true"></i> User Settings</a>
         </div>
     </div>
 </details>

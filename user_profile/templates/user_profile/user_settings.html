@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Settings | SkillSwap</title>
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
         <link rel="stylesheet" href="{% static 'css/user_settings.css' %}">
         <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
         <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
@@ -27,7 +28,7 @@
         <main class="settings-page">
             <div class="settings-tabs" aria-label="Settings sections">
                 <a class="settings-tab settings-tab--active" href="{% url 'user_profile:user_settings' %}" aria-current="page">User Settings</a>
-                <a class="settings-tab" href="{% url 'user_profile:security_settings' %}">Security Settings</a>
+                <a class="settings-tab" href="{% url 'user_profile:security_settings' %}"><i class="fi fi-rr-lock" aria-hidden="true"></i> Security Settings</a>
             </div>
 
             <h1>User Settings</h1>
@@ -52,7 +53,7 @@
                             {% endif %}
                         </div>
                         <div class="image-copy">
-                            <h3>Change your avatar</h3>
+                            <h3><i class="fi fi-rr-camera" aria-hidden="true"></i> Change your avatar</h3>
                             <p>Use a square JPG, JPEG, or PNG image at least 300 × 300 pixels.</p>
                             {% include "user_profile/field.html" with field=form.avatar hide_label=True %}
                         </div>
@@ -86,7 +87,7 @@
                     </div>
 
                     <div class="settings-actions">
-                        <button class="primary-button" type="submit">Save changes</button>
+                        <button class="primary-button" type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save changes</button>
                     </div>
                 </section>
 
@@ -113,7 +114,7 @@
                         </div>
                     </div>
                     <div class="settings-actions">
-                        <button class="primary-button" type="submit">Save changes</button>
+                        <button class="primary-button" type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save changes</button>
                     </div>
                 </section>
 
@@ -140,7 +141,7 @@
                         {% include "user_profile/field.html" with field=form.twitter %}
                     </div>
                     <div class="settings-actions">
-                        <button class="primary-button" type="submit">Save changes</button>
+                        <button class="primary-button" type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save changes</button>
                     </div>
                 </section>
             </form>

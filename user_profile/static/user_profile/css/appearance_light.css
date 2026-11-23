@@ -46,6 +46,14 @@ html[data-appearance="light"] .profile-empty-state {
     border-color: rgba(2, 107, 158, .28);
     background: rgba(255, 255, 255, .5);
 }
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a {
+    background: #e0f4ff;
+    color: #1a3c4d;
+}
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a:hover {
+    background: #fff;
+    color: #1a3c4d;
+}
 html[data-appearance="light"] .profile-tag,
 html[data-appearance="light"] #id_skills label:has(input:checked),
 html[data-appearance="light"] #id_interests_clubs label:has(input:checked) {
