@@ -2,7 +2,7 @@
    signed-in users who choose Dark, without changing the map tiles or layout. */
 html[data-appearance="dark"] body:has(.account-menu) {
   color-scheme: dark;
-  --deep-blue: #67d4e8;
+  --deep-blue: #0288d1;
   --glass-white: #223342;
   --glass-border: rgba(207, 230, 241, 0.2);
   --text-dark: #edf4f8;
@@ -139,4 +139,12 @@ html[data-appearance="dark"] body:has(.account-menu) .leaflet-control-attributio
 
 html[data-appearance="dark"] body:has(.account-menu) .leaflet-control-attribution a {
   color: #026b9e;
+}
+
+html[data-appearance="dark"] body:has(.saved-events) h2 {
+  color: white;
+}
+
+html[data-appearance="dark"] body:has(.saved-events) a {
+  color: white;
 }
