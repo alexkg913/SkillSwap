@@ -4,14 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillSwap</title>
+    <title>{% block title %}SkillSwap{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
     <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
     <link rel="stylesheet" href="{% static 'home/css/appearance_dark.css' %}">
+    {% comment %}
+        appearance.js is deliberately not deferred: it sets the theme on
+        <html> before first paint, so a dark-mode user never sees a light
+        flash. Page-specific styles go in extra_head, after the theme files,
+        so a page can override them.
+    {% endcomment %}
     <script src="{% static 'user_profile/js/appearance.js' %}"></script>
     <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 
@@ -33,31 +40,20 @@
             {% endif %}
         </header>
 
-        <nav>
-            <a href="{% url 'home:index' %}"
-            {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
-            ><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
-            <a href="{% url 'events:find_tutor' %}"
-            {% if request.resolver_match.view_name == 'events:find_tutor' %}aria-current="page"{% endif %}
-            ><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
-            <a href="{% url 'events:be_tutor' %}"
-            {% if request.resolver_match.view_name == 'events:be_tutor' %}aria-current="page"{% endif %}
-            ><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
-            <a href="{% url 'events:create' %}"
-            {% if request.resolver_match.view_name == 'events:create' %}aria-current="page"{% endif %}
-            ><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
-            <a href="{% url 'events:saved_events' %}"
-            {% if request.resolver_match.view_name == 'events:saved_events' %}aria-current="page"{% endif %}
-            ><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
-            <a href="{% url 'inbox' %}"
-            {% if request.resolver_match.view_name == 'inbox' %}aria-current="page"{% endif %}
-            ><i class="fi fi-rr-envelope" aria-hidden="true"></i> Messages</a>
-            <a href="{% url 'user_profile:profile' %}"
-            {% if request.resolver_match.view_name == 'user_profile:profile' %}aria-current="page"{% endif %}
-            ><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
-        </nav>
+        {% include "home/_nav.html" %}
 
             <main>
+                {% if messages %}
+                    <ul class="page-messages">
+                        {% for message in messages %}
+                            <li class="page-messages__item page-messages__item--{{ message.tags }}"
+                                {% if message.tags == "error" %}role="alert"{% else %}role="status"{% endif %}>
+                                {{ message }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
                 {% block content %}
                 {% endblock %}
             </main>
@@ -71,7 +67,7 @@
                 </div>
         </footer>
 
-        
+        {% block scripts %}{% endblock %}
 
 </body>
 </html>

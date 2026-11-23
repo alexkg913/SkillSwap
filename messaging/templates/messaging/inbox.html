@@ -1,7 +1,10 @@
 {% extends "home/base.html" %}
 {% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'messaging/messaging.css' %}">
+{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{% static 'messaging/messaging.css' %}">
 <section class="messaging-panel">
     <h2>Inbox</h2>
     <p class="messaging-actions">

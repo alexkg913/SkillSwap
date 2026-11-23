@@ -1,7 +1,5 @@
-<nav class="main-nav" aria-label="Main navigation">
-    <a href="{% url 'home:index' %}"{% if request.resolver_match.view_name == 'home:index' %} aria-current="page"{% endif %}><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
-    <a href="{% url 'events:find_tutor' %}"><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
-    <a href="{% url 'events:be_tutor' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
-    <a href="{% url 'events:create' %}"><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
-    <a href="{% url 'events:saved_events' %}"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
-</nav>
+{% comment %}
+    The profile pages' navigation. The links live in home/_nav.html so every
+    chrome shows the same ones; main_nav is the class main_profile.css styles.
+{% endcomment %}
+{% include "home/_nav.html" with nav_class="main-nav" %}

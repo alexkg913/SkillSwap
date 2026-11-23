@@ -1,0 +1,52 @@
+{% comment %}
+    The site's one navigation bar. Every page chrome includes this rather
+    than repeating the links, so adding a page means editing one file.
+
+    Pass nav_class to match the surrounding chrome's styling, e.g.
+    {% include "home/_nav.html" with nav_class="main-nav" %} on the profile
+    pages, whose CSS targets .main-nav rather than a bare nav.
+
+    The tutor/student split is a convenience, not a permission check: the
+    views re-check the role server-side, so swapping a link here grants
+    nothing.
+{% endcomment %}
+<nav{% if nav_class %} class="{{ nav_class }}"{% endif %} aria-label="Main navigation">
+    <a href="{% url 'home:index' %}"
+    {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+
+    {% if request.user.is_authenticated and request.user.is_tutor %}
+    <a href="{% url 'tutoring:setup' %}"
+    {% if request.resolver_match.view_name == 'tutoring:setup' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-books" aria-hidden="true"></i> My Tutoring Courses</a>
+    <a href="{% url 'tutoring:availability' %}"
+    {% if request.resolver_match.view_name == 'tutoring:availability' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-calendar" aria-hidden="true"></i> My Availability</a>
+    {% else %}
+    <a href="{% url 'tutoring:find' %}"
+    {% if request.resolver_match.view_name == 'tutoring:find' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
+    <a href="{% url 'events:be_tutor' %}"
+    {% if request.resolver_match.view_name == 'events:be_tutor' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'tutoring:sessions' %}"
+    {% if request.resolver_match.view_name == 'tutoring:sessions' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-users" aria-hidden="true"></i> My Sessions</a>
+    {% endif %}
+
+    <a href="{% url 'events:create' %}"
+    {% if request.resolver_match.view_name == 'events:create' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
+    <a href="{% url 'events:saved_events' %}"
+    {% if request.resolver_match.view_name == 'events:saved_events' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+    <a href="{% url 'inbox' %}"
+    {% if request.resolver_match.view_name == 'inbox' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-envelope" aria-hidden="true"></i> Messages</a>
+    <a href="{% url 'user_profile:profile' %}"
+    {% if request.resolver_match.view_name == 'user_profile:profile' %}aria-current="page"{% endif %}
+    ><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
+</nav>

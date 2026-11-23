@@ -1,7 +1,10 @@
 {% extends "home/base.html" %}
 {% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'messaging/messaging.css' %}">
+{% endblock %}
+
 {% block content %}
-<link rel="stylesheet" href="{% static 'messaging/messaging.css' %}">
 <section class="messaging-panel">
     <h2>Event Chats</h2>
     <p class="messaging-actions"><a class="messaging-button" href="{% url 'inbox' %}">Back to inbox</a></p>
