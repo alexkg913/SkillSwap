@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('messaging/', include('messaging.urls')),
     path('events/', include('events.urls')),
+    path('tutoring/', include('tutoring.urls')),
 
 ]
 

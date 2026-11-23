@@ -1,0 +1,84 @@
+{% extends "tutoring/_shell.html" %}
+
+{% block title %}Find a Tutor{% endblock %}
+
+{% block content %}
+    <h2 class="form-heading">Find a Tutor</h2>
+
+    {% if catalog_is_empty %}
+        {# Never invent courses to fill the dropdown. #}
+        <p class="result result--empty">Courses haven't been added yet.</p>
+    {% else %}
+        <form method="get" class="event-form tutoring-form">
+            {% if form.non_field_errors %}
+                <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <section class="event-form__fields">
+                {% include "tutoring/_course_picker.html" with field=form.course_code mode="single" picker_id="course-picker" selected_label=course_label %}
+
+                <div class="field">
+                    {{ form.start_at.label_tag }}
+                    {{ form.start_at }}
+                    {% if form.start_at.help_text %}
+                        <p class="field__help">{{ form.start_at.help_text }}</p>
+                    {% endif %}
+                    {% if form.start_at.errors %}
+                        <div class="field__errors" role="alert">{{ form.start_at.errors }}</div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <div class="event-form__actions">
+                <button type="submit" class="register">Find Tutors</button>
+            </div>
+        </form>
+
+        {% if searched %}
+            <section class="tutoring-results" aria-labelledby="tutoring-results-heading">
+                <h3 id="tutoring-results-heading">
+                    Tutors free {{ interval.0|date:"D j M, g:i A" }}&ndash;{{ interval.1|date:"g:i A" }}
+                    <span class="tutoring-results__tz">Eastern Time</span>
+                </h3>
+
+                <ul class="results">
+                    {% for result in results %}
+                        <li class="result">
+                            <p class="result__title">{{ result.tutor_name }}</p>
+                            <p class="result__meta">
+                                {{ result.course_code }}
+                                {% if result.course_title %}&mdash; {{ result.course_title }}{% endif %}
+                                {% if result.major %}<br>Major: {{ result.major }}{% endif %}
+                            </p>
+
+                            {% comment %}
+                                POST, with its own CSRF token: booking is a state
+                                change. Only the TutorCourse id is submitted -- the
+                                server resolves the tutor from it, and re-checks
+                                availability before confirming.
+                            {% endcomment %}
+                            <form method="post" action="{% url 'tutoring:book' %}" class="tutoring-book">
+                                {% csrf_token %}
+                                <input type="hidden" name="tutor_course" value="{{ result.tutor_course_id }}">
+                                {# ISO 8601 with a UTC offset, so the time cannot
+                                   be misread across a daylight-saving change. #}
+                                <input type="hidden" name="start_at" value="{{ result.start_at|date:'c' }}">
+                                <button type="submit" class="register">Book Session</button>
+                            </form>
+                        </li>
+                    {% empty %}
+                        <li class="result result--empty">
+                            No tutors are available for this course at the selected time.
+                            Try another time.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'tutoring/js/course_search.js' %}"></script>
+{% endblock %}

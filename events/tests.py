@@ -282,7 +282,13 @@ class EventInteractionTests(TestCase):
 
 class InteractionUniquenessMigrationTests(TransactionTestCase):
     def test_duplicates_merge_without_losing_flags(self):
-        before = [('events', '0011_remove_eventinteraction_status_and_more')]
+        # The login app's leaf is named too: the rewound state is only what the
+        # events target depends on, and a historical User without is_tutor
+        # cannot insert against the real (NOT NULL) column.
+        before = [
+            ('events', '0011_remove_eventinteraction_status_and_more'),
+            ('login', '0002_user_is_tutor'),
+        ]
         after = [('events', '0012_unique_event_student_interaction')]
         executor = MigrationExecutor(connection)
         executor.migrate(before)

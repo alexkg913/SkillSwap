@@ -1,0 +1,95 @@
+{% extends "tutoring/_shell.html" %}
+
+{% block title %}My Availability{% endblock %}
+
+{% block content %}
+    <h2 class="form-heading">When I'm free to tutor</h2>
+
+    {% if not has_courses %}
+        <p class="result result--empty">
+            You haven't picked any courses yet, so students can't find you.
+            <a href="{% url 'tutoring:setup' %}">Choose your courses</a> first.
+        </p>
+    {% endif %}
+
+    <form method="post" class="event-form tutoring-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <section class="event-form__fields">
+            {% for field in form.visible_fields %}
+                <div class="field">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="field__help">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="field__errors" role="alert">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </section>
+
+        <div class="event-form__actions">
+            <button type="submit" class="register">Add window</button>
+        </div>
+    </form>
+
+    <section class="tutoring-results" aria-labelledby="windows-heading">
+        <h3 id="windows-heading">
+            My upcoming availability
+            <span class="tutoring-results__tz">Eastern Time</span>
+        </h3>
+
+        <ul class="results">
+            {% for window in windows %}
+                <li class="result">
+                    <p class="result__title">
+                        {{ window.start_at|date:"D j M, g:i A" }}
+                        &ndash; {{ window.end_at|date:"g:i A" }}
+                    </p>
+
+                    {% comment %}
+                        POST with its own CSRF token. The view refuses the
+                        delete if a booked session sits inside the window.
+                    {% endcomment %}
+                    <form method="post"
+                          action="{% url 'tutoring:delete_availability' window.pk %}"
+                          class="event-cancel">
+                        {% csrf_token %}
+                        <button type="submit" class="event-cancel__button">Remove</button>
+                    </form>
+                </li>
+            {% empty %}
+                <li class="result result--empty">
+                    No availability added yet. Students can only book times you list here.
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="tutoring-results" aria-labelledby="booked-heading">
+        <h3 id="booked-heading">
+            Booked sessions
+            <span class="tutoring-results__tz">Eastern Time</span>
+        </h3>
+
+        <ul class="results">
+            {% for session in sessions %}
+                <li class="result">
+                    <p class="result__title">{{ session.course.code }}</p>
+                    <p class="result__meta">
+                        {{ session.start_at|date:"D j M, g:i A" }}
+                        &ndash; {{ session.end_at|date:"g:i A" }}
+                    </p>
+                </li>
+            {% empty %}
+                <li class="result result--empty">No sessions booked yet.</li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endblock %}

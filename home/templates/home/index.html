@@ -41,8 +41,20 @@
             <a href="{% url 'home:index' %}"
             {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
             >Home</a>
-            <a href="{% url 'events:find_tutor' %}">Find a Tutor</a>
-            <a href="{% url 'events:be_tutor' %}">Be a Tutor</a>
+            {% comment %}
+                Find a Tutor is for student accounts; a tutor gets their own
+                setup links instead. The views re-check the role server-side --
+                swapping a link here is not a permission check.
+            {% endcomment %}
+            {% if request.user.is_authenticated and request.user.is_tutor %}
+            <a href="{% url 'tutoring:setup' %}">My Tutoring Courses</a>
+            <a href="{% url 'tutoring:availability' %}">My Availability</a>
+            {% else %}
+            <a href="{% url 'tutoring:find' %}">Find a Tutor</a>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'tutoring:sessions' %}">My Sessions</a>
+            {% endif %}
             <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
             <a href="{% url 'events:saved_events' %}">Saved Events</a>
             <a href="{% url 'inbox' %}">Messages</a>

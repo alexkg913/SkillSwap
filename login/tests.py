@@ -254,3 +254,39 @@ class ForgotPasswordTests(TestCase):
     def test_reset_page_requires_verified_email_session(self):
         response = self.client.get(reverse("user_reset_password"))
         self.assertRedirects(response, reverse("user_forgot_pwd"))
+
+
+class IsTutorFieldTests(TestCase):
+    """The account role added for Find a Tutor."""
+
+    def test_new_account_is_a_student_by_default(self):
+        user = get_user_model().objects.create_user(
+            username="fresh", email="fresh@example.com", password="test-password"
+        )
+
+        self.assertFalse(user.is_tutor)
+
+    def test_the_field_is_not_nullable(self):
+        field = get_user_model()._meta.get_field("is_tutor")
+
+        self.assertFalse(field.null)
+        self.assertFalse(field.default)
+
+    def test_an_account_can_be_made_a_tutor(self):
+        user = get_user_model().objects.create_user(
+            username="teach", email="teach@example.com",
+            password="test-password", is_tutor=True,
+        )
+        user.refresh_from_db()
+
+        self.assertTrue(user.is_tutor)
+
+    def test_existing_rows_migrate_to_student(self):
+        """The default backfills accounts created before the column existed."""
+        user = get_user_model().objects.create_user(
+            username="legacy", email="legacy@example.com", password="test-password"
+        )
+        get_user_model().objects.filter(pk=user.pk).update(major="History")
+        user.refresh_from_db()
+
+        self.assertFalse(user.is_tutor)
