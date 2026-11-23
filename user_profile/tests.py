@@ -108,6 +108,7 @@ class AccountMenuPagesTests(TestCase):
         response = self.client.get(reverse("home:index"))
         self.assertNotContains(response, 'class="account-menu__trigger"')
 
+
     def test_home_and_event_pages_load_dark_chrome_override(self):
         self.client.force_login(self.user)
         for url in (reverse("home:index"), reverse("events:create")):
@@ -121,6 +122,43 @@ class AccountMenuPagesTests(TestCase):
         self.assertEqual(self.client.get(reverse("logout")).status_code, 405)
         self.assertEqual(self.client.post(reverse("logout")).status_code, 302)
         self.assertFalse(self.client.session.get("_auth_user_id"))
+
+
+class HeaderInboxLinkTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="inbox-student", password="test-password"
+        )
+
+    def test_signed_in_headers_link_to_inbox_before_avatar(self):
+        self.client.force_login(self.user)
+        for url in (
+            reverse("home:index"),
+            reverse("user_profile:profile"),
+            reverse("user_profile:user_settings"),
+            reverse("user_profile:security_settings"),
+            reverse("events:create"),
+            reverse("inbox"),
+        ):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertContains(
+                    response,
+                    f'class="account-menu__inbox" href="{reverse("inbox")}" aria-label="Inbox"',
+                )
+                self.assertLess(
+                    response.content.index(b'class="account-menu__inbox"'),
+                    response.content.index(b'class="account-menu__trigger"'),
+                )
+
+    def test_anonymous_header_does_not_show_inbox_link(self):
+        response = self.client.get(reverse("home:index"))
+        self.assertNotContains(response, 'class="account-menu__inbox"')
+
+    def test_inbox_link_destination_renders_inbox(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("inbox"))
+        self.assertContains(response, "No conversations found.")
 
 
 class ProfileSkillsTests(TestCase):

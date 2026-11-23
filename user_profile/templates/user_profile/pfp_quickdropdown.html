@@ -1,4 +1,8 @@
 {% if request.user.is_authenticated %}
+<div class="account-menu-actions">
+<a class="account-menu__inbox" href="{% url 'inbox' %}" aria-label="Inbox" title="Inbox">
+    <i class="fi fi-rr-envelope" aria-hidden="true"></i>
+</a>
 <details class="account-menu">
     <summary class="account-menu__trigger" aria-label="Open account menu">
         {% if request.user.profile.avatar %}
@@ -42,4 +46,5 @@
         </div>
     </div>
 </details>
+</div>
 {% endif %}

@@ -101,6 +101,13 @@ html[data-appearance="light"] .filter-options summary {
 html[data-appearance="light"] .account-menu {
     color: #1a3c4d;
 }
+html[data-appearance="light"] .account-menu__inbox {
+    border-color: #026b9e;
+    background: #e0f4ff;
+    color: #1a3c4d;
+}
+html[data-appearance="light"] .account-menu__inbox:hover { background: #d2edfb; }
+html[data-appearance="light"] .account-menu__inbox:focus-visible { outline-color: #026b9e; }
 html[data-appearance="light"] .account-menu__trigger,
 html[data-appearance="light"] .account-menu__portrait {
     border-color: #026b9e;

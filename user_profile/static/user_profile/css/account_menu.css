@@ -7,10 +7,45 @@
     margin-right: 0.2rem;
 }
 
+.account-menu-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.account-menu-actions .account-menu__inbox {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.account-menu__inbox .fi { margin: 0; }
+.account-menu__inbox:focus-visible {
+    outline: 3px solid;
+    outline-offset: 2px;
+}
+
+html[data-appearance="dark"] .account-menu__inbox {
+    border-color: #67d4e8;
+    background: #223342;
+    color: #edf4f8;
+}
+html[data-appearance="dark"] .account-menu__inbox:hover { background: #30495b; }
+html[data-appearance="dark"] .account-menu__inbox:focus-visible { outline-color: #67d4e8; }
+
 .account-menu {
     position: relative;
     z-index: 100;
-    margin-left: auto;
+    margin-left: 0;
     flex: 0 0 auto;
     font-family: "Segoe UI", "Trebuchet MS", Helvetica, sans-serif;
     color: #edf4f8;
