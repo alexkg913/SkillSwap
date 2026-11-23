@@ -18,16 +18,16 @@
         <header class="site-header">
             <a class="site-brand" href="/">SkillSwap</a>
             <nav class="main-nav" aria-label="Main navigation">
-                <a href="/">Home</a>
-                <a href="#" aria-label="Events (not available yet)">Events</a>
-                <a href="{% url 'user_profile:user_settings' %}" aria-current="page">Settings</a>
+                <a href="/"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+                <a href="#" aria-label="Events (not available yet)"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+                <a href="{% url 'user_profile:user_settings' %}" aria-current="page"><i class="fi fi-rr-settings" aria-hidden="true"></i> Settings</a>
             </nav>
             {% include "user_profile/pfp_quickdropdown.html" %}
         </header>
 
         <main class="settings-page">
             <div class="settings-tabs" aria-label="Settings sections">
-                <a class="settings-tab settings-tab--active" href="{% url 'user_profile:user_settings' %}" aria-current="page">User Settings</a>
+                <a class="settings-tab settings-tab--active" href="{% url 'user_profile:user_settings' %}" aria-current="page"><i class="fi fi-rr-user" aria-hidden="true"></i> User Settings</a>
                 <a class="settings-tab" href="{% url 'user_profile:security_settings' %}"><i class="fi fi-rr-lock" aria-hidden="true"></i> Security Settings</a>
             </div>
 

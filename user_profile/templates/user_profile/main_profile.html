@@ -18,9 +18,9 @@
             <a class="site-brand" href="/">SkillSwap</a>
 
             <nav class="main-nav" aria-label="Main navigation">
-                <a href="/">Home</a>
-                <a href="#" aria-label="Events (not available yet)">Events</a>
-                <a href="{% url 'user_profile:user_settings' %}">Settings</a>
+                <a href="/"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+                <a href="#" aria-label="Events (not available yet)"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+                <a href="{% url 'user_profile:user_settings' %}"><i class="fi fi-rr-settings" aria-hidden="true"></i> Settings</a>
             </nav>
 
             {% include "user_profile/pfp_quickdropdown.html" %}

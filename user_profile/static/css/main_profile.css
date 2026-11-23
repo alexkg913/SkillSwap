@@ -70,8 +70,19 @@ body {
 }
 
 .main-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     padding: 0.45rem 0.55rem;
     border-radius: 0.5rem;
+}
+
+.main-nav .fi {
+    margin-right: 0;
+}
+
+.main-nav a:last-child {
+    margin-left: -0.7rem;
 }
 
 .main-nav a:hover,
@@ -565,6 +576,10 @@ button:focus-visible {
         justify-content: flex-start;
         gap: clamp(0.45rem, 1.8vw, 1rem);
         padding-top: 0.25rem;
+    }
+
+    .main-nav a:last-child {
+        margin-left: 0;
     }
 
     .profile-page {

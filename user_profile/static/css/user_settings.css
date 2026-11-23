@@ -51,9 +51,20 @@ h1 {
 }
 
 .main-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
     color: var(--text-muted);
     padding: .45rem .55rem;
     border-radius: .5rem;
+}
+
+.main-nav .fi {
+    margin-right: 0;
+}
+
+.main-nav a:last-child {
+    margin-left: -.7rem;
 }
 
 .main-nav a:hover,
@@ -146,9 +157,16 @@ h1 {
 }
 
 .settings-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
     padding: .75rem .1rem;
     color: var(--text-muted);
     text-decoration: none;
+}
+
+.settings-tab .fi {
+    margin-right: 0;
 }
 
 .settings-tab--active {
@@ -440,6 +458,10 @@ select:focus-visible {
 
 
 @media (max-width: 650px) {
+    .main-nav a:last-child {
+        margin-left: 0;
+    }
+
     .site-header {
         flex-wrap: wrap;
         gap: .5rem 1rem;
