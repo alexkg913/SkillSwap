@@ -1,11 +1,19 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
 
     <meta charset="UTF-8">
     <title>Inbox</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+    <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
 </head>
 <body>
+    <header class="account-menu-header">
+        <a href="{% url 'home:index' %}">SkillSwap</a>
+        {% include "user_profile/pfp_quickdropdown.html" %}
+    </header>
 
     <h1>Inbox</h1>
  <!-- Display the list of conversations -->
