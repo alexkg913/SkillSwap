@@ -47,12 +47,17 @@ html[data-appearance="light"] .profile-empty-state {
     background: rgba(255, 255, 255, .5);
 }
 html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a {
-    background: #e0f4ff;
+    border-color: rgba(2, 107, 158, .35);
+    background: rgba(2, 136, 209, .12);
     color: #1a3c4d;
 }
 html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a:hover {
-    background: #fff;
+    background: rgba(2, 136, 209, .2);
     color: #1a3c4d;
+}
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a[aria-label="GitHub"] img,
+html[data-appearance="light"] .profile-card-content--socials .profile-detail-list a[aria-label="Twitter / X"] img {
+    filter: none;
 }
 html[data-appearance="light"] .profile-tag,
 html[data-appearance="light"] #id_skills label:has(input:checked),

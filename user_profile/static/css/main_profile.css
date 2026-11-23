@@ -434,16 +434,17 @@ body {
     height: 3.5rem;
     align-items: center;
     justify-content: center;
+    border: 1px solid rgba(103, 212, 232, 0.25);
     border-radius: 0.75rem;
-    background: #e5edf2;
-    color: #243846;
+    background: rgba(103, 212, 232, 0.1);
+    color: var(--text);
     text-decoration: none;
     transition: transform 160ms ease, background-color 160ms ease;
 }
 
 .profile-card-content--socials .profile-detail-list a:hover {
-    background: #fff;
-    color: #243846;
+    background: rgba(103, 212, 232, 0.18);
+    color: var(--text);
     transform: translateY(-2px);
 }
 
@@ -456,6 +457,11 @@ body {
     display: block;
     width: 2.25rem;
     height: 2.25rem;
+}
+
+.profile-card-content--socials .profile-detail-list a[aria-label="GitHub"] img,
+.profile-card-content--socials .profile-detail-list a[aria-label="Twitter / X"] img {
+    filter: invert(1);
 }
 
 .profile-card-content--socials .profile-detail-list .fi {
