@@ -102,6 +102,7 @@ class AccountMenuPagesTests(TestCase):
                 self.assertContains(response, '<option value="light">Light</option>')
                 self.assertContains(response, 'user_profile/css/appearance_light.css')
                 self.assertContains(response, 'user_profile/js/appearance.js')
+                self.assertContains(response, f'href="{reverse("user_profile:security_settings")}"')
 
     def test_anonymous_home_has_no_account_menu(self):
         response = self.client.get(reverse("home:index"))

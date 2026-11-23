@@ -30,7 +30,7 @@ class SecurityPasswordChangeTests(TestCase):
         self.assertContains(response, 'name="password"')
         self.assertContains(response, 'name="password_confirm"')
         self.assertNotContains(response, 'name="current_password"')
-        self.assertContains(response, 'type="submit">Change password</button>')
+        self.assertContains(response, 'type="submit"><i class="fi fi-rr-key" aria-hidden="true"></i> Change password</button>')
 
     def test_valid_change_updates_hash_and_keeps_user_signed_in(self):
         self.client.force_login(self.user)

@@ -1,3 +1,15 @@
+.settings-section h2,
+.settings-section .primary-button {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.settings-section h2 .fi,
+.settings-section .primary-button .fi {
+    margin-right: 0;
+}
+
 .password-fields {
     display: grid;
     gap: 1rem;

@@ -26,7 +26,7 @@
 
         <main class="settings-page">
             <div class="settings-tabs" aria-label="Settings sections">
-                <a class="settings-tab" href="{% url 'user_profile:user_settings' %}">User Settings</a>
+                <a class="settings-tab" href="{% url 'user_profile:user_settings' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> User Settings</a>
                 <a class="settings-tab settings-tab--active" href="{% url 'user_profile:security_settings' %}" aria-current="page"><i class="fi fi-rr-lock" aria-hidden="true"></i> Security Settings</a>
             </div>
 
@@ -34,7 +34,7 @@
             <p class="settings-intro">Manage your account password.</p>
 
             <section class="settings-section" aria-labelledby="password-heading">
-                <h2 id="password-heading">Change password</h2>
+                <h2 id="password-heading"><i class="fi fi-rr-lock" aria-hidden="true"></i> Change password</h2>
                 <p class="section-description">Use at least 10 characters, including an uppercase letter, a number, and a special character.</p>
                 {% if messages %}
                     {% for message in messages %}
@@ -59,7 +59,7 @@
                         </div>
                     </div>
                     <div class="settings-actions">
-                        <button class="primary-button" type="submit">Change password</button>
+                        <button class="primary-button" type="submit"><i class="fi fi-rr-key" aria-hidden="true"></i> Change password</button>
                     </div>
                 </form>
             </section>
