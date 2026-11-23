@@ -36,25 +36,25 @@
         <nav>
             <a href="{% url 'home:index' %}"
             {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
-            >Home</a>
+            ><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
             <a href="{% url 'events:find_tutor' %}"
             {% if request.resolver_match.view_name == 'events:find_tutor' %}aria-current="page"{% endif %}
-            >Find a Tutor</a>
+            ><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
             <a href="{% url 'events:be_tutor' %}"
             {% if request.resolver_match.view_name == 'events:be_tutor' %}aria-current="page"{% endif %}
-            >Be a Tutor</a>
+            ><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
             <a href="{% url 'events:create' %}"
             {% if request.resolver_match.view_name == 'events:create' %}aria-current="page"{% endif %}
-            >Create a Tutoring Event</a>
+            ><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
             <a href="{% url 'events:saved_events' %}"
             {% if request.resolver_match.view_name == 'events:saved_events' %}aria-current="page"{% endif %}
-            >Events</a>
+            ><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
             <a href="{% url 'inbox' %}"
             {% if request.resolver_match.view_name == 'inbox' %}aria-current="page"{% endif %}
-            >Messages</a>
+            ><i class="fi fi-rr-envelope" aria-hidden="true"></i> Messages</a>
             <a href="{% url 'user_profile:profile' %}"
             {% if request.resolver_match.view_name == 'user_profile:profile' %}aria-current="page"{% endif %}
-            >Profile</a>
+            ><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
         </nav>
 
             <main>

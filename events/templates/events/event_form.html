@@ -31,15 +31,15 @@
         </header>
 
         <nav>
-            <a href="{% url 'home:index' %}">Home</a>
-            <a href="{% url 'events:find_tutor' %}">Find a Tutor</a>
-            <a href="{% url 'events:be_tutor' %}">Be a Tutor</a>
+            <a href="{% url 'home:index' %}"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+            <a href="{% url 'events:find_tutor' %}"><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
+            <a href="{% url 'events:be_tutor' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
             <a href="{% url 'events:create' %}"
             {% if request.resolver_match.view_name == 'events:create' %}aria-current="page"{% endif %}
-            >Create a Tutoring Event</a>
-            <a href="{% url 'events:saved_events' %}">Events</a>
-            <a href="{% url 'inbox' %}">Messages</a>
-            <a href="{% url 'user_profile:profile' %}">Profile</a>
+            ><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
+            <a href="{% url 'events:saved_events' %}"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+            <a href="{% url 'inbox' %}"><i class="fi fi-rr-envelope" aria-hidden="true"></i> Messages</a>
+            <a href="{% url 'user_profile:profile' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
         </nav>
 
         <main>
@@ -103,7 +103,7 @@
                 </p>
 
                 <div class="event-form__actions">
-                    <button type="submit" class="register">
+                    <button type="submit" class="event-form__submit">
                         {% if event %}Save changes{% else %}Create event{% endif %}
                     </button>
                     <a class="form-cancel" href="{% url 'home:index' %}">Back to the map</a>

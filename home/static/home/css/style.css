@@ -183,8 +183,7 @@ nav a {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-nav a:hover,
-nav:not(:hover) a[aria-current="page"] {
+nav a:hover {
   background: linear-gradient(180deg, #a6e6ff, var(--deep-blue));
   color: #ffffff;
 }
@@ -458,11 +457,41 @@ main {
 .event-form__actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
+.event-form__submit,
 .form-cancel {
-  color: var(--deep-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.event-form__submit {
+  border: 1px solid #0074a8;
+  color: #fff;
+  background: #006b9e;
+  box-shadow: 0 3px 8px var(--shadow);
+}
+
+.form-cancel {
+  border: 1px solid #0074a8;
+  color: #006b9e;
+  background: rgba(200, 239, 255, 0.7);
+  box-shadow: none;
+}
+
+.event-form__submit:hover,
+.form-cancel:hover {
+  transform: translateY(-2px);
 }
 
 .event-cancel {

@@ -38,7 +38,7 @@
         <nav>
             <a href="{% url 'home:index' %}"
             {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
-            >Home</a>
+            ><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
             <a href="{% url 'events:find_tutor' %}"><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
             <a href="{% url 'events:be_tutor' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
             <a href="{% url 'events:create' %}"><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>

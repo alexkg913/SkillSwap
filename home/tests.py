@@ -303,13 +303,10 @@ class CampusMapEventPayloadTests(TestCase):
     def test_empty_state_is_explicit_in_the_listings_panel(self):
         html = self.client.get(reverse("home:index")).content.decode()
         self.assertIn("No upcoming tutoring events yet.", html)
-<<<<<<< HEAD
-=======
 
         self.assertNotIn("email", event)
         self.assertNotIn("host_id", event)
         self.assertNotIn("id", event)
->>>>>>> feature/user_profile
 
 
 class HomeHeaderTests(TestCase):
