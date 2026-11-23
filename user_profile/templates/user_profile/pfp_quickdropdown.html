@@ -24,6 +24,13 @@
         <div class="account-menu__links">
             <a href="{% url 'home:index' %}">Home</a>
             <a href="{% url 'user_profile:profile' %}">Profile</a>
+            <label class="account-menu__appearance" for="account-appearance">
+                Appearance
+                <select id="account-appearance" data-appearance-select>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+            </label>
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
                 <button type="submit">Sign Out</button>

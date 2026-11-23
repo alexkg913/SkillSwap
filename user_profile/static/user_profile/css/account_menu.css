@@ -108,6 +108,28 @@
 }
 .account-menu__links a:hover,
 .account-menu__links button:hover { background: #30495b; }
+.account-menu__appearance {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px;
+    color: #edf4f8;
+}
+.account-menu__appearance select {
+    min-width: 88px;
+    padding: 5px;
+    border: 1px solid #496678;
+    border-radius: 6px;
+    background: #223342;
+    color: #edf4f8;
+    font: inherit;
+    cursor: pointer;
+}
+.account-menu__appearance select:focus-visible {
+    outline: 3px solid #67d4e8;
+    outline-offset: 2px;
+}
 
 .account-menu-header {
     display: flex;

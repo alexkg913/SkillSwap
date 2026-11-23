@@ -98,7 +98,10 @@ class AccountMenuPagesTests(TestCase):
                 self.assertContains(response, 'class="account-menu__trigger"')
                 self.assertContains(response, "Sam Student")
                 self.assertContains(response, "@menu-student")
-                self.assertNotContains(response, "Appearance")
+                self.assertContains(response, 'data-appearance-select')
+                self.assertContains(response, '<option value="light">Light</option>')
+                self.assertContains(response, 'user_profile/css/appearance_light.css')
+                self.assertContains(response, 'user_profile/js/appearance.js')
 
     def test_anonymous_home_has_no_account_menu(self):
         response = self.client.get(reverse("home:index"))
