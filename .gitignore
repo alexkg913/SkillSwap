@@ -150,3 +150,6 @@ opencode.json
 
 AGENTS.md
 .obsidian/*
+
+# Stale local DB snapshots (db.sqlite3.stale-bak and friends)
+*.stale-bak
