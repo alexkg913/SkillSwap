@@ -37,11 +37,11 @@
         </header>
 
         <nav>
-            <a href="#">Find a Tutor</a>
-            <a href="#">Be a Tutor</a>
-            <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
-            <a href="#">Messages</a>
-            <a href="#">Profile</a>
+            <a href="#"><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
+            <a href="#"><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
+            <a href="{% url 'events:create' %}"><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
+            <a href="{% url 'inbox' %}"><i class="fi fi-rr-envelope" aria-hidden="true"></i> Messages</a>
+            <a href="{% url 'user_profile:profile' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
         </nav>
 
             <main>
@@ -50,7 +50,7 @@
                     <input type="search" name="q" placeholder="Search..." value="{{ query }}">
 
                     <details class="filter-options">
-                        <summary>Filter by</summary>
+                        <summary><i class="fi fi-rr-bars-filter" aria-hidden="true"></i> Filter by</summary>
 
                         <div class="filter-content">
 
@@ -81,7 +81,7 @@
                         </div>
                     </details>
 
-                    <button type="submit">Search</button>
+                    <button type="submit"><i class="fi fi-rr-search" aria-hidden="true"></i> Search</button>
 
                 </form>
 

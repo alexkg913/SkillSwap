@@ -37,6 +37,10 @@ class CampusMapRenderTests(TestCase):
     def test_home_page_renders_for_anonymous_visitor(self):
         self.assertEqual(self.response.status_code, 200)
 
+    def test_navigation_links_to_messages_and_profile(self):
+        self.assertIn(f'href="{reverse("inbox")}"', self.html)
+        self.assertIn(f'href="{reverse("user_profile:profile")}"', self.html)
+
     def test_map_container_is_present_and_labelled(self):
         self.assertIn('id="campus-map"', self.html)
         self.assertIn('role="application"', self.html)
