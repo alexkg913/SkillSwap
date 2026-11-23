@@ -1,20 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Event Chat</title>
-</head>
-<body>
-    <h1>Event Chats </h1>
-    <a href="{% url 'inbox' %}">Back to inbox</a>
+{% extends "home/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'messaging/messaging.css' %}">
+<section class="messaging-panel">
+    <h2>Event Chats</h2>
+    <p class="messaging-actions"><a class="messaging-button" href="{% url 'inbox' %}">Back to inbox</a></p>
 
-    {% for event in events %}
-        <div>
-            <a href="{% url 'event_chat' event.id %}">{{ event.title }}</a>
-            <small>{{ event.date }} at {{ event.location }}</small>
-        </div>
-    {% empty %}
-        <p>You have no event chats yet. You can join one by hosting or attending.</p>
-    {% endfor %}
-</body>
-</html>
+    <ul class="conversation-list">
+        {% for event in events %}
+            <li class="conversation-card">
+                <a class="conversation-name" href="{% url 'event_chat' event.id %}">{{ event.title }}</a>
+                <small>{{ event.date }} at {{ event.location }}</small>
+            </li>
+        {% empty %}
+            <li>You have no event chats yet. You can join one by hosting or attending.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}
