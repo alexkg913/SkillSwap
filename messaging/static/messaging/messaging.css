@@ -33,3 +33,27 @@
 .message-form { display: flex; gap: 0.6rem; align-items: flex-end; }
 .message-form textarea { flex: 1; min-height: 70px; padding: 0.6rem; border-radius: 12px; border: 1px solid rgba(42, 111, 176, 0.4); font: inherit; }
 .message-form button { padding: 0.6rem 1.2rem; border: none; border-radius: 999px; background: linear-gradient(#5aaaf0, #3a86c8); color: #fff; font-weight: 700; cursor: pointer; }
+
+html[data-appearance="dark"] .messaging-panel {
+    border-color: rgba(167, 227, 239, 0.45);
+    background: linear-gradient(145deg, #263848, #192633);
+    color: #edf4f8;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+html[data-appearance="dark"] .messaging-panel .conversation-card {
+    border: 1px solid rgba(207, 230, 241, 0.1);
+    background: #223342;
+}
+
+html[data-appearance="dark"] .messaging-panel .conversation-name {
+    color: #67d4e8;
+}
+
+html[data-appearance="dark"] .messaging-panel .conversation-card p {
+    color: #edf4f8;
+}
+
+html[data-appearance="dark"] .messaging-panel .conversation-card small {
+    color: #a9bac7;
+}

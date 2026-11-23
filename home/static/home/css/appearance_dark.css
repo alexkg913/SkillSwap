@@ -62,6 +62,24 @@ html[data-appearance="dark"] body:has(.account-menu) .filter-options summary {
   box-shadow: none;
 }
 
+html[data-appearance="dark"] body:has(.account-menu) .event-form__submit {
+  border-color: #67d4e8;
+  background: #67d4e8;
+  color: #101923;
+  box-shadow: none;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .event-form__submit:hover {
+  background: #9be8f3;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .form-cancel {
+  border-color: #67d4e8;
+  background: transparent;
+  color: #67d4e8;
+  box-shadow: none;
+}
+
 html[data-appearance="dark"] body:has(.account-menu) .filter-content,
 html[data-appearance="dark"] body:has(.account-menu) .result,
 html[data-appearance="dark"] body:has(.account-menu) .event-form__fields {
@@ -70,7 +88,18 @@ html[data-appearance="dark"] body:has(.account-menu) .event-form__fields {
 }
 
 html[data-appearance="dark"] body:has(.account-menu) .map {
-  background: #192633;
+  border-color: rgba(167, 227, 239, 0.45);
+  background: linear-gradient(145deg, #263848, #192633);
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .result {
+  border-color: rgba(167, 227, 239, 0.45);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .event-form__fields {
+  border-color: rgba(167, 227, 239, 0.45);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
 }
 
 html[data-appearance="dark"] body:has(.account-menu) .map__fallback,

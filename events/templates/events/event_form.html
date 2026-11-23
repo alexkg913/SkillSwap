@@ -106,7 +106,7 @@
                     <button type="submit" class="event-form__submit">
                         {% if event %}Save changes{% else %}Create event{% endif %}
                     </button>
-                    <a class="form-cancel" href="{% url 'home:index' %}">Back to the map</a>
+                    <a class="form-cancel" href="{% url 'events:saved_events' %}">Back to events</a>
                 </div>
             </form>
 
