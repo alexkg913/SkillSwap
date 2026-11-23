@@ -1,24 +1,68 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Security Settings | SkillSwap</title>
-    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
-    <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
-    <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
-    <script src="{% static 'user_profile/js/appearance.js' %}"></script>
-    <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
-</head>
-<body>
-    <header class="account-menu-header">
-        <a href="{% url 'home:index' %}">SkillSwap</a>
-        {% include "user_profile/pfp_quickdropdown.html" %}
-    </header>
-    <main>
-        <h1>Security Settings</h1>
-        <p>This page is a work in progress.</p>
-    </main>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Security Settings | SkillSwap</title>
+        <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+        <link rel="stylesheet" href="{% static 'css/user_settings.css' %}">
+        <link rel="stylesheet" href="{% static 'css/security_settings.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+        <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
+        <script src="{% static 'user_profile/js/appearance.js' %}"></script>
+        <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
+    </head>
+    <body>
+        <header class="site-header">
+            <a class="site-brand" href="/">SkillSwap</a>
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="/"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+                <a href="#" aria-label="Events (not available yet)"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+                <a href="{% url 'user_profile:user_settings' %}" aria-current="page"><i class="fi fi-rr-settings" aria-hidden="true"></i> Settings</a>
+            </nav>
+            {% include "user_profile/pfp_quickdropdown.html" %}
+        </header>
+
+        <main class="settings-page">
+            <div class="settings-tabs" aria-label="Settings sections">
+                <a class="settings-tab" href="{% url 'user_profile:user_settings' %}">User Settings</a>
+                <a class="settings-tab settings-tab--active" href="{% url 'user_profile:security_settings' %}" aria-current="page"><i class="fi fi-rr-lock" aria-hidden="true"></i> Security Settings</a>
+            </div>
+
+            <h1>Security Settings</h1>
+            <p class="settings-intro">Manage your account password.</p>
+
+            <section class="settings-section" aria-labelledby="password-heading">
+                <h2 id="password-heading">Change password</h2>
+                <p class="section-description">Use at least 10 characters, including an uppercase letter, a number, and a special character.</p>
+                {% if messages %}
+                    {% for message in messages %}
+                        <p class="password-message" role="status">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="form-errors" role="alert">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    <div class="password-fields">
+                        <div class="form-field{% if form.password.errors %} form-field--error{% endif %}">
+                            <label for="{{ form.password.id_for_label }}">New password</label>
+                            <input id="{{ form.password.id_for_label }}" name="password" type="password" autocomplete="new-password" required>
+                            {% if form.password.errors %}<div class="field-errors" role="alert">{{ form.password.errors }}</div>{% endif %}
+                        </div>
+                        <div class="form-field{% if form.password_confirm.errors %} form-field--error{% endif %}">
+                            <label for="{{ form.password_confirm.id_for_label }}">Confirm new password</label>
+                            <input id="{{ form.password_confirm.id_for_label }}" name="password_confirm" type="password" autocomplete="new-password" required>
+                            {% if form.password_confirm.errors %}<div class="field-errors" role="alert">{{ form.password_confirm.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                    <div class="settings-actions">
+                        <button class="primary-button" type="submit">Change password</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </body>
 </html>
