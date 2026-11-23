@@ -161,6 +161,22 @@ class HeaderInboxLinkTests(TestCase):
         self.assertContains(response, "No conversations found.")
 
 
+class InboxHeaderStyleTests(TestCase):
+    def test_inbox_uses_profile_header_navigation(self):
+        user = get_user_model().objects.create_user(
+            username="header-student", password="test-password"
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("inbox"))
+
+        self.assertContains(response, 'css/main_profile.css')
+        self.assertContains(response, '<header class="site-header">')
+        self.assertContains(response, 'class="main-nav" aria-label="Main navigation"')
+        self.assertContains(response, f'href="{reverse("user_profile:user_settings")}"')
+        self.assertContains(response, 'class="account-menu__inbox"')
+
+
 class ProfileSkillsTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(

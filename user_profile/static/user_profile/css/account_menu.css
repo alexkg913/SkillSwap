@@ -10,7 +10,7 @@
 .account-menu-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 22px;
     margin-left: auto;
 }
 
@@ -21,7 +21,7 @@
     width: 44px;
     height: 44px;
     padding: 0;
-    border: 1px solid;
+    border: 0;
     border-radius: 8px;
     font-size: 1.25rem;
     line-height: 1;
@@ -35,8 +35,7 @@
 }
 
 html[data-appearance="dark"] .account-menu__inbox {
-    border-color: #67d4e8;
-    background: #223342;
+    background: transparent;
     color: #edf4f8;
 }
 html[data-appearance="dark"] .account-menu__inbox:hover { background: #30495b; }

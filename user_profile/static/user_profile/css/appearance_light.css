@@ -102,8 +102,7 @@ html[data-appearance="light"] .account-menu {
     color: #1a3c4d;
 }
 html[data-appearance="light"] .account-menu__inbox {
-    border-color: #026b9e;
-    background: #e0f4ff;
+    background: transparent;
     color: #1a3c4d;
 }
 html[data-appearance="light"] .account-menu__inbox:hover { background: #d2edfb; }
