@@ -1,1 +1,56 @@
-another test buddy >:)
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+       <title>Forgot Password | SkillSwap</title>
+       <link rel="stylesheet" href="{% static 'aero.css' %}">
+   </head>
+
+   <body>
+       <main class="login-page">
+           <div class="project">
+               <span>SKILLSWAP</span>
+           </div>
+
+           <section class="login-general">
+               <h1>Reset Your Password</h1>
+
+               <form method="POST" action="{% url 'user_forgot_pwd' %}">
+                   {% csrf_token %}
+
+                   {{ form.email.errors }}
+
+                   <div class="form-group">
+                       <label for="email">EMAIL</label>
+
+                       <input
+                           type="email"
+                           id="email"
+                           name="email"
+                           autocomplete="email"
+                           value="{{ form.email.value|default_if_none:'' }}"
+                           required
+                       >
+
+                    {{ form.email.errors }}
+                   </div>
+
+                   <button type="submit" class="login-button">
+                       Change Password
+                   </button>
+               </form>
+
+               <div class="register">
+                   <a href="{% url 'login' %}">
+                       Back to setup email-->
+                   </a>
+               </div>
+
+           </section>
+       </main>
+   </body>
+</html>

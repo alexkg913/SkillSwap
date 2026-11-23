@@ -3,12 +3,16 @@ from django.contrib.auth.views import LogoutView
 from . import views
 
 urlpatterns = [
+    # path("", )
+
     path("", views.login_page, name="login"),
-    path("logout/", LogoutView.as_view(next_page="login"), name="logout"),
+    path("logout/", LogoutView.as_view(next_page="home:index"), name="logout"),
 
     path("user_register/", views.register_page, name="user_register"),
     path("user_register_password/", views.register_password, name="user_password"),
+    path("user_registration/", views.register_profile, name="user_profile_info"),
 
     path("user_forgot_password/", views.forgot_pwd_page, name="user_forgot_pwd"),
+    path("user_reset_password/", views.reset_password_page, name="user_reset_password"),
 
 ]

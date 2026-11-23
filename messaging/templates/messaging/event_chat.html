@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ event.title }}</title>
+</head>
+<body>
+    <h1>{{even.title }}</h1>
+    <a href="{% url 'inbox' %}">Back to inbox</a>
+
+    {% for message in event_messags %}
+        <div>
+            <strong>{% if message.sender == request.user %}You{% else %}{{ message.sender.first_name|default:message.sender.username }}{% endif %}</strong>
+            <p>{{ message.content }}</p>
+            <small>{{ message.timestamp }}</small>
+        </div>
+    {% empty %}
+        <p>No messages yet.</p>
+    {% endfor %}
+
+    <form method="post">
+        {% csrf_token %}
+        <textarea name="content" placeholder="Type your message here..." required></textarea>
+        <button type="submit">Send</button>
+    </form>
+
+</html>

@@ -1,0 +1,3 @@
+{% if person.id and user.is_authenticated and person.id != user.id %}
+    <a href="{% url 'thread' person.id %}" class="message-button">{{ label|default:"Message" }}</a>
+{% endif %}

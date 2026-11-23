@@ -3,10 +3,10 @@
 <!-- Project Reference Links Mhm! -->
 
 
-<!-- ================================================================================ -->
+ ================================================================================
 <!-- REPOSITORY BADGES -->
 <!-- Uncomment these once we get started! (ᵒ̤̑ ₀̑ ᵒ̤̑) -->
-<!-- ================================================================================ -->
+ 
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
@@ -16,6 +16,7 @@
 <!--INSERT LICENSE WE WILL USE IN THE FIUUUTURE -->
 <!--[![License][license-shield]][license-url]-->
 
+================================================================================
 
 <!-- PROJECT LOGO -->
 <br />
@@ -47,13 +48,12 @@
 
   [![Django][django-shield]][django-url]
   [![Python][python-shield]][python-url]
+  [![SQLite][sqlite-shield]][sqlite-url]
+  [![Canvas][canvas-shield]][canvas-url]
 
-  <!-- Uncomment as we implement the API -->
-  <!--[![SQLite][sqlite-shield]][sqlite-url]-->
-  <!--[![PostgreSQL][postgresql-shield]][postgresql-url]-->
-  
+
+
 <!-- DEF what we need -->
-  <!--[![Canvas][canvas-shield]][canvas-url]-->
   <!--[![Google Maps][maps-shield]][maps-url]-->
   <!--[![Slack][slack-shield]][slack-url]-->
 
@@ -144,15 +144,15 @@ completed, and connect with other students along the way!
 - [![Django][django-shield]][django-url]
 - [![Python][python-shield]][python-url]
 
-### Database: TBD
+### Database:
 
+- [![SQLite][sqlite-shield]][sqlite-url]
 
-<!--Uncomment whichever database we end up using!-->
-<!--[![SQLite][sqlite-shield]][sqlite-url]-->
-<!--[![PostgreSQL][postgresql-shield]][postgresql-url]-->
+### Frontend:
 
-
-### Frontend: TBD
+- [![HTML][html-shield]][html-url]
+- [![JavaScript][javascript-shield]][javascript-url]
+- [![CSS][css-shield]][css-url]
 
 ### API Integrations
 
@@ -160,8 +160,8 @@ completed, and connect with other students along the way!
 <!--Uncomment as integrations are implemented!-->
 
 - [![Canvas][canvas-shield]][canvas-url]
-- [![Google Maps][maps-shield]][maps-url]
-- [![Slack][slack-shield]][slack-url]
+- [![Leaflet][leaf-shield]][leaf-url]
+<!-- [![Slack][slack-shield]][slack-url] -->
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -272,7 +272,7 @@ Security will be integrated throughout the development workflow using:
 
 
 <!-- Technologies -->
-
+<!-- https://shields.io/badges -->
 [django-shield]: https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white
 [django-url]: https://www.djangoproject.com/
 
@@ -288,8 +288,17 @@ Security will be integrated throughout the development workflow using:
 [canvas-shield]: https://img.shields.io/badge/Canvas-E13F29?style=for-the-badge&logo=instructure&logoColor=white
 [canvas-url]: https://www.instructure.com/canvas
 
-[maps-shield]: https://img.shields.io/badge/Google_Maps-4285F4?style=for-the-badge&logo=googlemaps&logoColor=white
-[maps-url]: https://developers.google.com/maps
-
 [slack-shield]: https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white
 [slack-url]: https://slack.com/
+
+[leaf-shield]: https://img.shields.io/badge/LeafletJs-BCE66A?style=for-the-badge&logo=leaflet&logoColor=white
+[leaf-url]: https://leafletjs.com/
+
+[html-shield]: https://img.shields.io/badge/HTML-FF4C54?style=for-the-badge&logo=html5&logoColor=white
+[html-url]: https://html.com/
+
+[javascript-shield]: https://img.shields.io/badge/JavaScript-FCDC00?style=for-the-badge&logo=javascript&logoColor=black
+[javascript-url]: https://www.javascript.com/
+
+[css-shield]: https://img.shields.io/badge/CSS-663399?style=for-the-badge&logo=css
+[css-url]: https://devdocs.io/css/

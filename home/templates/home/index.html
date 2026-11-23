@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,25 +20,75 @@
             </h1>
 
             <section class="log-in">
+                {% if request.user.is_authenticated %}
+                <p class="welcome-message"> Welcome Back, </p>
+                <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
+                    {% if request.user.profile.avatar %}
+                    <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">
+                    {% else %}
+                    <span class="profile-link__avatar profile-link__fallback" aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+                    {% endif %}
+                </a>
+                {% else %}
                 <a class="sign-in" href="{% url 'login' %}">Sign In</a>
                 <a class="register" href="{% url 'user_register' %}">Register</a>
+                {% endif %}
             </section>
 
 
         </header>
 
         <nav>
-            <a href="#">Find a Tutor</a>
-            <a href="#">Be a Tutor</a>
-            <a href="#">Create a Tutoring Event</a>
-            <a href="#">Messages</a>
-            <a href="#">Profile</a>
+            <a href="{% url 'home:index' %}"
+            {% if request.resolver_match.view_name == 'home:index' %}aria-current="page"{% endif %}
+            >Home</a>
+            <a href="{% url 'events:find_tutor' %}">Find a Tutor</a>
+            <a href="{% url 'events:be_tutor' %}">Be a Tutor</a>
+            <a href="{% url 'events:create' %}">Create a Tutoring Event</a>
+            <a href="{% url 'events:saved_events' %}">Events</a>
+            <a href="{% url 'inbox' %}">Messages</a>
+            <a href="{% url 'user_profile:profile' %}">Profile</a>
         </nav>
 
             <main>
-                <form class="search-bar" label="search">
-                    <input type="search" placeholder="Search...">
+                <form class="search-bar" method="get">
+
+                    <input type="search" name="q" placeholder="Search..." value="{{ query }}">
+
+                    <details class="filter-options">
+                        <summary>Filter by</summary>
+
+                        <div class="filter-content">
+
+                            <label for="subject">Course/Subject</label>
+                            <select id="subject" name="subject">
+                                <option value="">All Subjects</option>
+
+                                {% for subject in subjects %}
+                                    <option value="{{ subject }}"
+                                        {% if request.GET.subject == subject %}selected{% endif %}>
+                                        {{ subject }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="tutor">Tutor</label>
+                            <select id="tutor" name="tutor">
+                                <option value="">All Tutors</option>
+
+                                {% for tutor in tutors %}
+                                    <option value="{{ tutor }}"
+                                        {% if request.GET.tutor == tutor %}selected{% endif %}>
+                                        {{ tutor }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                        </div>
+                    </details>
+
                     <button type="submit">Search</button>
+
                 </form>
 
 
@@ -62,13 +113,62 @@
                              hidden></div>
                     </section>
 
-                    <section class="results">
-                        <div class="result">
-                            <p>Pretend this is a listing.</p>
-                        </div>
-                        <div class="result">
-                            <p>Pretend this is another listing.</p>
-                        </div>
+                    {% comment %}
+                        The keyboard-accessible equivalent of the map pins: the
+                        same payload, server-rendered, so a canvas full of
+                        markers is never the only way to reach an event.
+                    {% endcomment %}
+                    <section class="results" aria-labelledby="event-listings-label">
+                        <h2 id="event-listings-label" class="visually-hidden">
+                            Upcoming tutoring events
+                        </h2>
+
+                        {% for event in event_listings %}
+                            <div class="result">
+                                <p class="result__title">{{ event.title }}</p>
+                                <p class="result__meta">
+                                    {{ event.starts_at_display }}
+                                    {% if event.subject %}&middot; {{ event.subject }}{% endif %}
+                                </p>
+                                <p class="result__meta">
+                                    {% if event.building %}{{ event.building }}{% endif %}
+                                    {% if event.location_note %}
+                                        {% if event.building %}&middot; {% endif %}{{ event.location_note }}
+                                    {% endif %}
+                                </p>
+                                {% if event.tutor %}
+                                    <p class="result__meta">Tutor: {{ event.tutor }}</p>
+                                {% endif %}
+
+                                
+                                <div class="event-actions">
+                                    <form method="post" action="{% url 'events:save' event.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="{% if event.is_saved %}event-action-active{% else %}event-action-default{% endif %}"
+                                                aria-pressed="{{ event.is_saved|yesno:'true,false' }}">
+                                            SAVE
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="{% url 'events:rsvp' event.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="{% if event.is_going %}event-action-active{% else %}event-action-default{% endif %}"
+                                                aria-pressed="{{ event.is_going|yesno:'true,false' }}">
+                                            RSVP
+                                        </button>
+                                    </form>
+
+                                </div>
+                                
+                            </div>
+                        {% empty %}
+                            <div class="result result--empty">
+                                <p>No upcoming tutoring events yet.</p>
+                                <p>Once someone schedules one, it shows up here and as a pin on the map.</p>
+                            </div>
+                        {% endfor %}
                     </section>
 
                 </div>
@@ -79,6 +179,7 @@
         <footer>
                 <div class="footer-content">
                     <p>&copy SkillSwap 2026</p>
+                    <a href="https://github.com/alexkg913/SkillSwap" target="_blank" rel="noopener noreferrer">Visit our GitHub Repository</a>
                 </div>
         </footer>
 

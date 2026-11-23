@@ -1,8 +1,12 @@
-from django.http import request
+from urllib import request
+
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q # for complex queries
 from .models import DirectMessage
-from django.shortcuts import get_object_or_404, redirect, render
+from django.core.exceptions import PermissionDenied # for handling unauthorized access
+from .models import DirectMessage, EventMessage # for handling event messages
+from events.models import EventInteraction, TutoringEvent # for handling event messages
 
 
 # Create your views here.
@@ -54,3 +58,40 @@ def thread(request, user_id):
 def new_conversation(request):
     people = User.objects.exclude(pk=request.user.pk).order_by('username') # Get all users except the logged-in user.
     return render(request, 'messaging/new_conversation.html', {'people': people}) # Render the new conversation template with the list of users.
+
+
+@login_required(login_url='/login/')
+def event_chat(request, event_id):
+    event = get_object_or_404(TutoringEvent, id=event_id)
+
+    is_host = event.host_id == request.user.id # Check if the logged-in user is the host of the event
+    is_going = EventInteraction.objects.filter(
+        tutoring_event=event, student=request.user, going=True).exists() # Check if the logged-in user is going to the event
+
+    if not (is_host or is_going):
+        raise PermissionDenied("You do not have permission to view this event chat.") # Raise a permission denied error if the user is neither the host nor going to the event
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            EventMessage.objects.create(event=event, sender=request.user, content=content) # Create a new event message if the content is not empty
+
+        return redirect('event_chat', event_id=event.id) #Redirect the samne page to show the new message
+
+    event_messages = EventMessage.objects.filter(event=event).order_by('timestamp') # Get all messages for the event, ordered by timestamp
+    return render(request, 'messaging/event_chat.html', {
+        'event': event,
+        'event_messages': event_messages,
+    })
+
+
+@login_required(login_url='/login/')
+def event_chats(request):
+    going_ids = EventInteraction.objects.filter(
+        student = request.user, going=True
+    ).values_list('tutoring_event_id', flat=True)
+    events = TutoringEvent.objects.filter(
+        Q(host=request.user) | Q(id__in=going_ids)
+    ).order_by('date')
+
+    return render(request, 'messaging/event_chat_list.html', {'events': events})
