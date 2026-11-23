@@ -259,7 +259,7 @@ class HomeHeaderTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, f'href="{reverse("user_profile:profile")}"')
-        self.assertContains(response, 'aria-label="View your profile"')
+        self.assertContains(response, 'aria-label="Open account menu"')
         self.assertContains(response, 'src="/media/profiles/avatars/example.png"')
         self.assertNotContains(response, f'href="{reverse("login")}"')
         self.assertNotContains(response, f'href="{reverse("user_register")}"')
@@ -274,7 +274,7 @@ class HomeHeaderTests(TestCase):
         response = self.client.get(reverse("home:index"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'class="profile-link__avatar profile-link__fallback"')
+        self.assertContains(response, 'class="account-menu__trigger"')
         self.assertContains(response, 'aria-hidden="true">T</span>')
         self.assertNotContains(response, f'href="{reverse("login")}"')
         self.assertNotContains(response, f'href="{reverse("user_register")}"')

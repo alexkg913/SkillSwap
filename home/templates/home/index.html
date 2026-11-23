@@ -7,6 +7,8 @@
     <title>SkillSwap</title>
     <link rel="stylesheet" href="{% static 'home/vendor/leaflet/leaflet.css' %}">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+    <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
 </head>
 <body>
 
@@ -20,13 +22,7 @@
 
             <section class="log-in">
                 {% if request.user.is_authenticated %}
-                <a class="profile-link" href="{% url 'user_profile:profile' %}" aria-label="View your profile">
-                    {% if request.user.profile.avatar %}
-                    <img class="profile-link__avatar" src="{{ request.user.profile.avatar.url }}" alt="">
-                    {% else %}
-                    <span class="profile-link__avatar profile-link__fallback" aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
-                    {% endif %}
-                </a>
+                {% include "user_profile/pfp_quickdropdown.html" %}
                 {% else %}
                 <a class="sign-in" href="{% url 'login' %}">Sign In</a>
                 <a class="register" href="{% url 'user_register' %}">Register</a>
