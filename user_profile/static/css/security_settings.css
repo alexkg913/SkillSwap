@@ -17,6 +17,54 @@
     margin-top: 1.5rem;
 }
 
+.password-requirements,
+.password-confirmation {
+    color: var(--text-muted);
+    font-size: .9rem;
+}
+
+.password-requirements summary,
+.password-confirmation summary {
+    width: fit-content;
+    cursor: pointer;
+}
+
+.password-requirements ul {
+    margin: .5rem 0 0;
+    padding-left: 1.5rem;
+}
+
+.password-requirements li.met,
+.password-confirmation.matches {
+    color: var(--accent);
+}
+
+.password-requirements li.met::after {
+    content: " ✓";
+}
+
+.password-confirmation.mismatch {
+    color: #ffb0b0;
+}
+
+.password-confirmation.matches #password-match-status,
+.password-confirmation.mismatch #password-match-status {
+    display: inline-block;
+    animation: password-status-enter .2s ease-out;
+}
+
+@keyframes password-status-enter {
+    from { opacity: .45; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .password-confirmation.matches #password-match-status,
+    .password-confirmation.mismatch #password-match-status {
+        animation: none;
+    }
+}
+
 .password-message {
     padding: .75rem 1rem;
     border: 1px solid var(--accent);
