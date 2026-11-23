@@ -1,0 +1,142 @@
+/* The home and event pages are light by default. Recolor their chrome for
+   signed-in users who choose Dark, without changing the map tiles or layout. */
+html[data-appearance="dark"] body:has(.account-menu) {
+  color-scheme: dark;
+  --deep-blue: #67d4e8;
+  --glass-white: #223342;
+  --glass-border: rgba(207, 230, 241, 0.2);
+  --text-dark: #edf4f8;
+  --shadow: rgba(0, 0, 0, 0.3);
+  background: radial-gradient(ellipse at 12% 0%, rgba(48, 100, 124, 0.2), transparent 34rem), #101923;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) header {
+  background: rgba(16, 25, 35, 0.88);
+}
+
+html[data-appearance="dark"] body:has(.account-menu) header h1 {
+  background: none;
+  color: #edf4f8;
+  text-shadow: none;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) nav,
+html[data-appearance="dark"] body:has(.account-menu) footer {
+  background: rgba(25, 38, 51, 0.9);
+  color: #a9bac7;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) nav a:hover {
+  background: rgba(103, 212, 232, 0.14);
+  color: #9be8f3;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .search-bar input,
+html[data-appearance="dark"] body:has(.account-menu) .field input[type="text"],
+html[data-appearance="dark"] body:has(.account-menu) .field input[type="datetime-local"],
+html[data-appearance="dark"] body:has(.account-menu) .field select,
+html[data-appearance="dark"] body:has(.account-menu) .field textarea,
+html[data-appearance="dark"] body:has(.account-menu) .filter-content select,
+html[data-appearance="dark"] body:has(.account-menu) .event-cancel__button {
+  background: #223342;
+  color: #edf4f8;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .search-bar input::placeholder {
+  color: #a9bac7;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .search-bar button {
+  background: #67d4e8;
+  color: #101923;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .search-bar button:hover {
+  background: #9be8f3;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .filter-options summary {
+  border: 1px solid #67d4e8;
+  background: transparent;
+  color: #67d4e8;
+  box-shadow: none;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .event-form__submit {
+  border-color: #67d4e8;
+  background: #67d4e8;
+  color: #101923;
+  box-shadow: none;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .event-form__submit:hover {
+  background: #9be8f3;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .form-cancel {
+  border-color: #67d4e8;
+  background: transparent;
+  color: #67d4e8;
+  box-shadow: none;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .filter-content,
+html[data-appearance="dark"] body:has(.account-menu) .result,
+html[data-appearance="dark"] body:has(.account-menu) .event-form__fields {
+  background: linear-gradient(145deg, #263848, #192633);
+  color: #edf4f8;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .map {
+  border-color: rgba(167, 227, 239, 0.45);
+  background: linear-gradient(145deg, #263848, #192633);
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .result {
+  border-color: rgba(167, 227, 239, 0.45);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .event-form__fields {
+  border-color: rgba(167, 227, 239, 0.45);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .map__fallback,
+html[data-appearance="dark"] body:has(.account-menu) .result__meta,
+html[data-appearance="dark"] body:has(.account-menu) .result--empty,
+html[data-appearance="dark"] body:has(.account-menu) .field__help,
+html[data-appearance="dark"] body:has(.account-menu) .event-cancel__notice {
+  color: #a9bac7;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .filter-content label {
+  color: #edf4f8;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .field__errors,
+html[data-appearance="dark"] body:has(.account-menu) .form-errors,
+html[data-appearance="dark"] body:has(.account-menu) .map-picker__warning,
+html[data-appearance="dark"] body:has(.account-menu) .event-cancel__button {
+  color: #ffb0b0;
+}
+
+/* Leaflet popups and attribution remain light for legibility over map tiles. */
+html[data-appearance="dark"] body:has(.account-menu) .leaflet-popup-content-wrapper,
+html[data-appearance="dark"] body:has(.account-menu) .leaflet-popup-tip,
+html[data-appearance="dark"] body:has(.account-menu) .leaflet-control-attribution,
+html[data-appearance="dark"] body:has(.account-menu) .leaflet-bar a {
+  color-scheme: light;
+  --text-dark: #1a3c4d;
+  --glass-white: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --deep-blue: #0288d1;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .leaflet-control-attribution {
+  color: #1a3c4d;
+}
+
+html[data-appearance="dark"] body:has(.account-menu) .leaflet-control-attribution a {
+  color: #026b9e;
+}

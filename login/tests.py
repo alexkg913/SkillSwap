@@ -110,7 +110,7 @@ class LoginTests(TestCase):
         )
         self.client.force_login(admin)
         response = self.client.get(reverse("user_profile:profile"))
-        self.assertContains(response, "Log out")
+        self.assertContains(response, "Sign Out")
         response = self.client.post(reverse("logout"), {
             "csrfmiddlewaretoken": self.client.cookies["csrftoken"].value,
         })

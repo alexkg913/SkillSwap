@@ -1,0 +1,50 @@
+{% if request.user.is_authenticated %}
+<div class="account-menu-actions">
+<a class="account-menu__inbox" href="{% url 'inbox' %}" aria-label="Inbox" title="Inbox">
+    <i class="fi fi-rr-envelope" aria-hidden="true"></i>
+</a>
+<details class="account-menu">
+    <summary class="account-menu__trigger" aria-label="Open account menu">
+        {% if request.user.profile.avatar %}
+            <img src="{{ request.user.profile.avatar.url }}" alt="">
+        {% else %}
+            <span aria-hidden="true">{{ request.user.first_name|first|upper|default:"?" }}</span>
+        {% endif %}
+    </summary>
+    <div class="account-menu__panel">
+        <div class="account-menu__identity">
+            <span class="account-menu__portrait" aria-hidden="true">
+                {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" alt="">
+                {% else %}
+                    {{ request.user.first_name|first|upper|default:"?" }}
+                {% endif %}
+            </span>
+            <div>
+                <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                <span>@{{ request.user.username }}</span>
+            </div>
+        </div>
+        <div class="account-menu__links">
+            <a href="{% url 'home:index' %}"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+            <a href="{% url 'user_profile:profile' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
+            <label class="account-menu__appearance" for="account-appearance">
+                <span><i class="fi fi-rr-palette" aria-hidden="true"></i> Appearance</span>
+                <select id="account-appearance" data-appearance-select>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+            </label>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit"><i class="fi fi-rr-sign-out-alt" aria-hidden="true"></i> Sign Out</button>
+            </form>
+        </div>
+        <div class="account-menu__links">
+            <a href="{% url 'user_profile:user_settings' %}"><i class="fi fi-rr-settings" aria-hidden="true"></i> User Settings</a>
+            <a href="{% url 'user_profile:security_settings' %}"><i class="fi fi-rr-lock" aria-hidden="true"></i> Security Settings</a>
+        </div>
+    </div>
+</details>
+</div>
+{% endif %}

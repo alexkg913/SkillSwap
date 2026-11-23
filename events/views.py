@@ -5,6 +5,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.db.models import Prefetch
 
 from home.views import map_config
 
@@ -32,8 +33,30 @@ def find_tutor(request):
 def be_tutor(request):
     return render(request, "events/be_tutor.html")
 
+@login_required
 def saved_events(request):
-    return render(request, "events/saved_events.html")
+    interactions = (
+        EventInteraction.objects
+        .filter(saved=True, student=request.user, tutoring_event__is_cancelled=False)
+        .select_related("tutoring_event")
+    )
+    events = (
+            TutoringEvent.objects
+            .filter(host=request.user, is_cancelled=False)
+            .prefetch_related(
+                Prefetch(
+                "eventinteraction_set",
+                queryset=EventInteraction.objects.filter(going=True).select_related("student"),
+                to_attr="attendees"
+                )
+            )
+        )
+    
+    return render(request, "events/saved_events.html", {
+        "saved_events": interactions,
+        "my_events": events
+    })
+
 
 def _form_context(form, heading, event):
     return {
@@ -101,7 +124,7 @@ def cancel_event(request, pk):
     event = _hosted_by(request, pk)
     event.is_cancelled = True
     event.save(update_fields=["is_cancelled"])
-    return redirect(reverse("home:index"))
+    return redirect(reverse("events:saved_events"))
 
 
 def _toggle_interaction(request, event_id, field):

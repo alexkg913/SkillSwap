@@ -10,7 +10,7 @@ from events.models import EventInteraction, TutoringEvent # for handling event m
 
 
 # Create your views here.
-@login_required # Decorator ensures that only users who are logged in can access the inbox view.
+@login_required(login_url='/login/') # Decorator ensures that only users who are logged in can access the inbox view.
 # The inbox view retrieves all messages where the logged-in user is either the sender or recipient, groups them by the other user in the conversation, and renders them in the 'messaging/inbox.html' template.
 def inbox(request):
     # Get all messages where the logged-in user is either the sender or recipient. Ordered by descending timestamp.
@@ -29,12 +29,22 @@ def inbox(request):
 
 
 from django.contrib.auth import get_user_model
-User = get_user_model()
+User = get_user_model() # Get the user model that is currently active in this project. This is useful if you have a custom user model.
 
-@login_required
+@login_required(login_url='/login/') # Decorator ensures that only users who are logged in can access the thread view.
 def thread(request, user_id):
-    other_user = get_object_or_404(User, pk=user_id)
-    thread_messages = DirectMessage.objects.filter(
+    other_user = get_object_or_404(User, pk=user_id) # Get the other user in the conversation or return a 404 error if they don't exist.
+
+    if other_user == request.user:
+        return redirect('inbox')
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip() # Get the content of the message from the POST request and remove leading/trailing whitespace.
+        if content:
+            DirectMessage.objects.create(sender=request.user, recipient=other_user, content=content)
+        return redirect('thread', user_id=other_user.id)
+
+    thread_messages = DirectMessage.objects.filter( # Retrieve all messages in the conversation between the logged-in user and the other user, ordered by timestamp.
         Q(sender=request.user, recipient=other_user) |
         Q(sender=other_user, recipient=request.user)
     ).order_by('timestamp')
@@ -45,12 +55,18 @@ def thread(request, user_id):
 
 
 @login_required(login_url='/login/')
+def new_conversation(request):
+    people = User.objects.exclude(pk=request.user.pk).order_by('username') # Get all users except the logged-in user.
+    return render(request, 'messaging/new_conversation.html', {'people': people}) # Render the new conversation template with the list of users.
+
+
+@login_required(login_url='/login/')
 def event_chat(request, event_id):
     event = get_object_or_404(TutoringEvent, id=event_id)
 
     is_host = event.host_id == request.user.id # Check if the logged-in user is the host of the event
     is_going = EventInteraction.objects.filter(
-        tutoring_event=event, student=request.user, status=EventInteraction.Status.GOING).exists() # Check if the logged-in user is going to the event
+        tutoring_event=event, student=request.user, going=True).exists() # Check if the logged-in user is going to the event
 
     if not (is_host or is_going):
         raise PermissionDenied("You do not have permission to view this event chat.") # Raise a permission denied error if the user is neither the host nor going to the event
@@ -72,7 +88,7 @@ def event_chat(request, event_id):
 @login_required(login_url='/login/')
 def event_chats(request):
     going_ids = EventInteraction.objects.filter(
-        student = request.user, status = EventInteraction.Status.GOING
+        student = request.user, going=True
     ).values_list('tutoring_event_id', flat=True)
     events = TutoringEvent.objects.filter(
         Q(host=request.user) | Q(id__in=going_ids)

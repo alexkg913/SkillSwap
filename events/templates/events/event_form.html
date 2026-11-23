@@ -5,8 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ heading }} &middot; SkillSwap</title>
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="{% static 'home/vendor/leaflet/leaflet.css' %}">
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'user_profile/css/account_menu.css' %}">
+    <link rel="stylesheet" href="{% static 'user_profile/css/appearance_light.css' %}">
+    <link rel="stylesheet" href="{% static 'home/css/appearance_dark.css' %}">
+    <script src="{% static 'user_profile/js/appearance.js' %}"></script>
+    <script src="{% static 'user_profile/js/account_menu.js' %}" defer></script>
 </head>
 <body>
 
@@ -14,10 +20,26 @@
 
         <header>
             <h1><strong>SkillSwap</strong></h1>
+            {% if request.user.is_authenticated %}
+                {% include "user_profile/pfp_quickdropdown.html" %}
+            {% else %}
+            <section class="log-in">
+                <a class="sign-in" href="{% url 'login' %}">Sign In</a>
+                <a class="register" href="{% url 'user_register' %}">Register</a>
+            </section>
+            {% endif %}
         </header>
 
         <nav>
-            <a href="{% url 'home:index' %}">Home</a>
+            <a href="{% url 'home:index' %}"><i class="fi fi-rr-home" aria-hidden="true"></i> Home</a>
+            <a href="{% url 'events:find_tutor' %}"><i class="fi fi-rr-search" aria-hidden="true"></i> Find a Tutor</a>
+            <a href="{% url 'events:be_tutor' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Be a Tutor</a>
+            <a href="{% url 'events:create' %}"
+            {% if request.resolver_match.view_name == 'events:create' %}aria-current="page"{% endif %}
+            ><i class="fi fi-rr-calendar-plus" aria-hidden="true"></i> Create a Tutoring Event</a>
+            <a href="{% url 'events:saved_events' %}"><i class="fi fi-rr-calendar" aria-hidden="true"></i> Events</a>
+            <a href="{% url 'inbox' %}"><i class="fi fi-rr-envelope" aria-hidden="true"></i> Messages</a>
+            <a href="{% url 'user_profile:profile' %}"><i class="fi fi-rr-user" aria-hidden="true"></i> Profile</a>
         </nav>
 
         <main>
@@ -81,10 +103,10 @@
                 </p>
 
                 <div class="event-form__actions">
-                    <button type="submit" class="register">
+                    <button type="submit" class="event-form__submit">
                         {% if event %}Save changes{% else %}Create event{% endif %}
                     </button>
-                    <a class="form-cancel" href="{% url 'home:index' %}">Back to the map</a>
+                    <a class="form-cancel" href="{% url 'events:saved_events' %}">Back to events</a>
                 </div>
             </form>
 
@@ -108,6 +130,7 @@
     <footer>
         <div class="footer-content">
             <p>&copy SkillSwap 2026</p>
+            <a href="https://github.com/alexkg913/SkillSwap" target="_blank" rel="noopener noreferrer">Visit our GitHub Repository</a>
         </div>
     </footer>
 

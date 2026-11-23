@@ -1,21 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Conversation</title>
-</head>
-<body>
-    <h1>Conversation with {{ other_user }}</h1>
-    <a href="{% url 'inbox' %}">Back to inbox</a>
+{% extends "home/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'messaging/messaging.css' %}">
+<section class="messaging-panel">
+    <h2>Conversation with {{ other_user.first_name|default:other_user.username }}</h2>
+    <p class="messaging-actions"><a class="messaging-button" href="{% url 'inbox' %}">Back to inbox</a></p>
 
-    {% for message in thread_messages %}
-        <div>
-            <strong>{% if message.sender == request.user %}You{% else %}{{ message.sender }}{% endif %}</strong>
-            <p>{{ message.content }}</p>
-            <small>{{ message.timestamp }}</small>
-        </div>
-    {% empty %}
-        <p>No messages yet.</p>
-    {% endfor %}
-</body>
-</html>
+    <div class="message-list">
+        {% for message in thread_messages %}
+            <div class="message {% if message.sender == request.user %}message--mine{% endif %}">
+                <strong>{% if message.sender == request.user %}You{% else %}{{ message.sender.first_name|default:message.sender.username }}{% endif %}</strong>
+                <p>{{ message.content }}</p>
+                <small>{{ message.timestamp }}</small>
+            </div>
+        {% empty %}
+            <p>No messages yet.</p>
+        {% endfor %}
+    </div>
+
+    <form class="message-form" method="post">
+        {% csrf_token %}
+        <textarea name="content" placeholder="Type your message here..." required></textarea>
+        <button type="submit">Send</button>
+    </form>
+</section>
+{% endblock %}

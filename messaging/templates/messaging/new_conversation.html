@@ -1,0 +1,19 @@
+{% extends "home/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'messaging/messaging.css' %}">
+<section class="messaging-panel">
+    <h2>Start a New Conversation</h2>
+    <p class="messaging-actions"><a class="messaging-button" href="{% url 'inbox' %}">Back to inbox</a></p>
+
+    <ul class="conversation-list">
+        {% for person in people %}
+            <li class="conversation-card">
+                <a class="conversation-name" href="{% url 'thread' user_id=person.id %}">{{ person.first_name|default:person.username }}</a>
+            </li>
+        {% empty %}
+            <li>No other users available.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}
